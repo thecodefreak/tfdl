@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Developer-first daily web tools workspace." />
+  <title>Web Tools Workspace</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body class="dashboard-page theme-dark">
+  <main class="workspace" aria-label="Developer tools workspace">
+    <section class="app-frame" aria-label="Workspace shell">
+      <header class="chrome" aria-label="Application chrome">
+        <div class="chrome-left">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot red"></span>
+            <span class="dot amber"></span>
+            <span class="dot green"></span>
+          </div>
+          <div class="project-id">
+            <span class="project-name">web-tools</span>
+            <span class="project-sep">/</span>
+            <span class="project-mode">launcher</span>
+          </div>
+        </div>
+        <div class="chrome-center">
+          <code class="path-pill">~/projects/gumgum</code>
+          <code class="path-pill">registry: assets/js/tools.registry.js</code>
+        </div>
+        <div class="chrome-right" aria-label="Clock and URL convention">
+          <span id="todayLabel" class="tiny mono"></span>
+          <code class="path-pill">t/&lt;alias&gt;/</code>
+        </div>
+      </header>
+
+      <section class="command-deck" aria-labelledby="controls-title">
+        <div class="command-head">
+          <div>
+            <p class="eyebrow">Quick Access</p>
+            <h1 id="controls-title">Tool Workspace</h1>
+          </div>
+          <div class="hint-cluster" aria-label="Search syntax hints">
+            <span class="hint-chip">@dev</span>
+            <span class="hint-chip">@utilities</span>
+            <span class="hint-chip">#json</span>
+            <span class="hint-chip">#timer</span>
+          </div>
+        </div>
+
+        <label class="search-wrap command-input" for="toolSearch">
+          <span class="prompt" aria-hidden="true">&gt;</span>
+          <span class="visually-hidden">Search tools</span>
+          <input
+            id="toolSearch"
+            type="search"
+            autocomplete="off"
+            placeholder="Search name, alias, tags, or path. Press / to focus."
+          />
+        </label>
+
+        <div class="deck-row">
+          <div id="categoryChips" class="filter-row" aria-label="Category filters"></div>
+          <div class="toggle-row-group" role="group" aria-label="View toggles">
+            <label class="toggle-row" for="pinnedOnly">
+              <input id="pinnedOnly" type="checkbox" />
+              <span>Pinned</span>
+            </label>
+            <label class="toggle-row" for="recentOnly">
+              <input id="recentOnly" type="checkbox" />
+              <span>Recent</span>
+            </label>
+            <button id="clearSearch" type="button" class="ghost-btn">Clear</button>
+          </div>
+        </div>
+
+        <div class="status-strip" aria-live="polite">
+          <span id="resultsCount" class="mono"></span>
+          <span id="statusHint" class="mono">/ search · j/k move · Enter open · p pin · y alias · Y source · 1-0 open visible</span>
+        </div>
+      </section>
+
+      <section class="workspace-grid" aria-label="Workspace panels">
+        <aside class="sidebar" aria-label="Tool side panels">
+          <section class="panel compact-panel">
+            <div class="panel-head">
+              <h2>Quick Open</h2>
+              <span class="tiny mono">1-0</span>
+            </div>
+            <ol id="quickLaunchList" class="quick-list" aria-live="polite"></ol>
+          </section>
+
+          <section class="panel compact-panel">
+            <div class="panel-head">
+              <h2>Recent</h2>
+              <button id="clearRecent" class="ghost-btn ghost-btn-small" type="button">Clear</button>
+            </div>
+            <ul id="recentList" class="stack-list" aria-live="polite"></ul>
+          </section>
+
+          <section class="panel compact-panel">
+            <div class="panel-head">
+              <h2>Conventions</h2>
+            </div>
+            <ul class="meta-list">
+              <li>
+                <span class="meta-key mono">alias</span>
+                <code>t/&lt;alias&gt;/</code>
+              </li>
+              <li>
+                <span class="meta-key mono">source</span>
+                <code>tools/&lt;category&gt;/&lt;slug&gt;/</code>
+              </li>
+              <li>
+                <span class="meta-key mono">add tool</span>
+                <code>registry + source + alias</code>
+              </li>
+            </ul>
+          </section>
+
+          <section class="panel compact-panel">
+            <div class="panel-head">
+              <h2>Keymap</h2>
+            </div>
+            <ul class="keymap-list">
+              <li><kbd>/</kbd><span>focus search</span></li>
+              <li><kbd>j</kbd><kbd>k</kbd><span>move selection</span></li>
+              <li><kbd>Enter</kbd><span>open selected tool</span></li>
+              <li><kbd>p</kbd><span>pin selected tool</span></li>
+              <li><kbd>y</kbd><span>copy alias path</span></li>
+              <li><kbd>Shift+y</kbd><span>copy source path</span></li>
+            </ul>
+          </section>
+        </aside>
+
+        <section class="table-panel" aria-labelledby="tools-table-title">
+          <div class="panel-head table-head">
+            <div>
+              <p class="eyebrow">Index</p>
+              <h2 id="tools-table-title">Tools</h2>
+            </div>
+            <div class="legend" aria-label="Row markers">
+              <span><i class="dot pinned-dot"></i>pinned</span>
+              <span><i class="dot recent-dot"></i>recent</span>
+              <span><i class="dot alias-dot"></i>alias route</span>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            <table class="tools-table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Tool</th>
+                  <th scope="col">Alias</th>
+                  <th scope="col">Cat</th>
+                  <th scope="col">Tags</th>
+                  <th scope="col">Source</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="toolRows"></tbody>
+            </table>
+          </div>
+
+          <p id="emptyState" class="empty-state is-hidden">No tools match the current filter.</p>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script src="assets/js/tools.registry.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

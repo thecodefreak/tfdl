@@ -1,0 +1,634 @@
+(() => {
+  const PINS_KEY = "tools-workspace-pins";
+  const RECENTS_KEY = "tools-workspace-recents";
+  const MAX_RECENTS = 12;
+  const registry = window.TOOLS_REGISTRY;
+
+  if (!registry || !Array.isArray(registry.tools)) {
+    return;
+  }
+
+  const refs = {
+    searchInput: document.querySelector("#toolSearch"),
+    categoryChips: document.querySelector("#categoryChips"),
+    pinnedOnlyInput: document.querySelector("#pinnedOnly"),
+    recentOnlyInput: document.querySelector("#recentOnly"),
+    clearSearchBtn: document.querySelector("#clearSearch"),
+    clearRecentBtn: document.querySelector("#clearRecent"),
+    resultsCount: document.querySelector("#resultsCount"),
+    statusHint: document.querySelector("#statusHint"),
+    todayLabel: document.querySelector("#todayLabel"),
+    tbody: document.querySelector("#toolRows"),
+    emptyState: document.querySelector("#emptyState"),
+    quickLaunchList: document.querySelector("#quickLaunchList"),
+    recentList: document.querySelector("#recentList")
+  };
+
+  const categories = normalizeCategories(registry.categories || [], registry.tools);
+  const categoryMap = new Map(categories.map((c) => [c.id, c]));
+  const tools = registry.tools.map((tool) => normalizeTool(tool, categoryMap));
+  const toolMap = new Map(tools.map((tool) => [tool.id, tool]));
+
+  let pins = loadStringList(PINS_KEY);
+  let recents = loadStringList(RECENTS_KEY);
+  let activeCategory = "all";
+  let selectedToolId = null;
+  let visibleTools = [];
+
+  stampDate();
+  renderCategoryChips();
+  bindEvents();
+  seedSelectionFromHash();
+  render();
+
+  function normalizeCategories(inputCategories, inputTools) {
+    const base = Array.isArray(inputCategories) ? [...inputCategories] : [];
+    const existing = new Set(base.map((c) => c.id));
+
+    for (const tool of inputTools) {
+      if (!tool || typeof tool.category !== "string") continue;
+      if (existing.has(tool.category)) continue;
+      base.push({ id: tool.category, label: titleCase(tool.category) });
+      existing.add(tool.category);
+    }
+
+    return base;
+  }
+
+  function normalizeTool(tool, categoryLookup) {
+    const categoryId = tool.category;
+    const categoryLabel = categoryLookup.get(categoryId)?.label || titleCase(categoryId);
+    const slug = tool.slug || tool.id;
+    const alias = tool.alias || slug;
+    const canonicalPath = `tools/${categoryId}/${slug}/`;
+    const aliasPath = `t/${alias}/`;
+    const tags = Array.isArray(tool.tags) ? tool.tags.filter(Boolean) : [];
+
+    return {
+      ...tool,
+      slug,
+      alias,
+      category: categoryId,
+      categoryLabel,
+      canonicalPath,
+      aliasPath,
+      tags,
+      searchBlob: [
+        tool.id,
+        tool.name,
+        tool.description,
+        categoryId,
+        categoryLabel,
+        slug,
+        alias,
+        canonicalPath,
+        aliasPath,
+        ...tags
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+    };
+  }
+
+  function bindEvents() {
+    refs.searchInput?.addEventListener("input", render);
+    refs.pinnedOnlyInput?.addEventListener("change", render);
+    refs.recentOnlyInput?.addEventListener("change", render);
+
+    refs.clearSearchBtn?.addEventListener("click", () => {
+      if (refs.searchInput) refs.searchInput.value = "";
+      render();
+      refs.searchInput?.focus();
+    });
+
+    refs.clearRecentBtn?.addEventListener("click", () => {
+      recents = [];
+      persistStringList(RECENTS_KEY, recents);
+      render();
+    });
+
+    refs.categoryChips?.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-filter]");
+      if (!button) return;
+      activeCategory = button.dataset.filter || "all";
+      renderCategoryChips();
+      render();
+    });
+
+    refs.tbody?.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      const row = target.closest("tr[data-tool-id]");
+      if (row) {
+        selectedToolId = row.dataset.toolId;
+      }
+
+      const actionButton = target.closest("button[data-action]");
+      if (actionButton) {
+        event.preventDefault();
+        const shouldRender = handleRowAction(actionButton, row?.dataset.toolId || "");
+        if (shouldRender) {
+          render();
+        } else if (row) {
+          updateSelectedRowUI();
+        }
+        return;
+      }
+
+      const anchor = target.closest("a[data-open-track='true']");
+      if (anchor instanceof HTMLAnchorElement && row?.dataset.toolId) {
+        trackOpen(row.dataset.toolId);
+        return;
+      }
+
+      if (row) {
+        updateSelectedRowUI();
+      }
+    });
+
+    refs.tbody?.addEventListener("dblclick", (event) => {
+      const row = event.target instanceof HTMLElement ? event.target.closest("tr[data-tool-id]") : null;
+      if (!row?.dataset.toolId) return;
+      openToolById(row.dataset.toolId);
+    });
+
+    window.addEventListener("keydown", onGlobalKeydown);
+  }
+
+  function onGlobalKeydown(event) {
+    const active = document.activeElement;
+    const isTyping =
+      active instanceof HTMLInputElement ||
+      active instanceof HTMLTextAreaElement ||
+      active?.isContentEditable;
+
+    if (event.key === "/" && !isTyping) {
+      event.preventDefault();
+      refs.searchInput?.focus();
+      refs.searchInput?.select();
+      return;
+    }
+
+    if (isTyping) {
+      if (event.key === "Escape") {
+        if (active instanceof HTMLElement) active.blur();
+      }
+      return;
+    }
+
+    if (event.key === "j" || event.key === "ArrowDown") {
+      event.preventDefault();
+      moveSelection(1);
+      return;
+    }
+
+    if (event.key === "k" || event.key === "ArrowUp") {
+      event.preventDefault();
+      moveSelection(-1);
+      return;
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (selectedToolId) openToolById(selectedToolId);
+      return;
+    }
+
+    if (event.key === "p") {
+      event.preventDefault();
+      if (selectedToolId) togglePin(selectedToolId);
+      render();
+      return;
+    }
+
+    if (event.key === "y") {
+      event.preventDefault();
+      if (!selectedToolId) return;
+      const tool = toolMap.get(selectedToolId);
+      if (!tool) return;
+      if (event.shiftKey) {
+        void copyText(tool.canonicalPath);
+      } else {
+        void copyText(tool.aliasPath);
+      }
+      return;
+    }
+
+    const digitIndex = mapDigitToIndex(event.key);
+    if (digitIndex !== null) {
+      const tool = visibleTools[digitIndex];
+      if (tool) {
+        event.preventDefault();
+        openToolById(tool.id);
+      }
+    }
+  }
+
+  function mapDigitToIndex(key) {
+    if (/^[1-9]$/.test(key)) return Number(key) - 1;
+    if (key === "0") return 9;
+    return null;
+  }
+
+  function renderCategoryChips() {
+    if (!refs.categoryChips) return;
+
+    const items = [{ id: "all", label: "All" }, ...categories];
+    refs.categoryChips.innerHTML = items
+      .map((item) => {
+        const isActive = item.id === activeCategory;
+        return `<button class="chip${isActive ? " active" : ""}" type="button" data-filter="${escapeHtml(
+          item.id
+        )}" aria-pressed="${String(isActive)}">${escapeHtml(item.label)}</button>`;
+      })
+      .join("");
+  }
+
+  function render() {
+    visibleTools = getVisibleTools();
+    ensureValidSelection();
+    renderTable();
+    renderQuickLaunch();
+    renderRecentList();
+    renderStatus();
+    updateSelectedRowUI();
+  }
+
+  function getVisibleTools() {
+    const query = (refs.searchInput?.value || "").trim().toLowerCase();
+    const tokens = query ? query.split(/\s+/).filter(Boolean) : [];
+    const pinnedOnly = Boolean(refs.pinnedOnlyInput?.checked);
+    const recentOnly = Boolean(refs.recentOnlyInput?.checked);
+
+    return tools
+      .filter((tool) => {
+        if (activeCategory !== "all" && tool.category !== activeCategory) return false;
+        if (pinnedOnly && !pins.includes(tool.id)) return false;
+        if (recentOnly && !recents.includes(tool.id)) return false;
+        return tokens.every((token) => tokenMatches(tool, token));
+      })
+      .sort(compareTools);
+  }
+
+  function tokenMatches(tool, token) {
+    if (token.startsWith("@")) {
+      const wanted = token.slice(1);
+      return tool.category.includes(wanted) || tool.categoryLabel.toLowerCase().includes(wanted);
+    }
+
+    if (token.startsWith("#")) {
+      const wanted = token.slice(1);
+      return tool.tags.some((tag) => tag.toLowerCase().includes(wanted));
+    }
+
+    return tool.searchBlob.includes(token);
+  }
+
+  function compareTools(a, b) {
+    const aPinned = pins.includes(a.id) ? 1 : 0;
+    const bPinned = pins.includes(b.id) ? 1 : 0;
+    if (aPinned !== bPinned) return bPinned - aPinned;
+
+    const aRecentIndex = recents.indexOf(a.id);
+    const bRecentIndex = recents.indexOf(b.id);
+    const aRecentRank = aRecentIndex === -1 ? Number.MAX_SAFE_INTEGER : aRecentIndex;
+    const bRecentRank = bRecentIndex === -1 ? Number.MAX_SAFE_INTEGER : bRecentIndex;
+    if (aRecentRank !== bRecentRank) return aRecentRank - bRecentRank;
+
+    const catCompare = a.categoryLabel.localeCompare(b.categoryLabel);
+    if (catCompare !== 0) return catCompare;
+
+    return a.name.localeCompare(b.name);
+  }
+
+  function ensureValidSelection() {
+    if (!visibleTools.length) {
+      selectedToolId = null;
+      return;
+    }
+
+    const stillVisible = selectedToolId && visibleTools.some((tool) => tool.id === selectedToolId);
+    if (!stillVisible) {
+      selectedToolId = visibleTools[0].id;
+    }
+  }
+
+  function renderTable() {
+    if (!refs.tbody) return;
+
+    refs.tbody.innerHTML = visibleTools
+      .map((tool, index) => renderRow(tool, index))
+      .join("");
+
+    refs.emptyState?.classList.toggle("is-hidden", visibleTools.length > 0);
+  }
+
+  function renderRow(tool, index) {
+    const isPinned = pins.includes(tool.id);
+    const isRecent = recents.includes(tool.id);
+    const isSelected = selectedToolId === tool.id;
+    const shortcutLabel = index < 10 ? (index === 9 ? "0" : String(index + 1)) : null;
+    const rowIndexLabel = index + 1;
+
+    return `
+      <tr data-tool-id="${escapeHtml(tool.id)}"${isSelected ? ' class="selected"' : ""}>
+        <td class="row-index">
+          <span class="index-badge${shortcutLabel ? " hotkey" : ""}">${shortcutLabel || rowIndexLabel}</span>
+        </td>
+        <td class="tool-name-cell">
+          <div class="tool-name-wrap">
+            <div class="tool-title-line">
+              <a class="tool-link" data-open-track="true" href="${escapeHtml(tool.aliasPath)}">${escapeHtml(tool.name)}</a>
+              ${isPinned ? '<span class="status-pill pinned">PIN</span>' : ""}
+              ${isRecent ? '<span class="status-pill recent">RECENT</span>' : ""}
+            </div>
+            <div class="tool-desc">${escapeHtml(tool.description || "")}</div>
+          </div>
+        </td>
+        <td>
+          <a class="alias-link" data-open-track="true" href="${escapeHtml(tool.aliasPath)}"><code>${escapeHtml(
+      tool.aliasPath
+    )}</code></a>
+        </td>
+        <td><span class="category-chip">${escapeHtml(tool.category)}</span></td>
+        <td>
+          <div class="tags-wrap">${tool.tags
+            .map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`)
+            .join("")}</div>
+        </td>
+        <td>
+          <a class="path-link" data-open-track="true" href="${escapeHtml(tool.canonicalPath)}"><code>${escapeHtml(
+      tool.canonicalPath
+    )}</code></a>
+        </td>
+        <td class="actions-cell">
+          <div class="actions-wrap">
+            <button class="action-btn ${isPinned ? "pin-active" : ""}" type="button" data-action="pin" data-tool-id="${escapeHtml(
+      tool.id
+    )}">${isPinned ? "Unpin" : "Pin"}</button>
+            <button class="action-btn" type="button" data-action="copy-alias" data-tool-id="${escapeHtml(
+      tool.id
+    )}">Copy alias</button>
+            <button class="action-btn" type="button" data-action="copy-source" data-tool-id="${escapeHtml(
+      tool.id
+    )}">Copy source</button>
+            <button class="action-btn" type="button" data-action="open" data-tool-id="${escapeHtml(
+      tool.id
+    )}">Open</button>
+          </div>
+        </td>
+      </tr>`;
+  }
+
+  function renderQuickLaunch() {
+    if (!refs.quickLaunchList) return;
+
+    const top = visibleTools.slice(0, 10);
+    if (!top.length) {
+      refs.quickLaunchList.innerHTML = '<li class="empty-list">No visible tools.</li>';
+      return;
+    }
+
+    refs.quickLaunchList.innerHTML = top
+      .map((tool, index) => {
+        const hotkey = index === 9 ? "0" : String(index + 1);
+        return `
+          <li>
+            <button class="quick-item-btn" type="button" data-open-id="${escapeHtml(tool.id)}">
+              <div class="quick-line">
+                <strong>${hotkey}. ${escapeHtml(tool.name)}</strong>
+                <span class="path-chip">${escapeHtml(tool.aliasPath)}</span>
+              </div>
+              <div class="subtle-line">${escapeHtml(tool.canonicalPath)}</div>
+            </button>
+          </li>`;
+      })
+      .join("");
+
+    refs.quickLaunchList.querySelectorAll("button[data-open-id]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const toolId = button.getAttribute("data-open-id");
+        if (toolId) openToolById(toolId);
+      });
+    });
+  }
+
+  function renderRecentList() {
+    if (!refs.recentList) return;
+
+    const recentTools = recents.map((id) => toolMap.get(id)).filter(Boolean);
+    if (!recentTools.length) {
+      refs.recentList.innerHTML = '<li class="empty-list">No recent launches yet.</li>';
+      return;
+    }
+
+    refs.recentList.innerHTML = recentTools
+      .map((tool) => {
+        return `
+          <li>
+            <button class="recent-item-btn" type="button" data-open-id="${escapeHtml(tool.id)}">
+              <div class="recent-line">
+                <strong>${escapeHtml(tool.name)}</strong>
+                <span class="path-chip">${escapeHtml(tool.aliasPath)}</span>
+              </div>
+              <div class="subtle-line">${escapeHtml(tool.canonicalPath)} • ${escapeHtml(tool.category)}</div>
+            </button>
+          </li>`;
+      })
+      .join("");
+
+    refs.recentList.querySelectorAll("button[data-open-id]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const toolId = button.getAttribute("data-open-id");
+        if (toolId) openToolById(toolId);
+      });
+    });
+  }
+
+  function renderStatus() {
+    const pinnedCount = tools.filter((tool) => pins.includes(tool.id)).length;
+    const recentCount = recents.filter((id) => toolMap.has(id)).length;
+    const totalCount = tools.length;
+    const visibleCount = visibleTools.length;
+    const categoryLabel = activeCategory === "all" ? "all" : activeCategory;
+
+    if (refs.resultsCount) {
+      refs.resultsCount.textContent = `${visibleCount}/${totalCount} visible • ${pinnedCount} pinned • ${recentCount} recent • category:${categoryLabel}`;
+    }
+  }
+
+  function updateSelectedRowUI() {
+    const rows = refs.tbody?.querySelectorAll("tr[data-tool-id]") || [];
+    rows.forEach((row) => {
+      const isSelected = row.getAttribute("data-tool-id") === selectedToolId;
+      row.classList.toggle("selected", isSelected);
+      if (isSelected) {
+        row.scrollIntoView({ block: "nearest" });
+      }
+    });
+  }
+
+  function moveSelection(delta) {
+    if (!visibleTools.length) return;
+    const currentIndex = visibleTools.findIndex((tool) => tool.id === selectedToolId);
+    const safeIndex = currentIndex === -1 ? 0 : currentIndex;
+    const nextIndex = Math.max(0, Math.min(visibleTools.length - 1, safeIndex + delta));
+    selectedToolId = visibleTools[nextIndex].id;
+    updateSelectedRowUI();
+  }
+
+  function handleRowAction(button, toolId) {
+    if (!toolId) return false;
+    const action = button.dataset.action;
+    if (action === "pin") {
+      togglePin(toolId);
+      return true;
+    }
+
+    if (action === "open") {
+      openToolById(toolId);
+      return false;
+    }
+
+    const tool = toolMap.get(toolId);
+    if (!tool) return false;
+
+    if (action === "copy-alias") {
+      void copyText(tool.aliasPath).then(() => flashButton(button));
+      return false;
+    }
+
+    if (action === "copy-source") {
+      void copyText(tool.canonicalPath).then(() => flashButton(button));
+      return false;
+    }
+
+    return false;
+  }
+
+  function togglePin(toolId) {
+    if (pins.includes(toolId)) {
+      pins = pins.filter((id) => id !== toolId);
+    } else {
+      pins = [toolId, ...pins.filter((id) => id !== toolId)];
+    }
+    persistStringList(PINS_KEY, pins);
+  }
+
+  function openToolById(toolId) {
+    const tool = toolMap.get(toolId);
+    if (!tool) return;
+    trackOpen(toolId);
+    window.location.href = tool.aliasPath;
+  }
+
+  function trackOpen(toolId) {
+    recents = [toolId, ...recents.filter((id) => id !== toolId)].slice(0, MAX_RECENTS);
+    persistStringList(RECENTS_KEY, recents);
+  }
+
+  async function copyText(value) {
+    if (!value) return;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+        return;
+      }
+    } catch {
+      // fall through to legacy copy
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "absolute";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand("copy");
+    } finally {
+      textarea.remove();
+    }
+  }
+
+  function flashButton(button) {
+    button.classList.add("copy-ok");
+    const original = button.textContent;
+    button.textContent = "Copied";
+    window.setTimeout(() => {
+      button.classList.remove("copy-ok");
+      button.textContent = original;
+    }, 700);
+  }
+
+  function stampDate() {
+    if (!refs.todayLabel) return;
+    const now = new Date();
+    refs.todayLabel.textContent = now.toLocaleString(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  function seedSelectionFromHash() {
+    const hash = window.location.hash.replace(/^#/, "").trim().toLowerCase();
+    if (!hash) return;
+
+    const direct = tools.find(
+      (tool) => tool.id === hash || tool.slug === hash || tool.alias === hash || `${tool.category}/${tool.slug}` === hash
+    );
+
+    if (direct) {
+      selectedToolId = direct.id;
+      return;
+    }
+
+    if (refs.searchInput) {
+      refs.searchInput.value = hash;
+    }
+  }
+
+  function loadStringList(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return [...new Set(parsed.filter((item) => typeof item === "string"))];
+    } catch {
+      return [];
+    }
+  }
+
+  function persistStringList(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // localStorage can be unavailable in some environments
+    }
+  }
+
+  function titleCase(value) {
+    return String(value || "")
+      .split(/[-_\s]+/)
+      .filter(Boolean)
+      .map((part) => part[0].toUpperCase() + part.slice(1))
+      .join(" ");
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+})();
