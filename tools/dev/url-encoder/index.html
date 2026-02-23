@@ -5,37 +5,159 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>URL Encoder & Decoder</title>
   <link rel="stylesheet" href="../../../assets/css/styles.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell" aria-label="URL Encoder & Decoder placeholder page">
+  <main class="tool-shell url-tool-shell" aria-label="URL Encoder and Decoder tool">
     <header>
       <div>
         <p class="eyebrow">Developer Tools</p>
-        <h1>URL Encoder & Decoder</h1>
-        <p>Encode/decode URL strings and query parameters during debugging.</p>
+        <h1>URL Encoder &amp; Decoder</h1>
+        <p>Encode/decode URI text, form-urlencoded strings, and inspect query parameters from raw queries or full URLs.</p>
       </div>
       <a class="back-link" href="../../../index.html">Back to launcher</a>
     </header>
 
-    <div class="tool-shell-grid">
-      <section class="tool-panel" aria-labelledby="work-area">
-        <h2 id="work-area">Placeholder Shell</h2>
-        <p>This is the tool shell page. Replace this panel with your actual UI.</p>
-        <ul>
-          <li>Keep the path stable so bookmarks and aliases do not break.</li>
-          <li>If the tool grows, add local <code>app.js</code> and <code>styles.css</code> here.</li>
-          <li>Keep core utility logic client-side where possible for local usage.</li>
-        </ul>
-      </section>
+    <section class="tool-panel url-panel" aria-labelledby="url-tool-title">
+      <div class="url-toolbar">
+        <div>
+          <h2 id="url-tool-title">Transform</h2>
+          <p class="url-subtext">Paste text, choose a mode, then run. <code>Ctrl/Cmd + Enter</code> executes.</p>
+        </div>
+        <div class="url-toolbar-actions">
+          <button class="action-btn accent-btn" id="runBtn" type="button">Run</button>
+          <button class="action-btn" id="swapBtn" type="button">Swap</button>
+          <button class="action-btn" id="useOutputBtn" type="button">Use Output → Input</button>
+          <button class="action-btn" id="copyOutputBtn" type="button">Copy Output</button>
+          <button class="action-btn" id="clearBtn" type="button">Clear</button>
+        </div>
+      </div>
 
-      <section class="tool-panel" aria-labelledby="routing-meta">
-        <h2 id="routing-meta">Routing & Files</h2>
-        <p class="code-chip">Alias: t/url/</p>
-        <p class="code-chip">Source: tools/dev/url-encoder/</p>
-        <p style="margin-top: 0.35rem;">This page should remain the canonical implementation path.</p>
-        <p style="margin-top: 0.35rem;">Use the short alias for daily navigation and bookmarks.</p>
-      </section>
-    </div>
+      <div class="url-options-grid">
+        <label class="inline-field" for="modeSelect">
+          <span>Mode</span>
+          <select id="modeSelect">
+            <option value="encode_component">Encode Component (`encodeURIComponent`)</option>
+            <option value="decode_component">Decode Component (`decodeURIComponent`)</option>
+            <option value="encode_uri">Encode URI (`encodeURI`)</option>
+            <option value="decode_uri">Decode URI (`decodeURI`)</option>
+            <option value="form_encode">Form Encode (`application/x-www-form-urlencoded`)</option>
+            <option value="form_decode">Form Decode (`+` = space)</option>
+          </select>
+        </label>
+        <label class="toggle-row" for="liveRunToggle">
+          <input id="liveRunToggle" type="checkbox" checked />
+          <span>Live run</span>
+        </label>
+        <label class="toggle-row" for="trimInputToggle">
+          <input id="trimInputToggle" type="checkbox" />
+          <span>Trim input before transform</span>
+        </label>
+        <label class="toggle-row" for="multilineToggle">
+          <input id="multilineToggle" type="checkbox" />
+          <span>Transform line-by-line</span>
+        </label>
+        <span class="code-chip">Alias: t/url/</span>
+        <span class="code-chip">Source: tools/dev/url-encoder/</span>
+      </div>
+
+      <div class="url-editors-grid">
+        <section class="editor-card" aria-labelledby="url-input-title">
+          <div class="editor-card-head">
+            <div>
+              <h3 id="url-input-title">Input</h3>
+              <p id="inputStats" class="tiny mono">chars: 0 • lines: 1</p>
+            </div>
+            <div class="editor-card-actions">
+              <button class="ghost-btn ghost-btn-small" id="sampleUrlBtn" type="button">URL Sample</button>
+              <button class="ghost-btn ghost-btn-small" id="sampleQueryBtn" type="button">Query Sample</button>
+              <button class="ghost-btn ghost-btn-small" id="pasteBtn" type="button">Paste</button>
+            </div>
+          </div>
+          <textarea id="inputEditor" class="url-editor" spellcheck="false" placeholder="Paste URL, query string, or text"></textarea>
+        </section>
+
+        <section class="editor-card" aria-labelledby="url-output-title">
+          <div class="editor-card-head">
+            <div>
+              <h3 id="url-output-title">Output</h3>
+              <p id="outputStats" class="tiny mono">chars: 0 • lines: 1</p>
+            </div>
+            <div class="editor-card-actions">
+              <button class="ghost-btn ghost-btn-small" id="selectOutputBtn" type="button">Select</button>
+              <button class="ghost-btn ghost-btn-small" id="downloadBtn" type="button">Download</button>
+            </div>
+          </div>
+          <textarea id="outputEditor" class="url-editor url-output" spellcheck="false" placeholder="Transformation result"></textarea>
+        </section>
+      </div>
+
+      <div class="url-results-grid" aria-live="polite">
+        <section class="result-card" aria-labelledby="transform-status-title">
+          <div class="result-head">
+            <h3 id="transform-status-title">Status</h3>
+            <span id="statusBadge" class="status-badge idle">idle</span>
+          </div>
+          <p id="statusMessage" class="status-message">Ready.</p>
+          <p id="modeSummary" class="tiny mono">mode: encode_component</p>
+          <pre id="errorPreview" class="error-preview">No error.</pre>
+        </section>
+
+        <section class="result-card" aria-labelledby="url-breakdown-title">
+          <div class="result-head">
+            <h3 id="url-breakdown-title">URL Breakdown</h3>
+            <span id="breakdownMeta" class="tiny mono">none</span>
+          </div>
+          <div id="urlBreakdownList" class="kv-list"></div>
+        </section>
+
+        <section class="result-card result-card-wide" aria-labelledby="query-title">
+          <div class="result-head query-head">
+            <h3 id="query-title">Query Inspector</h3>
+            <div class="query-head-actions">
+              <label class="inline-select tiny mono" for="inspectSourceSelect">
+                <span>source</span>
+                <select id="inspectSourceSelect">
+                  <option value="input">input</option>
+                  <option value="output">output</option>
+                </select>
+              </label>
+              <button class="ghost-btn ghost-btn-small" id="copyQueryJsonBtn" type="button">Copy JSON</button>
+            </div>
+          </div>
+          <div class="query-grid">
+            <div class="query-table-wrap">
+              <table class="query-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Key</th>
+                    <th>Value</th>
+                    <th>Raw</th>
+                  </tr>
+                </thead>
+                <tbody id="queryRows"></tbody>
+              </table>
+              <p id="queryEmpty" class="empty-pane">No query params found.</p>
+            </div>
+            <div class="query-json-wrap">
+              <div class="query-json-head">
+                <span class="tiny mono" id="queryMeta">0 params</span>
+              </div>
+              <textarea id="queryJsonOutput" class="url-editor query-json" spellcheck="false" readonly placeholder="Parsed query JSON"></textarea>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="url-footer-hints tiny mono">
+        <span><code>Ctrl/Cmd + Enter</code> run transform</span>
+        <span>Use <code>Form Decode</code> for pasted query strings with <code>+</code> spaces</span>
+        <span>Query inspector keeps duplicate keys as arrays</span>
+      </div>
+    </section>
   </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
