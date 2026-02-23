@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Canvas Framer</title>
+  <link rel="stylesheet" href="../../../assets/css/styles.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="tool-shell-page theme-dark">
+  <main class="tool-shell canvas-tool-shell" aria-label="Image Canvas Framer tool">
+    <header>
+      <div>
+        <p class="eyebrow">Media &amp; Images</p>
+        <h1>Image Canvas Framer</h1>
+        <p>Create a custom-size canvas, place any image into it, frame/crop it fast on a fixed preview stage, and export.</p>
+      </div>
+      <a class="back-link" href="../../../index.html">Back to launcher</a>
+    </header>
+
+    <section class="tool-panel canvas-tool-panel" aria-labelledby="canvas-tool-title">
+      <div class="tool-toolbar">
+        <div>
+          <h2 id="canvas-tool-title">Canvas Workspace</h2>
+          <p class="toolbar-subtext">Upload, paste, or drop an image. Preview stays fixed-size for easier editing even when exporting large dimensions.</p>
+        </div>
+        <div class="toolbar-actions">
+          <button class="action-btn accent-btn" id="chooseImageBtn" type="button">Choose Image</button>
+          <button class="action-btn" id="pasteImageBtn" type="button">Paste Image</button>
+          <button class="action-btn" id="clearImageBtn" type="button">Clear Image</button>
+          <button class="action-btn" id="downloadBtn" type="button">Download</button>
+          <input id="imageFileInput" type="file" accept="image/*" hidden />
+        </div>
+      </div>
+
+      <div class="canvas-layout">
+        <aside class="left-pane" aria-label="Canvas and framing controls">
+          <section class="control-card" aria-labelledby="source-title">
+            <div class="card-head">
+              <h3 id="source-title">Source</h3>
+              <span id="sourceStatusLabel" class="tiny mono">no image</span>
+            </div>
+            <div class="source-drop-hint">Drop an image on the preview area or paste from clipboard.</div>
+            <div class="meta-list">
+              <div class="meta-line"><span>Name</span><code id="imageNameLabel">--</code></div>
+              <div class="meta-line"><span>Original</span><code id="imageSizeLabel">--</code></div>
+              <div class="meta-line"><span>Preview Proxy</span><code id="proxySizeLabel">--</code></div>
+            </div>
+          </section>
+
+          <section class="control-card" aria-labelledby="canvas-size-title">
+            <div class="card-head">
+              <h3 id="canvas-size-title">Canvas Size</h3>
+              <span id="canvasAspectLabel" class="tiny mono">1:1</span>
+            </div>
+            <label>
+              <span>Preset</span>
+              <select id="presetSelect"></select>
+            </label>
+            <div class="size-grid">
+              <label>
+                <span>Width</span>
+                <input id="canvasWidthInput" type="number" min="1" max="12000" step="1" value="1080" />
+              </label>
+              <label>
+                <span>Height</span>
+                <input id="canvasHeightInput" type="number" min="1" max="12000" step="1" value="1080" />
+              </label>
+            </div>
+            <div class="inline-actions wrap-actions">
+              <button class="ghost-btn ghost-btn-small" id="applyCanvasSizeBtn" type="button">Apply Size</button>
+              <button class="ghost-btn ghost-btn-small" id="swapCanvasBtn" type="button">Swap</button>
+              <button class="ghost-btn ghost-btn-small" id="useSourceSizeBtn" type="button">Use Source Size</button>
+            </div>
+            <div class="quick-preset-grid" id="quickPresetGrid" aria-label="Common preset sizes"></div>
+          </section>
+
+          <section class="control-card" aria-labelledby="framing-title">
+            <div class="card-head">
+              <h3 id="framing-title">Framing</h3>
+              <span id="framingMetaLabel" class="tiny mono">cover • 100%</span>
+            </div>
+            <label>
+              <span>Fit Mode</span>
+              <select id="fitModeSelect">
+                <option value="cover" selected>Cover (crop to fill)</option>
+                <option value="contain">Contain (letterbox)</option>
+                <option value="stretch">Stretch (distort to fit)</option>
+              </select>
+            </label>
+            <label>
+              <span>Zoom</span>
+              <div class="range-row">
+                <input id="zoomRange" type="range" min="10" max="400" step="1" value="100" />
+                <output id="zoomOutLabel">100%</output>
+              </div>
+            </label>
+            <div class="inline-actions wrap-actions">
+              <button class="ghost-btn ghost-btn-small" id="zoomOutBtn" type="button">-</button>
+              <button class="ghost-btn ghost-btn-small" id="zoomInBtn" type="button">+</button>
+              <button class="ghost-btn ghost-btn-small" id="resetFramingBtn" type="button">Reset Framing</button>
+            </div>
+            <div class="anchor-grid-wrap">
+              <span class="group-label">Align</span>
+              <div class="anchor-grid" id="anchorGrid">
+                <button type="button" data-align="0,0" title="Top left">↖</button>
+                <button type="button" data-align="0.5,0" title="Top center">↑</button>
+                <button type="button" data-align="1,0" title="Top right">↗</button>
+                <button type="button" data-align="0,0.5" title="Middle left">←</button>
+                <button type="button" data-align="0.5,0.5" title="Center">•</button>
+                <button type="button" data-align="1,0.5" title="Middle right">→</button>
+                <button type="button" data-align="0,1" title="Bottom left">↙</button>
+                <button type="button" data-align="0.5,1" title="Bottom center">↓</button>
+                <button type="button" data-align="1,1" title="Bottom right">↘</button>
+              </div>
+            </div>
+            <label>
+              <span>Anchor X</span>
+              <div class="range-row">
+                <input id="anchorXRange" type="range" min="0" max="100" step="1" value="50" />
+                <output id="anchorXOut">50%</output>
+              </div>
+            </label>
+            <label>
+              <span>Anchor Y</span>
+              <div class="range-row">
+                <input id="anchorYRange" type="range" min="0" max="100" step="1" value="50" />
+                <output id="anchorYOut">50%</output>
+              </div>
+            </label>
+            <label class="toggle-row" for="smoothingToggle">
+              <input id="smoothingToggle" type="checkbox" checked />
+              <span>Image smoothing (disable for pixel art)</span>
+            </label>
+          </section>
+        </aside>
+
+        <section class="center-pane" aria-label="Preview stage">
+          <div class="preview-header-row">
+            <div>
+              <h3>Preview</h3>
+              <p class="preview-subtext">Drag to reposition. Mouse wheel to zoom. Preview canvas is fixed-size; export uses the full target resolution.</p>
+            </div>
+            <div class="preview-badges tiny mono">
+              <span id="canvasSizeBadge">canvas 1080×1080</span>
+              <span id="displaySizeBadge">preview --</span>
+            </div>
+          </div>
+
+          <div class="preview-stage-card" id="previewStageCard">
+            <div class="preview-stage" id="previewStage" tabindex="0" aria-label="Image canvas preview stage">
+              <canvas id="previewCanvas"></canvas>
+              <div id="emptyStageOverlay" class="empty-stage-overlay">
+                <p>Drop image here</p>
+                <p class="tiny mono">paste with <code>Ctrl/Cmd+V</code> or click <em>Choose Image</em></p>
+              </div>
+              <div id="stageDropOverlay" class="stage-drop-overlay" aria-hidden="true">Drop to load image</div>
+            </div>
+          </div>
+
+          <div class="preview-footer-grid">
+            <div class="meta-panel">
+              <div class="panel-head-line">
+                <h4>Placement</h4>
+                <span id="placementBadge" class="tiny mono">--</span>
+              </div>
+              <div class="meta-list compact">
+                <div class="meta-line"><span>Drawn Rect</span><code id="drawRectLabel">--</code></div>
+                <div class="meta-line"><span>Crop / Padding</span><code id="coverageLabel">--</code></div>
+              </div>
+            </div>
+
+            <div class="meta-panel">
+              <div class="panel-head-line">
+                <h4>View</h4>
+              </div>
+              <label class="toggle-row" for="checkerToggle">
+                <input id="checkerToggle" type="checkbox" checked />
+                <span>Checkerboard for transparency</span>
+              </label>
+              <label class="toggle-row" for="guidesToggle">
+                <input id="guidesToggle" type="checkbox" checked />
+                <span>Center / thirds guides</span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <aside class="right-pane" aria-label="Background and export controls">
+          <section class="control-card" aria-labelledby="background-title">
+            <div class="card-head">
+              <h3 id="background-title">Background</h3>
+              <span id="backgroundModeLabel" class="tiny mono">solid</span>
+            </div>
+            <label>
+              <span>Fill Color</span>
+              <div class="color-row">
+                <input id="backgroundColorInput" type="color" value="#0f141b" />
+                <input id="backgroundHexInput" type="text" spellcheck="false" value="#0F141B" maxlength="9" />
+              </div>
+            </label>
+            <label class="toggle-row" for="transparentBgToggle">
+              <input id="transparentBgToggle" type="checkbox" />
+              <span>Transparent background (PNG/WebP only)</span>
+            </label>
+          </section>
+
+          <section class="control-card" aria-labelledby="export-title">
+            <div class="card-head">
+              <h3 id="export-title">Export</h3>
+              <span id="exportMetaLabel" class="tiny mono">png</span>
+            </div>
+            <label>
+              <span>Format</span>
+              <select id="exportFormatSelect">
+                <option value="png" selected>PNG</option>
+                <option value="jpeg">JPEG</option>
+                <option value="webp">WebP</option>
+              </select>
+            </label>
+            <label>
+              <span>Quality (JPEG/WebP)</span>
+              <div class="range-row">
+                <input id="qualityRange" type="range" min="10" max="100" step="1" value="92" />
+                <output id="qualityOut">92%</output>
+              </div>
+            </label>
+            <div class="inline-actions wrap-actions">
+              <button class="action-btn accent-btn" id="downloadPngBtn" type="button">Download</button>
+              <button class="ghost-btn ghost-btn-small" id="resetAllBtn" type="button">Reset Settings</button>
+            </div>
+            <div class="helper-line tiny mono">Export renders at <span id="exportSizeLabel">1080×1080</span>, not the preview display size.</div>
+          </section>
+
+          <section class="control-card" aria-labelledby="meta-title">
+            <div class="card-head">
+              <h3 id="meta-title">Meta</h3>
+            </div>
+            <div class="meta-stack">
+              <span class="code-chip">Alias: t/canvas/</span>
+              <span class="code-chip">Source: tools/media/image-canvas/</span>
+              <span id="performanceChip" class="code-chip">Preview proxy max: 2048px</span>
+            </div>
+            <div class="status-line" aria-live="polite">
+              <span id="statusBadge" class="status-badge idle">idle</span>
+              <span id="statusMessage">Ready.</span>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

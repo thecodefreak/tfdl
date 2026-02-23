@@ -99,6 +99,15 @@ window.TOOLS_REGISTRY = {
       tags: ["image", "highlight", "blur", "pixelate", "redact", "screenshot"]
     },
     {
+      id: "image-canvas",
+      slug: "image-canvas",
+      alias: "canvas",
+      name: "Image Canvas Framer",
+      category: "media",
+      description: "Place an image on a custom canvas, crop/frame it fast, and export banners/posts/thumbnails.",
+      tags: ["image", "canvas", "crop", "resize", "thumbnail", "banner"]
+    },
+    {
       id: "word-counter",
       slug: "word-counter",
       alias: "words",
