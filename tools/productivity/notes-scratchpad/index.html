@@ -5,37 +5,154 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Notes Scratchpad</title>
   <link rel="stylesheet" href="../../../assets/css/styles.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell" aria-label="Notes Scratchpad placeholder page">
+  <main class="tool-shell notes-shell" aria-label="Notes Scratchpad tool">
     <header>
       <div>
         <p class="eyebrow">Productivity</p>
         <h1>Notes Scratchpad</h1>
-        <p>Capture quick notes, snippets, and temporary text locally.</p>
+        <p>Local notes workspace for quick capture, snippets, and temporary drafts with autosave and preview.</p>
       </div>
       <a class="back-link" href="../../../index.html">Back to launcher</a>
     </header>
 
-    <div class="tool-shell-grid">
-      <section class="tool-panel" aria-labelledby="work-area">
-        <h2 id="work-area">Placeholder Shell</h2>
-        <p>This is the tool shell page. Replace this panel with your actual UI.</p>
-        <ul>
-          <li>Keep the path stable so bookmarks and aliases do not break.</li>
-          <li>If the tool grows, add local <code>app.js</code> and <code>styles.css</code> here.</li>
-          <li>Keep core utility logic client-side where possible for local usage.</li>
-        </ul>
-      </section>
+    <section class="tool-panel notes-panel" aria-labelledby="notes-title">
+      <div class="notes-toolbar">
+        <div>
+          <h2 id="notes-title">Scratchpad</h2>
+          <p class="notes-subtext">Autosaves locally. <code>Ctrl/Cmd+S</code> save now • <code>Ctrl/Cmd+N</code> new note • <code>Ctrl/Cmd+F</code> focus search</p>
+        </div>
+        <div class="notes-toolbar-actions">
+          <button class="action-btn accent-btn" id="newNoteBtn" type="button">New Note</button>
+          <button class="action-btn" id="duplicateNoteBtn" type="button">Duplicate</button>
+          <button class="action-btn" id="deleteNoteBtn" type="button">Delete</button>
+          <button class="action-btn" id="copyNoteBtn" type="button">Copy</button>
+          <button class="action-btn" id="exportCurrentBtn" type="button">Export Note</button>
+          <button class="action-btn" id="exportAllBtn" type="button">Export All</button>
+          <button class="action-btn" id="importBtn" type="button">Import</button>
+          <input id="importFileInput" type="file" accept="application/json,.json" hidden />
+        </div>
+      </div>
 
-      <section class="tool-panel" aria-labelledby="routing-meta">
-        <h2 id="routing-meta">Routing & Files</h2>
-        <p class="code-chip">Alias: t/notes/</p>
-        <p class="code-chip">Source: tools/productivity/notes-scratchpad/</p>
-        <p style="margin-top: 0.35rem;">This page should remain the canonical implementation path.</p>
-        <p style="margin-top: 0.35rem;">Use the short alias for daily navigation and bookmarks.</p>
-      </section>
-    </div>
+      <div class="notes-layout">
+        <aside class="notes-list-pane" aria-label="Notes list">
+          <section class="pane-block sticky-block">
+            <div class="block-head">
+              <h3>Notes</h3>
+              <span id="noteCountLabel" class="tiny mono">0</span>
+            </div>
+            <label class="search-wrap note-search-wrap" for="noteSearchInput">
+              <span class="visually-hidden">Search notes</span>
+              <input id="noteSearchInput" type="search" autocomplete="off" placeholder="Search title, tags, body..." />
+            </label>
+            <div class="notes-filters" role="group" aria-label="List filters">
+              <label class="toggle-row" for="pinnedOnlyToggle">
+                <input id="pinnedOnlyToggle" type="checkbox" />
+                <span>Pinned only</span>
+              </label>
+              <label class="inline-select tiny mono" for="sortSelect">
+                <span>sort</span>
+                <select id="sortSelect">
+                  <option value="updated_desc" selected>updated ↓</option>
+                  <option value="updated_asc">updated ↑</option>
+                  <option value="created_desc">created ↓</option>
+                  <option value="title_asc">title A-Z</option>
+                </select>
+              </label>
+            </div>
+            <div class="template-row" role="group" aria-label="Templates">
+              <button class="ghost-btn ghost-btn-small template-btn" type="button" data-template="blank">Blank</button>
+              <button class="ghost-btn ghost-btn-small template-btn" type="button" data-template="checklist">Checklist</button>
+              <button class="ghost-btn ghost-btn-small template-btn" type="button" data-template="meeting">Meeting</button>
+              <button class="ghost-btn ghost-btn-small template-btn" type="button" data-template="code">Code</button>
+            </div>
+          </section>
+
+          <section class="pane-block list-block" aria-labelledby="list-title">
+            <div class="block-head compact-head">
+              <h3 id="list-title">List</h3>
+              <button class="ghost-btn ghost-btn-small" id="clearSearchBtn" type="button">Clear Search</button>
+            </div>
+            <ul id="notesList" class="notes-list" aria-live="polite"></ul>
+            <p id="notesEmptyState" class="empty-pane is-hidden">No notes match the current filter.</p>
+          </section>
+        </aside>
+
+        <section class="notes-editor-pane" aria-label="Editor and preview">
+          <section class="editor-pane" aria-labelledby="editor-title">
+            <div class="block-head editor-head">
+              <div>
+                <h3 id="editor-title">Editor</h3>
+                <p id="saveStateLabel" class="tiny mono">Saved locally</p>
+              </div>
+              <div class="editor-head-actions">
+                <button class="ghost-btn ghost-btn-small" id="pinNoteBtn" type="button">Pin</button>
+                <button class="ghost-btn ghost-btn-small" id="saveNowBtn" type="button">Save Now</button>
+              </div>
+            </div>
+
+            <div class="editor-fields">
+              <label class="field-row" for="noteTitleInput">
+                <span>Title</span>
+                <input id="noteTitleInput" type="text" spellcheck="false" placeholder="Untitled note" />
+              </label>
+              <label class="field-row" for="noteTagsInput">
+                <span>Tags</span>
+                <input id="noteTagsInput" type="text" spellcheck="false" placeholder="comma, separated, tags" />
+              </label>
+              <textarea id="noteBodyInput" class="note-body-editor" spellcheck="false" placeholder="Start typing..."></textarea>
+            </div>
+          </section>
+
+          <aside class="notes-sidepanels" aria-label="Preview and stats">
+            <section class="pane-block" aria-labelledby="preview-title">
+              <div class="block-head">
+                <h3 id="preview-title">Preview</h3>
+                <label class="toggle-row" for="markdownPreviewToggle">
+                  <input id="markdownPreviewToggle" type="checkbox" checked />
+                  <span>Markdown-ish</span>
+                </label>
+              </div>
+              <div id="previewPane" class="preview-pane"></div>
+            </section>
+
+            <section class="pane-block" aria-labelledby="stats-title">
+              <div class="block-head">
+                <h3 id="stats-title">Stats</h3>
+                <span id="activeNoteUpdatedAt" class="tiny mono">updated: --</span>
+              </div>
+              <div class="stats-grid">
+                <div class="stat-box"><span>Words</span><strong id="wordsStat">0</strong></div>
+                <div class="stat-box"><span>Chars</span><strong id="charsStat">0</strong></div>
+                <div class="stat-box"><span>Lines</span><strong id="linesStat">1</strong></div>
+                <div class="stat-box"><span>Read min</span><strong id="readTimeStat">0</strong></div>
+                <div class="stat-box"><span>Checklists</span><strong id="checklistStat">0/0</strong></div>
+                <div class="stat-box"><span>Bytes</span><strong id="bytesStat">0</strong></div>
+              </div>
+            </section>
+
+            <section class="pane-block" aria-labelledby="meta-title">
+              <div class="block-head">
+                <h3 id="meta-title">Meta</h3>
+              </div>
+              <div class="meta-stack">
+                <span class="code-chip">Alias: t/notes/</span>
+                <span class="code-chip">Source: tools/productivity/notes-scratchpad/</span>
+                <span class="code-chip" id="storageStateChip">storage: local</span>
+              </div>
+              <div class="notes-status-line" aria-live="polite">
+                <span id="statusBadge" class="status-badge idle">idle</span>
+                <span id="statusMessage">Ready.</span>
+              </div>
+            </section>
+          </aside>
+        </section>
+      </div>
+    </section>
   </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
