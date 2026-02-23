@@ -5,37 +5,186 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Focus Timer</title>
   <link rel="stylesheet" href="../../../assets/css/styles.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell" aria-label="Focus Timer placeholder page">
+  <main class="tool-shell focus-shell" aria-label="Focus Timer tool">
     <header>
       <div>
         <p class="eyebrow">Productivity</p>
         <h1>Focus Timer</h1>
-        <p>Run short focus sessions without jumping to another site.</p>
+        <p>Cycle focus and breaks with practical presets, local stats, and keyboard-first controls.</p>
       </div>
       <a class="back-link" href="../../../index.html">Back to launcher</a>
     </header>
 
-    <div class="tool-shell-grid">
-      <section class="tool-panel" aria-labelledby="work-area">
-        <h2 id="work-area">Placeholder Shell</h2>
-        <p>This is the tool shell page. Replace this panel with your actual UI.</p>
-        <ul>
-          <li>Keep the path stable so bookmarks and aliases do not break.</li>
-          <li>If the tool grows, add local <code>app.js</code> and <code>styles.css</code> here.</li>
-          <li>Keep core utility logic client-side where possible for local usage.</li>
-        </ul>
-      </section>
+    <section class="tool-panel focus-panel" aria-labelledby="focus-title">
+      <div class="focus-toolbar">
+        <div>
+          <h2 id="focus-title">Session Timer</h2>
+          <p class="focus-subtext">Space = start/pause • <code>R</code> reset • <code>N</code> next phase</p>
+        </div>
+        <div class="focus-toolbar-actions">
+          <button class="action-btn" id="requestNotifBtn" type="button">Enable Notifications</button>
+          <button class="action-btn" id="copySummaryBtn" type="button">Copy Today Summary</button>
+        </div>
+      </div>
 
-      <section class="tool-panel" aria-labelledby="routing-meta">
-        <h2 id="routing-meta">Routing & Files</h2>
-        <p class="code-chip">Alias: t/focus/</p>
-        <p class="code-chip">Source: tools/productivity/focus-timer/</p>
-        <p style="margin-top: 0.35rem;">This page should remain the canonical implementation path.</p>
-        <p style="margin-top: 0.35rem;">Use the short alias for daily navigation and bookmarks.</p>
-      </section>
-    </div>
+      <div class="focus-layout">
+        <section class="timer-stage" aria-labelledby="timer-stage-title">
+          <div class="timer-card">
+            <div class="phase-tabs" role="tablist" aria-label="Timer phase presets">
+              <button type="button" class="phase-tab is-active" data-phase="focus" aria-selected="true">Focus</button>
+              <button type="button" class="phase-tab" data-phase="short_break" aria-selected="false">Short Break</button>
+              <button type="button" class="phase-tab" data-phase="long_break" aria-selected="false">Long Break</button>
+            </div>
+
+            <div class="timer-visual-wrap">
+              <div class="timer-ring" id="timerRing" aria-hidden="true">
+                <div class="timer-ring-inner">
+                  <p id="phaseLabel" class="phase-label">Focus</p>
+                  <p id="timeDisplay" class="time-display">25:00</p>
+                  <p id="timerMeta" class="timer-meta mono">session 1 of 4 before long break</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="transport-row" role="group" aria-label="Timer controls">
+              <button class="action-btn accent-btn" id="startPauseBtn" type="button">Start</button>
+              <button class="action-btn" id="resetBtn" type="button">Reset</button>
+              <button class="action-btn" id="nextBtn" type="button">Next Phase</button>
+              <button class="action-btn" id="minusMinuteBtn" type="button">-1 min</button>
+              <button class="action-btn" id="plusMinuteBtn" type="button">+1 min</button>
+            </div>
+
+            <div class="preset-row" role="group" aria-label="Presets">
+              <button class="ghost-btn ghost-btn-small preset-btn" type="button" data-preset="pomodoro">Pomodoro 25/5</button>
+              <button class="ghost-btn ghost-btn-small preset-btn" type="button" data-preset="deep">Deep 50/10</button>
+              <button class="ghost-btn ghost-btn-small preset-btn" type="button" data-preset="sprint">Sprint 90/20</button>
+              <button class="ghost-btn ghost-btn-small preset-btn" type="button" data-preset="custom">Use Custom</button>
+            </div>
+
+            <div class="status-strip" aria-live="polite">
+              <span id="statusBadge" class="status-badge idle">idle</span>
+              <span id="statusMessage">Ready.</span>
+            </div>
+          </div>
+
+          <div class="stage-grid">
+            <section class="stage-card" aria-labelledby="today-title">
+              <div class="stage-head">
+                <h3 id="today-title">Today</h3>
+                <span id="todayDate" class="tiny mono"></span>
+              </div>
+              <div class="stats-grid">
+                <div class="stat-box">
+                  <span class="stat-label">Focus Sessions</span>
+                  <strong id="todayFocusSessions">0</strong>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-label">Focus Minutes</span>
+                  <strong id="todayFocusMinutes">0</strong>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-label">Cycle Position</span>
+                  <strong id="cyclePosition">1/4</strong>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-label">Current Phase</span>
+                  <strong id="currentPhaseStat">Focus</strong>
+                </div>
+              </div>
+            </section>
+
+            <section class="stage-card" aria-labelledby="queue-title">
+              <div class="stage-head">
+                <h3 id="queue-title">Upcoming</h3>
+                <span class="tiny mono">auto cycle preview</span>
+              </div>
+              <ol id="queueList" class="queue-list"></ol>
+            </section>
+          </div>
+        </section>
+
+        <aside class="focus-sidebar" aria-label="Timer settings and history">
+          <section class="control-group" aria-labelledby="durations-title">
+            <div class="group-head">
+              <h3 id="durations-title">Durations</h3>
+              <span class="tiny mono">minutes</span>
+            </div>
+            <div class="duration-grid">
+              <label>
+                <span>Focus</span>
+                <input id="focusMinutes" type="number" min="1" max="240" value="25" inputmode="numeric" />
+              </label>
+              <label>
+                <span>Short Break</span>
+                <input id="shortBreakMinutes" type="number" min="1" max="120" value="5" inputmode="numeric" />
+              </label>
+              <label>
+                <span>Long Break</span>
+                <input id="longBreakMinutes" type="number" min="1" max="180" value="15" inputmode="numeric" />
+              </label>
+              <label>
+                <span>Long Break Every</span>
+                <input id="longBreakEvery" type="number" min="2" max="12" value="4" inputmode="numeric" />
+              </label>
+            </div>
+            <button class="action-btn" id="applyDurationsBtn" type="button">Apply Durations</button>
+          </section>
+
+          <section class="control-group" aria-labelledby="behavior-title">
+            <div class="group-head">
+              <h3 id="behavior-title">Behavior</h3>
+            </div>
+            <label class="toggle-row" for="autoStartBreaks">
+              <input id="autoStartBreaks" type="checkbox" />
+              <span>Auto-start breaks</span>
+            </label>
+            <label class="toggle-row" for="autoStartFocus">
+              <input id="autoStartFocus" type="checkbox" />
+              <span>Auto-start next focus</span>
+            </label>
+            <label class="toggle-row" for="soundEnabled">
+              <input id="soundEnabled" type="checkbox" checked />
+              <span>Completion sound</span>
+            </label>
+            <label class="toggle-row" for="desktopNotifyEnabled">
+              <input id="desktopNotifyEnabled" type="checkbox" />
+              <span>Desktop notifications</span>
+            </label>
+          </section>
+
+          <section class="control-group" aria-labelledby="notes-title">
+            <div class="group-head">
+              <h3 id="notes-title">Task Note</h3>
+              <span class="tiny mono">saved locally</span>
+            </div>
+            <textarea id="taskNote" class="note-editor" spellcheck="false" placeholder="What are you focusing on?"></textarea>
+          </section>
+
+          <section class="control-group" aria-labelledby="history-title">
+            <div class="group-head">
+              <h3 id="history-title">Recent Events</h3>
+              <button class="ghost-btn ghost-btn-small" id="clearHistoryBtn" type="button">Clear</button>
+            </div>
+            <ul id="historyList" class="history-list"></ul>
+          </section>
+
+          <section class="control-group" aria-labelledby="meta-title">
+            <div class="group-head">
+              <h3 id="meta-title">Meta</h3>
+            </div>
+            <div class="meta-stack">
+              <span class="code-chip">Alias: t/focus/</span>
+              <span class="code-chip">Source: tools/productivity/focus-timer/</span>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
   </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
