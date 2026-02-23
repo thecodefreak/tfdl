@@ -5,37 +5,133 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Regex Playground</title>
   <link rel="stylesheet" href="../../../assets/css/styles.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell" aria-label="Regex Playground placeholder page">
+  <main class="tool-shell regex-tool-shell" aria-label="Regex Playground tool">
     <header>
       <div>
         <p class="eyebrow">Developer Tools</p>
         <h1>Regex Playground</h1>
-        <p>Test regular expressions against sample text and iterate quickly.</p>
+        <p>Test patterns against text, inspect matches/groups, preview replacements, and debug regex flags.</p>
       </div>
       <a class="back-link" href="../../../index.html">Back to launcher</a>
     </header>
 
-    <div class="tool-shell-grid">
-      <section class="tool-panel" aria-labelledby="work-area">
-        <h2 id="work-area">Placeholder Shell</h2>
-        <p>This is the tool shell page. Replace this panel with your actual UI.</p>
-        <ul>
-          <li>Keep the path stable so bookmarks and aliases do not break.</li>
-          <li>If the tool grows, add local <code>app.js</code> and <code>styles.css</code> here.</li>
-          <li>Keep core utility logic client-side where possible for local usage.</li>
-        </ul>
-      </section>
+    <section class="tool-panel regex-panel" aria-labelledby="regex-title">
+      <div class="regex-toolbar">
+        <div>
+          <h2 id="regex-title">Pattern</h2>
+          <p class="regex-subtext">Press <code>Ctrl/Cmd + Enter</code> to run. Supports JavaScript RegExp syntax.</p>
+        </div>
+        <div class="regex-toolbar-actions">
+          <button class="action-btn accent-btn" id="runBtn" type="button">Run</button>
+          <button class="action-btn" id="sampleBtn" type="button">Load Sample</button>
+          <button class="action-btn" id="clearBtn" type="button">Clear</button>
+          <button class="action-btn" id="copyMatchesBtn" type="button">Copy Matches JSON</button>
+        </div>
+      </div>
 
-      <section class="tool-panel" aria-labelledby="routing-meta">
-        <h2 id="routing-meta">Routing & Files</h2>
-        <p class="code-chip">Alias: t/regex/</p>
-        <p class="code-chip">Source: tools/dev/regex-playground/</p>
-        <p style="margin-top: 0.35rem;">This page should remain the canonical implementation path.</p>
-        <p style="margin-top: 0.35rem;">Use the short alias for daily navigation and bookmarks.</p>
-      </section>
-    </div>
+      <div class="regex-input-grid">
+        <label class="inline-field" for="patternInput">
+          <span>Regex Pattern</span>
+          <input id="patternInput" type="text" placeholder="e.g. (?<name>[A-Z][a-z]+)" spellcheck="false" />
+        </label>
+        <label class="inline-field" for="replacementInput">
+          <span>Replacement (preview)</span>
+          <input id="replacementInput" type="text" placeholder='e.g. [$<name>] or $1' spellcheck="false" />
+        </label>
+        <label class="inline-field inline-field-small" for="matchLimitInput">
+          <span>Match Limit</span>
+          <input id="matchLimitInput" type="number" min="1" max="5000" value="500" inputmode="numeric" />
+        </label>
+      </div>
+
+      <div class="regex-options-row" role="group" aria-label="Regex flags and options">
+        <div class="flags-wrap" role="group" aria-label="Regex flags">
+          <label class="flag-chip"><input type="checkbox" data-flag="g" checked />g</label>
+          <label class="flag-chip"><input type="checkbox" data-flag="i" />i</label>
+          <label class="flag-chip"><input type="checkbox" data-flag="m" />m</label>
+          <label class="flag-chip"><input type="checkbox" data-flag="s" />s</label>
+          <label class="flag-chip"><input type="checkbox" data-flag="u" />u</label>
+          <label class="flag-chip"><input type="checkbox" data-flag="y" />y</label>
+        </div>
+        <label class="toggle-row" for="replaceAllToggle">
+          <input id="replaceAllToggle" type="checkbox" checked />
+          <span>Preview replace all</span>
+        </label>
+        <label class="toggle-row" for="liveRunToggle">
+          <input id="liveRunToggle" type="checkbox" checked />
+          <span>Live run</span>
+        </label>
+        <span class="code-chip">Alias: t/regex/</span>
+        <span class="code-chip">Source: tools/dev/regex-playground/</span>
+      </div>
+
+      <div class="regex-main-grid">
+        <section class="editor-card regex-editor-card" aria-labelledby="text-title">
+          <div class="editor-card-head">
+            <div>
+              <h3 id="text-title">Test Text</h3>
+              <p id="textStats" class="tiny mono">chars: 0 • lines: 1</p>
+            </div>
+            <div class="editor-card-actions">
+              <button class="ghost-btn ghost-btn-small" id="selectTextBtn" type="button">Select</button>
+            </div>
+          </div>
+          <textarea id="textInput" class="regex-editor" spellcheck="false" placeholder="Paste text here"></textarea>
+        </section>
+
+        <section class="results-stack" aria-label="Regex results">
+          <section class="result-card" aria-labelledby="status-title">
+            <div class="result-head">
+              <h3 id="status-title">Status</h3>
+              <span id="statusBadge" class="status-badge idle">idle</span>
+            </div>
+            <p id="statusMessage" class="status-message">Ready.</p>
+            <div class="result-meta tiny mono">
+              <span id="regexSignature">regex: /(?:)/g</span>
+              <span id="matchSummary">matches: 0</span>
+            </div>
+            <pre id="errorPreview" class="error-preview">No error.</pre>
+          </section>
+
+          <section class="result-card" aria-labelledby="preview-title">
+            <div class="result-head">
+              <h3 id="preview-title">Highlighted Preview</h3>
+              <span id="previewMeta" class="tiny mono">0 matches</span>
+            </div>
+            <div id="previewPane" class="preview-pane" aria-live="polite"></div>
+          </section>
+
+          <section class="result-card" aria-labelledby="replace-title">
+            <div class="result-head">
+              <h3 id="replace-title">Replacement Preview</h3>
+              <div class="editor-card-actions">
+                <button class="ghost-btn ghost-btn-small" id="copyReplacementBtn" type="button">Copy</button>
+              </div>
+            </div>
+            <textarea id="replaceOutput" class="regex-editor regex-output" spellcheck="false" placeholder="Replacement result"></textarea>
+          </section>
+
+          <section class="result-card" aria-labelledby="matches-title">
+            <div class="result-head sticky-result-head">
+              <h3 id="matches-title">Matches</h3>
+              <span id="groupsMeta" class="tiny mono">0 entries</span>
+            </div>
+            <div id="matchesList" class="matches-list" aria-live="polite"></div>
+          </section>
+        </section>
+      </div>
+
+      <div class="regex-footer-hints tiny mono">
+        <span><code>Ctrl/Cmd + Enter</code> run</span>
+        <span><code>g</code> flag recommended for finding all matches</span>
+        <span><code>y</code> sticky respects <code>lastIndex</code> semantics (single-run inspection)</span>
+      </div>
+    </section>
   </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
