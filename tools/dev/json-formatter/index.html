@@ -5,37 +5,118 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JSON Formatter</title>
   <link rel="stylesheet" href="../../../assets/css/styles.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell" aria-label="JSON Formatter placeholder page">
+  <main class="tool-shell json-tool-shell" aria-label="JSON Formatter tool">
     <header>
       <div>
         <p class="eyebrow">Developer Tools</p>
         <h1>JSON Formatter</h1>
-        <p>Pretty-print and validate JSON while debugging APIs and payloads.</p>
+        <p>Validate, format, minify, sort keys, and inspect parse errors without leaving the launcher.</p>
       </div>
       <a class="back-link" href="../../../index.html">Back to launcher</a>
     </header>
 
-    <div class="tool-shell-grid">
-      <section class="tool-panel" aria-labelledby="work-area">
-        <h2 id="work-area">Placeholder Shell</h2>
-        <p>This is the tool shell page. Replace this panel with your actual UI.</p>
-        <ul>
-          <li>Keep the path stable so bookmarks and aliases do not break.</li>
-          <li>If the tool grows, add local <code>app.js</code> and <code>styles.css</code> here.</li>
-          <li>Keep core utility logic client-side where possible for local usage.</li>
-        </ul>
-      </section>
+    <section class="tool-panel json-panel" aria-labelledby="json-editor-title">
+      <div class="json-toolbar">
+        <div>
+          <h2 id="json-editor-title">Editor</h2>
+          <p class="json-subtext">Paste JSON on the left. Use <code>Ctrl/Cmd + Enter</code> to format.</p>
+        </div>
+        <div class="json-toolbar-actions">
+          <button class="action-btn accent-btn" type="button" id="validateBtn">Validate</button>
+          <button class="action-btn" type="button" id="format2Btn">Format 2</button>
+          <button class="action-btn" type="button" id="format4Btn">Format 4</button>
+          <button class="action-btn" type="button" id="minifyBtn">Minify</button>
+          <button class="action-btn" type="button" id="parseStringBtn">Parse String</button>
+          <button class="action-btn" type="button" id="useOutputBtn">Use Output → Input</button>
+          <button class="action-btn" type="button" id="copyOutputBtn">Copy Output</button>
+          <button class="action-btn" type="button" id="clearBtn">Clear</button>
+        </div>
+      </div>
 
-      <section class="tool-panel" aria-labelledby="routing-meta">
-        <h2 id="routing-meta">Routing & Files</h2>
-        <p class="code-chip">Alias: t/json/</p>
-        <p class="code-chip">Source: tools/dev/json-formatter/</p>
-        <p style="margin-top: 0.35rem;">This page should remain the canonical implementation path.</p>
-        <p style="margin-top: 0.35rem;">Use the short alias for daily navigation and bookmarks.</p>
-      </section>
-    </div>
+      <div class="json-options-row" role="group" aria-label="Formatter options">
+        <label class="toggle-row" for="sortKeys">
+          <input id="sortKeys" type="checkbox" />
+          <span>Sort keys (recursive)</span>
+        </label>
+        <label class="toggle-row" for="preserveOutputFocus">
+          <input id="preserveOutputFocus" type="checkbox" checked />
+          <span>Focus output after actions</span>
+        </label>
+        <span class="code-chip">Alias: t/json/</span>
+        <span class="code-chip">Source: tools/dev/json-formatter/</span>
+      </div>
+
+      <div class="json-grid">
+        <section class="editor-card" aria-labelledby="input-title">
+          <div class="editor-card-head">
+            <div>
+              <h3 id="input-title">Input</h3>
+              <p id="inputStats" class="tiny mono">chars: 0 • lines: 1</p>
+            </div>
+            <div class="editor-card-actions">
+              <button class="ghost-btn ghost-btn-small" type="button" id="sampleBtn">Load Sample</button>
+              <button class="ghost-btn ghost-btn-small" type="button" id="pasteBtn">Paste</button>
+            </div>
+          </div>
+          <textarea
+            id="inputEditor"
+            class="json-editor"
+            spellcheck="false"
+            placeholder='Paste JSON here. Example: {"name":"Amal","tools":["json","regex"]}'
+            aria-label="JSON input editor"
+          ></textarea>
+        </section>
+
+        <section class="editor-card" aria-labelledby="output-title">
+          <div class="editor-card-head">
+            <div>
+              <h3 id="output-title">Output</h3>
+              <p id="outputStats" class="tiny mono">chars: 0 • lines: 1</p>
+            </div>
+            <div class="editor-card-actions">
+              <button class="ghost-btn ghost-btn-small" type="button" id="selectOutputBtn">Select All</button>
+              <button class="ghost-btn ghost-btn-small" type="button" id="downloadBtn">Download</button>
+            </div>
+          </div>
+          <textarea
+            id="outputEditor"
+            class="json-editor json-output"
+            spellcheck="false"
+            placeholder="Formatted JSON output will appear here"
+            aria-label="JSON output editor"
+          ></textarea>
+        </section>
+      </div>
+
+      <div class="json-status-grid" aria-live="polite">
+        <section class="status-card" aria-labelledby="status-title">
+          <div class="status-head">
+            <h3 id="status-title">Status</h3>
+            <span id="statusBadge" class="status-badge idle">idle</span>
+          </div>
+          <p id="statusMessage" class="status-message">Ready.</p>
+          <p id="parseLocation" class="tiny mono is-hidden"></p>
+        </section>
+
+        <section class="status-card" aria-labelledby="error-title">
+          <div class="status-head">
+            <h3 id="error-title">Parse Error Detail</h3>
+          </div>
+          <pre id="errorPreview" class="error-preview">No error.</pre>
+        </section>
+      </div>
+
+      <div class="json-footer-hints tiny mono">
+        <span><code>Ctrl/Cmd + Enter</code> format 2</span>
+        <span><code>Ctrl/Cmd + Shift + M</code> minify</span>
+        <span><code>Ctrl/Cmd + Shift + S</code> toggle sort keys</span>
+      </div>
+    </section>
   </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
