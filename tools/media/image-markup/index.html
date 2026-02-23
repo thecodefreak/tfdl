@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Markup</title>
+  <link rel="stylesheet" href="../../../assets/css/styles.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="tool-shell-page theme-dark">
+  <main class="tool-shell image-markup-shell" aria-label="Image Markup tool">
+    <header>
+      <div>
+        <p class="eyebrow">Media</p>
+        <h1>Image Markup</h1>
+        <p>Merge of your highlighter and blur/redaction tools: highlight strokes + blur/pixelate/blackout boxes.</p>
+      </div>
+      <a class="back-link" href="../../../index.html">Back to launcher</a>
+    </header>
+
+    <section class="tool-panel editor-panel" aria-labelledby="editor-title">
+      <div class="editor-toolbar">
+        <div>
+          <h2 id="editor-title">Editor</h2>
+          <p class="toolbar-subtext" id="imageStatus">No image loaded. Upload, paste, or drop one.</p>
+        </div>
+        <div class="toolbar-actions">
+          <label class="action-btn file-btn" for="fileInput">Upload Image</label>
+          <input id="fileInput" type="file" accept="image/*" hidden />
+          <button class="action-btn" id="downloadBtn" type="button">Download PNG</button>
+        </div>
+      </div>
+
+      <div class="editor-grid">
+        <aside class="editor-sidebar" aria-label="Tool controls">
+          <section class="control-group" aria-labelledby="mode-title">
+            <div class="group-head">
+              <h3 id="mode-title">Mode</h3>
+              <span class="value-pill" id="modeHint">Highlight</span>
+            </div>
+            <div class="segmented" role="tablist" aria-label="Edit mode">
+              <button type="button" class="segment is-active" data-mode="highlight" aria-selected="true">Highlight</button>
+              <button type="button" class="segment" data-mode="redact" aria-selected="false">Redact</button>
+            </div>
+          </section>
+
+          <section class="control-group" aria-labelledby="highlight-title">
+            <div class="group-head">
+              <h3 id="highlight-title">Highlight</h3>
+            </div>
+            <label>
+              <span>Color</span>
+              <input id="highlightColor" type="color" value="#fff176" />
+            </label>
+            <label>
+              <span>Opacity</span>
+              <div class="range-row">
+                <input id="highlightAlpha" type="range" min="0.05" max="1" step="0.01" value="0.38" />
+                <output id="highlightAlphaOut">0.38</output>
+              </div>
+            </label>
+            <label>
+              <span>Brush Size</span>
+              <div class="range-row">
+                <input id="highlightSize" type="range" min="4" max="120" step="1" value="36" />
+                <output id="highlightSizeOut">36</output>
+              </div>
+            </label>
+          </section>
+
+          <section class="control-group" aria-labelledby="redact-title">
+            <div class="group-head">
+              <h3 id="redact-title">Redaction Box</h3>
+              <span class="tiny mono" id="selectionLabel">none</span>
+            </div>
+            <label>
+              <span>Style</span>
+              <select id="redactStyle">
+                <option value="pixelate">Pixelate</option>
+                <option value="blur">Blur</option>
+                <option value="black">Blackout</option>
+              </select>
+            </label>
+            <label>
+              <span>Pixel Size</span>
+              <div class="range-row">
+                <input id="pixelSize" type="range" min="4" max="40" step="1" value="14" />
+                <output id="pixelSizeOut">14</output>
+              </div>
+            </label>
+            <label>
+              <span>Blur Amount</span>
+              <div class="range-row">
+                <input id="blurAmount" type="range" min="2" max="30" step="1" value="10" />
+                <output id="blurAmountOut">10</output>
+              </div>
+            </label>
+            <div class="inline-actions">
+              <button class="action-btn" id="deleteSelectedBtn" type="button">Delete Box</button>
+              <button class="action-btn" id="duplicateSelectedBtn" type="button">Duplicate Box</button>
+            </div>
+          </section>
+
+          <section class="control-group" aria-labelledby="history-title">
+            <div class="group-head">
+              <h3 id="history-title">History & Canvas</h3>
+              <span class="tiny mono" id="historyInfo">0/0</span>
+            </div>
+            <div class="inline-actions">
+              <button class="action-btn" id="undoBtn" type="button">Undo</button>
+              <button class="action-btn" id="redoBtn" type="button">Redo</button>
+              <button class="action-btn" id="clearOverlaysBtn" type="button">Clear Overlays</button>
+              <button class="action-btn" id="flattenBtn" type="button">Flatten</button>
+            </div>
+            <div class="resize-grid">
+              <label>
+                <span>Resize W</span>
+                <input id="resizeWidth" type="number" min="1" inputmode="numeric" />
+              </label>
+              <label>
+                <span>Resize H</span>
+                <input id="resizeHeight" type="number" min="1" inputmode="numeric" />
+              </label>
+            </div>
+            <button class="action-btn accent-btn" id="applyResizeBtn" type="button">Resize (flattens current view)</button>
+          </section>
+
+          <section class="control-group hint-group" aria-labelledby="hint-title">
+            <div class="group-head">
+              <h3 id="hint-title">Tips</h3>
+            </div>
+            <ul>
+              <li>Paste image: <code>Ctrl/Cmd+V</code></li>
+              <li>Drop image onto canvas</li>
+              <li><code>H</code> highlight mode, <code>R</code> redact mode</li>
+              <li><code>Delete</code> removes selected box</li>
+              <li><code>Ctrl/Cmd+Z</code> undo, <code>Shift+Ctrl/Cmd+Z</code> redo</li>
+            </ul>
+          </section>
+        </aside>
+
+        <section class="canvas-stage" aria-label="Canvas workspace">
+          <div class="canvas-meta">
+            <div class="meta-badges">
+              <span class="code-chip" id="canvasSizeChip">canvas: -</span>
+              <span class="code-chip" id="actionCountChip">actions: 0</span>
+              <span class="code-chip" id="selectionChip">selected: none</span>
+            </div>
+            <div class="tiny mono" id="pointerHint">Draw highlight strokes or drag boxes in Redact mode.</div>
+          </div>
+
+          <div class="canvas-wrap" id="canvasWrap">
+            <canvas id="canvas"></canvas>
+            <div class="canvas-empty" id="canvasEmpty" aria-hidden="true">
+              <p>Drop an image here</p>
+              <p class="tiny">or paste / upload</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

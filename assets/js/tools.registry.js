@@ -90,6 +90,15 @@ window.TOOLS_REGISTRY = {
       tags: ["color", "palette", "design", "hex"]
     },
     {
+      id: "image-markup",
+      slug: "image-markup",
+      alias: "img",
+      name: "Image Markup",
+      category: "media",
+      description: "Highlight strokes plus blur/pixelate/blackout boxes for screenshots and images.",
+      tags: ["image", "highlight", "blur", "pixelate", "redact", "screenshot"]
+    },
+    {
       id: "word-counter",
       slug: "word-counter",
       alias: "words",
