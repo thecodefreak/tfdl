@@ -5,37 +5,188 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Color Palette Builder</title>
   <link rel="stylesheet" href="../../../assets/css/styles.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell" aria-label="Color Palette Builder placeholder page">
+  <main class="tool-shell palette-shell" aria-label="Color Palette Builder tool">
     <header>
       <div>
-        <p class="eyebrow">Media & Design</p>
+        <p class="eyebrow">Media &amp; Design</p>
         <h1>Color Palette Builder</h1>
-        <p>Build and compare color sets for UI and content work.</p>
+        <p>Generate lockable palettes, inspect contrast, preview UI surfaces, and export color tokens.</p>
       </div>
       <a class="back-link" href="../../../index.html">Back to launcher</a>
     </header>
 
-    <div class="tool-shell-grid">
-      <section class="tool-panel" aria-labelledby="work-area">
-        <h2 id="work-area">Placeholder Shell</h2>
-        <p>This is the tool shell page. Replace this panel with your actual UI.</p>
-        <ul>
-          <li>Keep the path stable so bookmarks and aliases do not break.</li>
-          <li>If the tool grows, add local <code>app.js</code> and <code>styles.css</code> here.</li>
-          <li>Keep core utility logic client-side where possible for local usage.</li>
-        </ul>
-      </section>
+    <section class="tool-panel palette-panel" aria-labelledby="palette-title">
+      <div class="palette-toolbar">
+        <div>
+          <h2 id="palette-title">Palette Lab</h2>
+          <p class="palette-subtext">Adjust the generator, lock swatches you want to keep, and regenerate around them.</p>
+        </div>
+        <div class="palette-toolbar-actions">
+          <button class="action-btn accent-btn" id="regenerateBtn" type="button">Regenerate</button>
+          <button class="action-btn" id="randomizeBtn" type="button">Random Base</button>
+          <button class="action-btn" id="unlockAllBtn" type="button">Unlock All</button>
+          <button class="action-btn" id="copyPaletteBtn" type="button">Copy Palette</button>
+        </div>
+      </div>
 
-      <section class="tool-panel" aria-labelledby="routing-meta">
-        <h2 id="routing-meta">Routing & Files</h2>
-        <p class="code-chip">Alias: t/colors/</p>
-        <p class="code-chip">Source: tools/media/color-palette/</p>
-        <p style="margin-top: 0.35rem;">This page should remain the canonical implementation path.</p>
-        <p style="margin-top: 0.35rem;">Use the short alias for daily navigation and bookmarks.</p>
-      </section>
-    </div>
+      <div class="palette-layout">
+        <aside class="palette-sidebar" aria-label="Palette controls">
+          <section class="control-group" aria-labelledby="base-title">
+            <div class="group-head">
+              <h3 id="base-title">Base Color</h3>
+              <span id="baseSwatchChip" class="value-pill">#4DA3FF</span>
+            </div>
+            <label>
+              <span>Picker</span>
+              <input id="baseColorInput" type="color" value="#4da3ff" />
+            </label>
+            <label>
+              <span>Hex</span>
+              <input id="baseHexInput" type="text" spellcheck="false" value="#4DA3FF" placeholder="#RRGGBB" />
+            </label>
+            <div class="helper-line tiny mono">Tip: click “Use as Base” on any swatch to pivot around it.</div>
+          </section>
+
+          <section class="control-group" aria-labelledby="generator-title">
+            <div class="group-head">
+              <h3 id="generator-title">Generator</h3>
+              <span id="generatorSummary" class="tiny mono">analogous • 6</span>
+            </div>
+            <label>
+              <span>Harmony</span>
+              <select id="harmonyMode">
+                <option value="analogous" selected>Analogous</option>
+                <option value="complementary">Complementary</option>
+                <option value="triad">Triad</option>
+                <option value="split">Split Complementary</option>
+                <option value="tetrad">Tetrad</option>
+                <option value="monochrome">Monochrome</option>
+              </select>
+            </label>
+            <label>
+              <span>Swatches</span>
+              <div class="range-row">
+                <input id="swatchCount" type="range" min="3" max="12" step="1" value="6" />
+                <output id="swatchCountOut">6</output>
+              </div>
+            </label>
+            <label>
+              <span>Hue Spread</span>
+              <div class="range-row">
+                <input id="hueSpread" type="range" min="15" max="180" step="1" value="60" />
+                <output id="hueSpreadOut">60°</output>
+              </div>
+            </label>
+            <label>
+              <span>Saturation Bias</span>
+              <div class="range-row">
+                <input id="saturationBias" type="range" min="5" max="100" step="1" value="72" />
+                <output id="saturationBiasOut">72</output>
+              </div>
+            </label>
+            <label>
+              <span>Lightness Bias</span>
+              <div class="range-row">
+                <input id="lightnessBias" type="range" min="5" max="95" step="1" value="58" />
+                <output id="lightnessBiasOut">58</output>
+              </div>
+            </label>
+            <label class="toggle-row" for="preserveLocksToggle">
+              <input id="preserveLocksToggle" type="checkbox" checked />
+              <span>Preserve locked swatches on regenerate</span>
+            </label>
+          </section>
+
+          <section class="control-group" aria-labelledby="selected-title">
+            <div class="group-head">
+              <h3 id="selected-title">Selected Swatch</h3>
+              <span id="selectedIndexBadge" class="tiny mono">#1</span>
+            </div>
+            <div class="selected-card" id="selectedPreview"></div>
+            <div class="selected-meta">
+              <div class="meta-row"><span>HEX</span><code id="selectedHex">#000000</code></div>
+              <div class="meta-row"><span>RGB</span><code id="selectedRgb">rgb(0, 0, 0)</code></div>
+              <div class="meta-row"><span>HSL</span><code id="selectedHsl">hsl(0 0% 0%)</code></div>
+              <div class="meta-row"><span>Contrast / White</span><code id="contrastWhite">0.00:1</code></div>
+              <div class="meta-row"><span>Contrast / Black</span><code id="contrastBlack">0.00:1</code></div>
+            </div>
+            <div class="inline-actions">
+              <button class="action-btn" id="copySelectedBtn" type="button">Copy HEX</button>
+              <button class="action-btn" id="copySelectedRgbBtn" type="button">Copy RGB</button>
+            </div>
+          </section>
+
+          <section class="control-group" aria-labelledby="meta-title">
+            <div class="group-head">
+              <h3 id="meta-title">Meta</h3>
+            </div>
+            <div class="meta-stack">
+              <span class="code-chip">Alias: t/colors/</span>
+              <span class="code-chip">Source: tools/media/color-palette/</span>
+            </div>
+          </section>
+        </aside>
+
+        <section class="palette-main" aria-label="Palette workspace">
+          <section class="swatch-board" aria-labelledby="swatch-board-title">
+            <div class="board-head">
+              <h3 id="swatch-board-title">Swatches</h3>
+              <div class="board-meta tiny mono">
+                <span id="lockCountLabel">0 locked</span>
+                <span id="paletteMetaLabel">6 colors</span>
+              </div>
+            </div>
+            <div id="swatchGrid" class="swatch-grid"></div>
+          </section>
+
+          <div class="preview-export-grid">
+            <section class="preview-panel" aria-labelledby="preview-title">
+              <div class="panel-head-line">
+                <h3 id="preview-title">Preview</h3>
+                <span id="previewThemeHint" class="tiny mono">semantic tokens from palette</span>
+              </div>
+              <div id="previewSurface" class="preview-surface"></div>
+              <div class="gradient-row">
+                <div id="gradientPreview" class="gradient-preview"></div>
+                <div id="miniScale" class="mini-scale"></div>
+              </div>
+            </section>
+
+            <section class="export-panel" aria-labelledby="export-title">
+              <div class="panel-head-line export-head">
+                <h3 id="export-title">Export</h3>
+                <div class="export-controls">
+                  <label class="inline-select tiny mono" for="exportFormatSelect">
+                    <span>format</span>
+                    <select id="exportFormatSelect">
+                      <option value="css" selected>CSS vars</option>
+                      <option value="scss">SCSS map</option>
+                      <option value="json">JSON</option>
+                    </select>
+                  </label>
+                  <label class="inline-select tiny mono" for="exportPrefixInput">
+                    <span>prefix</span>
+                    <input id="exportPrefixInput" type="text" spellcheck="false" value="palette" />
+                  </label>
+                  <button class="ghost-btn ghost-btn-small" id="copyExportBtn" type="button">Copy</button>
+                  <button class="ghost-btn ghost-btn-small" id="downloadExportBtn" type="button">Download</button>
+                </div>
+              </div>
+              <textarea id="exportOutput" class="export-output" spellcheck="false" readonly></textarea>
+              <div class="status-line" aria-live="polite">
+                <span id="statusBadge" class="status-badge idle">idle</span>
+                <span id="statusMessage">Ready.</span>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </section>
   </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
