@@ -186,6 +186,13 @@
   flex: 1 1 auto;
 }
 
+.group-note {
+  margin: -0.1rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
 .resize-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -251,7 +258,7 @@
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   touch-action: none;
-  max-width: 100%;
+  max-width: none;
   height: auto;
   cursor: crosshair;
 }

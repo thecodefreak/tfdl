@@ -9,16 +9,24 @@
     redoBtn: document.getElementById("redoBtn"),
     clearOverlaysBtn: document.getElementById("clearOverlaysBtn"),
     flattenBtn: document.getElementById("flattenBtn"),
+    applyEditCapBtn: document.getElementById("applyEditCapBtn"),
     deleteSelectedBtn: document.getElementById("deleteSelectedBtn"),
     duplicateSelectedBtn: document.getElementById("duplicateSelectedBtn"),
     applyResizeBtn: document.getElementById("applyResizeBtn"),
     resizeWidth: document.getElementById("resizeWidth"),
     resizeHeight: document.getElementById("resizeHeight"),
+    maxEditSide: document.getElementById("maxEditSide"),
+    displayZoom: document.getElementById("displayZoom"),
+    displayZoomOut: document.getElementById("displayZoomOut"),
+    fitViewBtn: document.getElementById("fitViewBtn"),
+    view100Btn: document.getElementById("view100Btn"),
     imageStatus: document.getElementById("imageStatus"),
     modeHint: document.getElementById("modeHint"),
     selectionLabel: document.getElementById("selectionLabel"),
     historyInfo: document.getElementById("historyInfo"),
     canvasSizeChip: document.getElementById("canvasSizeChip"),
+    sourceSizeChip: document.getElementById("sourceSizeChip"),
+    viewZoomChip: document.getElementById("viewZoomChip"),
     actionCountChip: document.getElementById("actionCountChip"),
     selectionChip: document.getElementById("selectionChip"),
     pointerHint: document.getElementById("pointerHint"),
@@ -57,7 +65,14 @@
     history: [],
     historyIndex: -1,
     interaction: null,
-    pointerDown: false
+    pointerDown: false,
+    viewZoomPercent: 100,
+    loadMeta: {
+      sourceWidth: 960,
+      sourceHeight: 540,
+      capApplied: 0,
+      downscaled: false
+    }
   };
 
   initialize();
@@ -89,14 +104,21 @@
     refs.redoBtn.addEventListener("click", () => void redo());
     refs.clearOverlaysBtn.addEventListener("click", clearOverlays);
     refs.flattenBtn.addEventListener("click", () => void flattenIntoBase());
+    refs.applyEditCapBtn.addEventListener("click", () => void applyEditCapToCurrent());
     refs.deleteSelectedBtn.addEventListener("click", deleteSelectedRect);
     refs.duplicateSelectedBtn.addEventListener("click", duplicateSelectedRect);
     refs.applyResizeBtn.addEventListener("click", () => void resizeCanvasFromInputs());
+    refs.fitViewBtn.addEventListener("click", fitViewToStage);
+    refs.view100Btn.addEventListener("click", () => setViewZoom(100));
 
     refs.highlightAlpha.addEventListener("input", syncOutputs);
     refs.highlightSize.addEventListener("input", syncOutputs);
     refs.pixelSize.addEventListener("input", syncOutputs);
     refs.blurAmount.addEventListener("input", syncOutputs);
+    refs.displayZoom.addEventListener("input", () => {
+      setViewZoom(parseInt(refs.displayZoom.value, 10), { syncInput: false });
+      syncOutputs();
+    });
 
     refs.redactStyle.addEventListener("change", () => {
       updateSelectedRectSettingsFromControls(true);
@@ -208,7 +230,7 @@
 
   async function loadImageFromFile(file) {
     const dataURL = await fileToDataURL(file);
-    await loadBaseImage(dataURL);
+    await loadBaseImage(dataURL, { respectEditCap: true, autoFitView: true });
     state.actions = [];
     state.selectedActionId = null;
     pushHistory();
@@ -218,7 +240,7 @@
 
   async function loadImageFromBlob(blob) {
     const dataURL = await blobToDataURL(blob);
-    await loadBaseImage(dataURL);
+    await loadBaseImage(dataURL, { respectEditCap: true, autoFitView: true });
     state.actions = [];
     state.selectedActionId = null;
     pushHistory();
@@ -226,16 +248,26 @@
     refreshUI();
   }
 
-  async function loadBaseImage(dataURL) {
-    const img = await loadImageElement(dataURL);
-    state.baseImage = img;
-    state.baseDataURL = dataURL;
-    state.width = img.naturalWidth || img.width;
-    state.height = img.naturalHeight || img.height;
+  async function loadBaseImage(dataURL, options = {}) {
+    const { respectEditCap = false, autoFitView = false, loadMeta = null } = options;
+    const originalImg = await loadImageElement(dataURL);
+    const prepared = await prepareWorkingImage(originalImg, dataURL, { respectEditCap });
+
+    state.baseImage = prepared.image;
+    state.baseDataURL = prepared.dataURL;
+    state.width = prepared.width;
+    state.height = prepared.height;
+    state.loadMeta = loadMeta || prepared.loadMeta;
     refs.canvas.width = state.width;
     refs.canvas.height = state.height;
     refs.resizeWidth.value = String(state.width);
     refs.resizeHeight.value = String(state.height);
+
+    if (autoFitView) {
+      requestAnimationFrame(() => fitViewToStage());
+    } else {
+      applyCanvasDisplayScale();
+    }
   }
 
   function setMode(mode) {
@@ -429,6 +461,7 @@
       ctx.fillRect(0, 0, refs.canvas.width, refs.canvas.height);
       refs.canvasEmpty.classList.remove("is-hidden");
       refs.canvas.style.cursor = "crosshair";
+      applyCanvasDisplayScale();
       updateMetaBadges();
       return;
     }
@@ -460,6 +493,7 @@
       refs.canvas.style.cursor = state.mode === "redact" ? "crosshair" : "crosshair";
     }
 
+    applyCanvasDisplayScale();
     updateMetaBadges();
   }
 
@@ -695,7 +729,16 @@
     if (!state.baseImage) return;
     render();
     const dataURL = refs.canvas.toDataURL("image/png");
-    await loadBaseImage(dataURL);
+    await loadBaseImage(dataURL, {
+      respectEditCap: false,
+      autoFitView: false,
+      loadMeta: {
+        sourceWidth: state.width,
+        sourceHeight: state.height,
+        capApplied: 0,
+        downscaled: false
+      }
+    });
     state.actions = [];
     state.selectedActionId = null;
     pushHistory();
@@ -720,12 +763,116 @@
     tempCtx.imageSmoothingEnabled = true;
     tempCtx.drawImage(refs.canvas, 0, 0, nextW, nextH);
 
-    await loadBaseImage(temp.toDataURL("image/png"));
+    await loadBaseImage(temp.toDataURL("image/png"), {
+      respectEditCap: false,
+      autoFitView: false,
+      loadMeta: {
+        sourceWidth: nextW,
+        sourceHeight: nextH,
+        capApplied: 0,
+        downscaled: false
+      }
+    });
     state.actions = [];
     state.selectedActionId = null;
     pushHistory();
     refreshUI();
     render();
+  }
+
+  async function applyEditCapToCurrent() {
+    if (!state.baseImage) return;
+    render();
+    const dataURL = refs.canvas.toDataURL("image/png");
+    await loadBaseImage(dataURL, { respectEditCap: true, autoFitView: true });
+    state.actions = [];
+    state.selectedActionId = null;
+    pushHistory();
+    refreshUI();
+    render();
+  }
+
+  async function prepareWorkingImage(image, sourceDataURL, options = {}) {
+    const sourceWidth = image.naturalWidth || image.width;
+    const sourceHeight = image.naturalHeight || image.height;
+    const sourceLongest = Math.max(sourceWidth, sourceHeight);
+    const cap = options.respectEditCap ? getMaxEditSide() : 0;
+
+    if (!cap || sourceLongest <= cap) {
+      return {
+        image,
+        dataURL: sourceDataURL,
+        width: sourceWidth,
+        height: sourceHeight,
+        loadMeta: {
+          sourceWidth,
+          sourceHeight,
+          capApplied: 0,
+          downscaled: false
+        }
+      };
+    }
+
+    const scale = cap / sourceLongest;
+    const nextWidth = Math.max(1, Math.round(sourceWidth * scale));
+    const nextHeight = Math.max(1, Math.round(sourceHeight * scale));
+
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = nextWidth;
+    tempCanvas.height = nextHeight;
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCtx.imageSmoothingEnabled = true;
+    tempCtx.imageSmoothingQuality = "high";
+    tempCtx.drawImage(image, 0, 0, nextWidth, nextHeight);
+
+    const scaledDataURL = tempCanvas.toDataURL("image/png");
+    const scaledImage = await loadImageElement(scaledDataURL);
+
+    return {
+      image: scaledImage,
+      dataURL: scaledDataURL,
+      width: nextWidth,
+      height: nextHeight,
+      loadMeta: {
+        sourceWidth,
+        sourceHeight,
+        capApplied: cap,
+        downscaled: true
+      }
+    };
+  }
+
+  function getMaxEditSide() {
+    const value = parseInt(refs.maxEditSide.value, 10);
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  }
+
+  function fitViewToStage() {
+    const wrapWidth = refs.canvasWrap.clientWidth;
+    if (!wrapWidth || !state.width) return;
+    const horizontalPadding = 24;
+    const targetWidth = Math.max(200, wrapWidth - horizontalPadding);
+    const zoom = clamp(Math.round((targetWidth / state.width) * 100), 20, 200);
+    setViewZoom(zoom);
+  }
+
+  function setViewZoom(value, options = {}) {
+    const { syncInput = true } = options;
+    const next = clamp(Number.isFinite(value) ? value : 100, 20, 200);
+    state.viewZoomPercent = Math.round(next);
+    if (syncInput) {
+      refs.displayZoom.value = String(state.viewZoomPercent);
+      syncOutputs();
+    }
+    applyCanvasDisplayScale();
+    updateMetaBadges();
+  }
+
+  function applyCanvasDisplayScale() {
+    const zoom = clamp(state.viewZoomPercent || 100, 20, 200);
+    const cssWidth = Math.max(80, Math.round(state.width * (zoom / 100)));
+    refs.canvas.style.width = `${cssWidth}px`;
+    refs.canvas.style.height = "auto";
   }
 
   function downloadPNG() {
@@ -769,6 +916,7 @@
       baseDataURL: state.baseDataURL,
       width: state.width,
       height: state.height,
+      loadMeta: { ...state.loadMeta },
       actions: state.actions.map(cloneAction),
       selectedActionId: state.selectedActionId
     };
@@ -776,7 +924,16 @@
 
   async function restoreSnapshot(snapshot) {
     if (!snapshot) return;
-    await loadBaseImage(snapshot.baseDataURL);
+    await loadBaseImage(snapshot.baseDataURL, {
+      respectEditCap: false,
+      autoFitView: false,
+      loadMeta: snapshot.loadMeta || {
+        sourceWidth: snapshot.width,
+        sourceHeight: snapshot.height,
+        capApplied: 0,
+        downscaled: false
+      }
+    });
     state.actions = snapshot.actions.map(cloneAction);
     state.selectedActionId = snapshot.selectedActionId;
     state.interaction = null;
@@ -823,7 +980,7 @@
     refs.redactGroup?.classList.toggle("is-disabled", state.mode !== "redact");
 
     refs.imageStatus.textContent = hasImage
-      ? `Loaded image • ${state.width}×${state.height} • ${state.actions.length} overlay action${state.actions.length === 1 ? "" : "s"}`
+      ? buildImageStatusText()
       : "No image loaded. Upload, paste, or drop one.";
 
     refs.undoBtn.disabled = state.historyIndex <= 0;
@@ -832,8 +989,11 @@
     refs.clearOverlaysBtn.disabled = !hasActions;
     refs.flattenBtn.disabled = !hasImage;
     refs.applyResizeBtn.disabled = !hasImage;
+    refs.applyEditCapBtn.disabled = !hasImage;
     refs.deleteSelectedBtn.disabled = !selectedRect;
     refs.duplicateSelectedBtn.disabled = !selectedRect;
+    refs.fitViewBtn.disabled = !hasImage;
+    refs.view100Btn.disabled = false;
 
     refs.selectionLabel.textContent = selectedRect
       ? `${selectedRect.style} ${Math.round(selectedRect.w)}×${Math.round(selectedRect.h)}`
@@ -851,6 +1011,10 @@
 
   function updateMetaBadges() {
     refs.canvasSizeChip.textContent = `canvas: ${state.width}x${state.height}`;
+    refs.sourceSizeChip.textContent = state.baseImage
+      ? `source: ${state.loadMeta.sourceWidth}x${state.loadMeta.sourceHeight}`
+      : "source: -";
+    refs.viewZoomChip.textContent = `zoom: ${state.viewZoomPercent}%`;
     refs.actionCountChip.textContent = `actions: ${state.actions.length}`;
 
     const selected = getSelectedRedactAction();
@@ -866,6 +1030,19 @@
     refs.highlightSizeOut.textContent = refs.highlightSize.value;
     refs.pixelSizeOut.textContent = refs.pixelSize.value;
     refs.blurAmountOut.textContent = refs.blurAmount.value;
+    refs.displayZoomOut.textContent = `${refs.displayZoom.value}%`;
+  }
+
+  function buildImageStatusText() {
+    const actionsLabel = `${state.actions.length} overlay action${state.actions.length === 1 ? "" : "s"}`;
+    const { sourceWidth, sourceHeight, capApplied, downscaled } = state.loadMeta;
+    if (downscaled) {
+      return `Loaded image • working ${state.width}×${state.height} from source ${sourceWidth}×${sourceHeight} (cap ${capApplied}px) • ${actionsLabel}`;
+    }
+    if (capApplied > 0) {
+      return `Loaded image • ${state.width}×${state.height} (cap ${capApplied}px not needed) • ${actionsLabel}`;
+    }
+    return `Loaded image • ${state.width}×${state.height} • ${actionsLabel}`;
   }
 
   function getCanvasPoint(event) {

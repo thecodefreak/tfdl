@@ -112,6 +112,35 @@
               <button class="action-btn" id="clearOverlaysBtn" type="button">Clear Overlays</button>
               <button class="action-btn" id="flattenBtn" type="button">Flatten</button>
             </div>
+            <label>
+              <span>Max Edit Size (longest side)</span>
+              <select id="maxEditSide">
+                <option value="0">Original size</option>
+                <option value="3200">3200 px</option>
+                <option value="2400">2400 px</option>
+                <option value="1600" selected>1600 px (recommended)</option>
+                <option value="1200">1200 px</option>
+                <option value="960">960 px</option>
+                <option value="800">800 px</option>
+              </select>
+            </label>
+            <p class="group-note">
+              Applied on upload/paste/drop for smoother editing. Download exports the current working canvas size.
+            </p>
+            <div class="inline-actions">
+              <button class="action-btn" id="applyEditCapBtn" type="button">Apply Max Size (flattens)</button>
+            </div>
+            <label>
+              <span>Display Zoom</span>
+              <div class="range-row">
+                <input id="displayZoom" type="range" min="20" max="200" step="5" value="100" />
+                <output id="displayZoomOut">100%</output>
+              </div>
+            </label>
+            <div class="inline-actions">
+              <button class="action-btn" id="fitViewBtn" type="button">Fit View</button>
+              <button class="action-btn" id="view100Btn" type="button">100%</button>
+            </div>
             <div class="resize-grid">
               <label>
                 <span>Resize W</span>
@@ -143,6 +172,8 @@
           <div class="canvas-meta">
             <div class="meta-badges">
               <span class="code-chip" id="canvasSizeChip">canvas: -</span>
+              <span class="code-chip" id="sourceSizeChip">source: -</span>
+              <span class="code-chip" id="viewZoomChip">zoom: 100%</span>
               <span class="code-chip" id="actionCountChip">actions: 0</span>
               <span class="code-chip" id="selectionChip">selected: none</span>
             </div>
