@@ -264,6 +264,14 @@
       refs.tableColumnMenu.removeAttribute("open");
     });
 
+    document.addEventListener("click", (event) => {
+      if (!isShortcutsPanelOpen()) return;
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (refs.shortcutsPanel?.contains(target)) return;
+      applyShortcutsPanelUI(false);
+    });
+
     window.addEventListener("keydown", onGlobalKeydown);
   }
 
@@ -378,7 +386,9 @@
     if (!refs.shortcutsPanel) return;
     refs.shortcutsPanel.hidden = !isOpen;
     refs.workspaceGrid?.setAttribute("data-shortcuts-open", String(isOpen));
+    document.body.classList.toggle("shortcuts-open", isOpen);
     if (isOpen) {
+      refs.hideShortcutsBtn?.focus({ preventScroll: true });
       refs.shortcutsPanel.scrollIntoView({ block: "nearest" });
     }
     renderStatus();

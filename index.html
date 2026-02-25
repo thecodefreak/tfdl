@@ -105,12 +105,19 @@
             <ul id="recentList" class="stack-list" aria-live="polite"></ul>
           </section>
 
-          <section id="shortcutsPanel" class="panel compact-panel ui-panel shortcuts-panel" hidden>
+          <section
+            id="shortcutsPanel"
+            class="panel compact-panel ui-panel shortcuts-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="shortcutsTitle"
+            hidden
+          >
             <div class="panel-head">
               <h2>
                 <span class="panel-title">
                   <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-keyboard"></use></svg>
-                  <span>Shortcuts</span>
+                  <span id="shortcutsTitle">Shortcuts</span>
                 </span>
               </h2>
               <div class="panel-head-actions">

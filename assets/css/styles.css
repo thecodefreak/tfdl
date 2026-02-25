@@ -444,6 +444,7 @@ kbd,
   gap: 12px;
   padding: 0 10px 10px;
   align-items: start;
+  position: relative;
 }
 
 .sidebar {
@@ -685,10 +686,40 @@ kbd,
 
 .shortcuts-panel {
   border-style: solid;
+  position: fixed;
+  z-index: 80;
+  inset: 76px auto auto 50%;
+  transform: translateX(-50%);
+  width: min(640px, calc(100vw - 24px));
+  max-height: min(72vh, 680px);
+  overflow: auto;
+  margin: 0 !important;
 }
 
 .shortcuts-panel .keymap-list {
   gap: 7px;
+}
+
+.shortcuts-panel .panel-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.shortcuts-panel[hidden] {
+  display: none !important;
+}
+
+.workspace-grid[data-shortcuts-open="true"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(6, 8, 11, 0.55);
+}
+
+body.dashboard-page.shortcuts-open {
+  overflow: hidden;
 }
 
 .keymap-list li > span {
@@ -1608,6 +1639,12 @@ input:focus-visible {
     align-items: start;
   }
 
+  .shortcuts-panel {
+    inset: 64px auto auto 50%;
+    width: min(620px, calc(100vw - 20px));
+    max-height: min(74vh, 640px);
+  }
+
   .table-head {
     align-items: start;
   }
@@ -1650,6 +1687,13 @@ input:focus-visible {
 
   .sidebar {
     grid-template-columns: 1fr;
+  }
+
+  .shortcuts-panel {
+    inset: 56px auto auto 50%;
+    width: calc(100vw - 12px);
+    max-height: min(78vh, 640px);
+    border-radius: 12px;
   }
 
   .workspace-grid[data-view="cards"] .sidebar {
