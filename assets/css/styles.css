@@ -61,26 +61,28 @@ kbd,
 }
 
 .ui-icon {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
   display: inline-block;
   flex: 0 0 auto;
   stroke: currentColor;
   fill: none;
-  stroke-width: 1.8;
+  stroke-width: 2.05;
   stroke-linecap: round;
   stroke-linejoin: round;
   vertical-align: middle;
+  opacity: 0.96;
 }
 
 .ui-icon.icon-xs {
-  width: 12px;
-  height: 12px;
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.15;
 }
 
 .ui-icon.icon-sm {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
 }
 
 .icon-label {
@@ -364,7 +366,8 @@ kbd,
 
 .ghost-btn .ui-icon,
 .action-btn .ui-icon {
-  color: var(--text-dim);
+  color: currentColor;
+  opacity: 0.82;
 }
 
 .ghost-btn:hover,
@@ -376,6 +379,7 @@ kbd,
 .ghost-btn:hover .ui-icon,
 .action-btn:hover .ui-icon {
   color: currentColor;
+  opacity: 0.95;
 }
 
 .ghost-btn-small {
@@ -492,7 +496,8 @@ kbd,
 }
 
 .panel-title .ui-icon {
-  color: var(--text-dim);
+  color: #a7d8ef;
+  opacity: 0.9;
 }
 
 .tiny {
@@ -561,7 +566,8 @@ kbd,
 
 .quick-line strong .ui-icon,
 .recent-line strong .ui-icon {
-  color: var(--text-dim);
+  color: #a8b6c6;
+  opacity: 0.9;
 }
 
 .subtle-line {
@@ -859,7 +865,8 @@ kbd {
 }
 
 .tool-link .ui-icon {
-  color: var(--text-dim);
+  color: #9ecfe6;
+  opacity: 0.9;
 }
 
 .tool-desc {
@@ -924,9 +931,10 @@ kbd {
 }
 
 .category-chip .ui-icon {
-  width: 12px;
-  height: 12px;
-  color: var(--text-dim);
+  width: 13px;
+  height: 13px;
+  color: #9ec0d4;
+  opacity: 0.92;
 }
 
 .tags-wrap {
@@ -974,6 +982,7 @@ kbd {
 
 .action-btn.copy-ok .ui-icon {
   color: #aaf7e0;
+  opacity: 1;
 }
 
 .table-panel[data-view="cards"] .table-scroll {
@@ -1072,7 +1081,8 @@ kbd {
 }
 
 .tool-card-title .ui-icon {
-  color: var(--text-dim);
+  color: #9fd2ea;
+  opacity: 0.92;
 }
 
 .tool-card-desc {
@@ -1108,7 +1118,8 @@ kbd {
 }
 
 .tool-card-key .ui-icon {
-  color: rgba(255, 255, 255, 0.42);
+  color: rgba(255, 255, 255, 0.58);
+  opacity: 0.88;
 }
 
 .tool-card-line a {
@@ -1184,6 +1195,7 @@ kbd {
 
 .tool-card .actions-wrap .action-btn.open-primary .ui-icon {
   color: #bdeaff;
+  opacity: 1;
 }
 
 .tool-card .tag {
