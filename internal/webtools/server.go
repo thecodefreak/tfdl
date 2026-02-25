@@ -15,8 +15,20 @@ func NewMux(cfg Config, logger *log.Logger) http.Handler {
 		logger = log.Default()
 	}
 
+	aliasRedirects, err := LoadAliasRedirects(cfg.Server.RootDir)
+	if err != nil {
+		logger.Printf("alias redirects disabled: %v", err)
+	} else if len(aliasRedirects) > 0 {
+		logger.Printf("loaded %d dynamic alias redirects from registry", len(aliasRedirects))
+	}
+
 	fileHandler := http.FileServer(http.Dir(cfg.Server.RootDir))
-	staticChain := withRequestLogging(logger, withSecurityHeaders(withNoGitAccess(fileHandler)))
+	staticChain := withNoGitAccess(fileHandler)
+	if len(aliasRedirects) > 0 {
+		staticChain = withAliasRedirects(aliasRedirects, staticChain)
+	}
+	staticChain = withSecurityHeaders(staticChain)
+	staticChain = withRequestLogging(logger, staticChain)
 
 	if cfg.Auth.Enabled {
 		staticChain = withBasicAuth(cfg.Auth.Username, cfg.Auth.Password, staticChain)
@@ -35,6 +47,26 @@ func NewMux(cfg Config, logger *log.Logger) http.Handler {
 
 func ListenAddr(cfg Config) string {
 	return fmt.Sprintf("%s:%d", cfg.Server.Bind, cfg.Server.Port)
+}
+
+func withAliasRedirects(aliasRedirects map[string]string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		target, ok := LookupAliasRedirect(aliasRedirects, r.URL.Path)
+		if !ok {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		if raw := strings.TrimSpace(r.URL.RawQuery); raw != "" {
+			target += "?" + raw
+		}
+		http.Redirect(w, r, target, http.StatusFound)
+	})
 }
 
 func withNoGitAccess(next http.Handler) http.Handler {

@@ -34,12 +34,16 @@ Examples:
 
 This keeps source organized while keeping navigation fast.
 
+With the Go server enabled, `t/<alias>` redirects are generated dynamically from
+`assets/js/tools.registry.js`, so per-alias redirect folders under `t/` are
+optional unless you need static-file-only hosting compatibility.
+
 ## Add a New Tool (Recommended Workflow)
 
 1. Copy `tools/_template/` into the target category and rename to your slug.
 2. Implement the tool at `tools/<category>/<slug>/index.html`.
 3. Add the tool entry to `assets/js/tools.registry.js`.
-4. Create `t/<alias>/index.html` redirect page.
+4. Optional (static-hosting mode): create `t/<alias>/index.html` redirect page.
 5. Reload `index.html` and verify search + alias link + source path.
 
 ## Dashboard Features
@@ -132,6 +136,7 @@ Or override with flags/env vars.
 
 - `/healthz` endpoint (no auth) for Compose/health checks
 - blocks direct access to `.git` paths when serving the project root
+- dynamic `/t/<alias>` redirects loaded from `assets/js/tools.registry.js`
 - basic request logging
 - graceful shutdown on `SIGINT`/`SIGTERM`
 

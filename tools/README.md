@@ -5,13 +5,21 @@ This directory contains the canonical implementation for each tool.
 Convention:
 
 - `tools/<category>/<slug>/index.html` = real tool page
-- `t/<alias>/index.html` = short redirect alias for daily use
+- `t/<alias>/index.html` = short redirect alias for static-file hosting (optional when using the Go server)
 
 Why this split:
 
 - `tools/` stays organized by category
 - `t/` stays fast and memorable for bookmarks/typing
 - aliases can change without moving source code (if you update redirects and registry)
+
+## Go Server Note
+
+When running the Go server (`cmd/webtools`), alias redirects for `/t/<alias>` are
+generated dynamically from `assets/js/tools.registry.js`.
+
+That means you can skip creating `t/<alias>/index.html` while developing/running
+the server, and only add it if you still want static-file-only compatibility.
 
 ## Categories Included
 
