@@ -207,13 +207,32 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid {
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-view="cards"] .sidebar {
+  position: static;
+  top: auto;
   gap: 14px;
   grid-template-columns: minmax(360px, 1.1fr) minmax(320px, 0.9fr);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar {
+  position: sticky;
   gap: 12px;
   top: 12px;
+  padding: 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.012), rgba(255, 255, 255, 0.004));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.015);
+}
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 8px auto 8px 8px;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(130, 182, 255, 0.2), rgba(113, 224, 194, 0.08), transparent 90%);
+  pointer-events: none;
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .panel,
@@ -227,6 +246,34 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .table-panel {
 body.dashboard-page.theme-dark:not(.theme-terminal) .panel {
   padding: 12px;
   gap: 10px;
+}
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar > .panel {
+  position: relative;
+  margin-left: 4px;
+}
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .shortcuts-panel {
+  border-color: rgba(130, 182, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(38, 44, 57, 0.84), rgba(22, 27, 35, 0.9));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.02),
+    0 10px 22px rgba(0, 0, 0, 0.12);
+}
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .shortcuts-panel .panel-head {
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .shortcuts-panel .panel-head-actions .tiny {
+  color: #b8c8df;
+}
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .shortcuts-panel .keymap-list li {
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.018);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .panel-head h2 {
@@ -459,6 +506,17 @@ body.tool-shell-page.theme-dark:not(.theme-terminal) .back-link {
   body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-view="cards"] .sidebar {
     grid-template-columns: 1fr;
   }
+
+  body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar {
+    position: static;
+    top: auto;
+    padding: 6px;
+    border-radius: 16px;
+  }
+
+  body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar::before {
+    inset: 6px auto 6px 6px;
+  }
 }
 
 @media (max-width: 760px) {
@@ -470,6 +528,22 @@ body.tool-shell-page.theme-dark:not(.theme-terminal) .back-link {
 
   body.dashboard-page.theme-dark:not(.theme-terminal) .chrome {
     padding-top: 8px;
+  }
+
+  body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar::before {
+    display: none;
+  }
+
+  body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar > .panel {
+    margin-left: 0;
   }
 
   body.dashboard-page.theme-dark:not(.theme-terminal) .tools-card-grid {

@@ -73,7 +73,7 @@
 
         <div class="status-strip ui-divider" aria-live="polite">
           <span id="resultsCount" class="mono"></span>
-          <span id="statusHint" class="mono">/ search · j/k move · Enter open · p pin · y alias · Y source · 1-0 open visible</span>
+          <span id="statusHint" class="mono">/ search · Ctrl/Cmd+/ shortcuts · j/k move · Enter open · p pin · y alias · Y source · 1-0 open visible</span>
         </div>
       </section>
 
@@ -105,17 +105,22 @@
             <ul id="recentList" class="stack-list" aria-live="polite"></ul>
           </section>
 
-          <section class="panel compact-panel is-optional-in-cards ui-panel">
+          <section id="shortcutsPanel" class="panel compact-panel ui-panel shortcuts-panel" hidden>
             <div class="panel-head">
               <h2>
                 <span class="panel-title">
                   <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-keyboard"></use></svg>
-                  <span>Keymap</span>
+                  <span>Shortcuts</span>
                 </span>
               </h2>
+              <div class="panel-head-actions">
+                <span class="tiny mono">Ctrl/Cmd+/</span>
+                <button id="hideShortcutsBtn" class="ghost-btn ghost-btn-small ui-btn ui-btn--ghost ui-btn--sm" type="button">Hide</button>
+              </div>
             </div>
             <ul class="keymap-list">
               <li><kbd>/</kbd><span>focus search</span></li>
+              <li><kbd>Ctrl/Cmd</kbd><kbd>/</kbd><span>toggle shortcuts</span></li>
               <li><kbd>j</kbd><kbd>k</kbd><span>move selection</span></li>
               <li><kbd>Enter</kbd><span>open selected tool</span></li>
               <li><kbd>p</kbd><span>pin selected tool</span></li>

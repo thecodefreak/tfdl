@@ -56,6 +56,8 @@
     statusHint: document.querySelector("#statusHint"),
     todayLabel: document.querySelector("#todayLabel"),
     workspaceGrid: document.querySelector("#workspaceGrid"),
+    shortcutsPanel: document.querySelector("#shortcutsPanel"),
+    hideShortcutsBtn: document.querySelector("#hideShortcutsBtn"),
     resultsPanel: document.querySelector("#resultsPanel"),
     toolsTable: document.querySelector(".tools-table"),
     tbody: document.querySelector("#toolRows"),
@@ -80,6 +82,7 @@
 
   stampDate();
   window.setInterval(stampDate, 1000);
+  applyShortcutsPanelUI(false);
   renderCategoryChips();
   renderTableColumnControls();
   bindEvents();
@@ -163,6 +166,10 @@
       recents = [];
       persistStringList(RECENTS_KEY, recents);
       render();
+    });
+
+    refs.hideShortcutsBtn?.addEventListener("click", () => {
+      applyShortcutsPanelUI(false);
     });
 
     refs.categoryChips?.addEventListener("click", (event) => {
@@ -261,6 +268,12 @@
   }
 
   function onGlobalKeydown(event) {
+    if (isShortcutsToggleKey(event)) {
+      event.preventDefault();
+      applyShortcutsPanelUI(!isShortcutsPanelOpen());
+      return;
+    }
+
     const active = document.activeElement;
     const isTyping =
       active instanceof HTMLInputElement ||
@@ -283,6 +296,11 @@
 
     if (event.key === "Escape" && refs.tableColumnMenu?.hasAttribute("open")) {
       refs.tableColumnMenu.removeAttribute("open");
+      return;
+    }
+
+    if (event.key === "Escape" && isShortcutsPanelOpen()) {
+      applyShortcutsPanelUI(false);
       return;
     }
 
@@ -344,6 +362,26 @@
     if (/^[1-9]$/.test(key)) return Number(key) - 1;
     if (key === "0") return 9;
     return null;
+  }
+
+  function isShortcutsToggleKey(event) {
+    if (!(event.ctrlKey || event.metaKey)) return false;
+    if (event.altKey) return false;
+    return event.code === "Slash";
+  }
+
+  function isShortcutsPanelOpen() {
+    return Boolean(refs.shortcutsPanel && !refs.shortcutsPanel.hidden);
+  }
+
+  function applyShortcutsPanelUI(isOpen) {
+    if (!refs.shortcutsPanel) return;
+    refs.shortcutsPanel.hidden = !isOpen;
+    refs.workspaceGrid?.setAttribute("data-shortcuts-open", String(isOpen));
+    if (isOpen) {
+      refs.shortcutsPanel.scrollIntoView({ block: "nearest" });
+    }
+    renderStatus();
   }
 
   function renderCategoryChips() {
@@ -755,7 +793,7 @@
     }
 
     if (refs.statusHint) {
-      refs.statusHint.textContent = `/ search · j/k move · Enter open · p pin · v view:${viewMode} · y alias · Y source · 1-0 open visible`;
+      refs.statusHint.textContent = `/ search · Ctrl/Cmd+/ shortcuts · j/k move · Enter open · p pin · v view:${viewMode} · y alias · Y source · 1-0 open visible`;
     }
   }
 
