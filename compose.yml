@@ -1,0 +1,30 @@
+services:
+  webtools:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: webtools-workspace:local
+    working_dir: /srv/webtools
+    command:
+      - serve
+      - -config
+      - /srv/webtools/webtools.json
+      - -root
+      - /srv/webtools
+      - -port
+      - ${WEBTOOLS_PORT:-8080}
+    environment:
+      WEBTOOLS_AUTH_ENABLED: ${WEBTOOLS_AUTH_ENABLED:-}
+      WEBTOOLS_AUTH_USER: ${WEBTOOLS_AUTH_USER:-}
+      WEBTOOLS_AUTH_PASS: ${WEBTOOLS_AUTH_PASS:-}
+    volumes:
+      - ./:/srv/webtools:ro
+    ports:
+      - "${WEBTOOLS_PORT:-8080}:${WEBTOOLS_PORT:-8080}"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${WEBTOOLS_PORT:-8080}/healthz >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

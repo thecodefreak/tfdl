@@ -56,3 +56,113 @@ This keeps source organized while keeping navigation fast.
 - No build system or framework required.
 - Works as a static local workspace.
 - If you later host it, the same `t/<alias>/` structure stays useful.
+
+## Run as a Web Server (Go)
+
+This project now includes a small Go server so you can run the static workspace as a local web app or package it as a command.
+
+Files:
+
+- `cmd/webtools/` - CLI entrypoint (`serve`, `print-config`)
+- `internal/webtools/` - server + config logic
+- `webtools.json` - shared dev config (portable defaults)
+
+### Quick Start
+
+From `project/`:
+
+```bash
+go run ./cmd/webtools serve
+```
+
+Open:
+
+- `http://127.0.0.1:8080`
+
+### Useful Flags
+
+```bash
+go run ./cmd/webtools serve -port 9000
+go run ./cmd/webtools serve -config ./webtools.json -root .
+go run ./cmd/webtools serve -auth-enabled=true -auth-user dev -auth-pass 'secret'
+```
+
+Supported overrides:
+
+- `-port`
+- `-bind`
+- `-root`
+- `-config`
+- `-auth-enabled`
+- `-auth-user`
+- `-auth-pass`
+
+### Config File (`webtools.json`)
+
+The server uses `webtools.json` (JSON instead of YAML to keep the Go implementation dependency-free).
+
+Lookup order:
+
+1. `-config <path>`
+2. `WEBTOOLS_CONFIG`
+3. `./webtools.json` (if present)
+
+Environment variables also override config values:
+
+- `WEBTOOLS_PORT`
+- `WEBTOOLS_BIND`
+- `WEBTOOLS_ROOT`
+- `WEBTOOLS_AUTH_ENABLED`
+- `WEBTOOLS_AUTH_USER`
+- `WEBTOOLS_AUTH_PASS`
+
+### Password Protection
+
+Basic Auth is supported and is **disabled by default**.
+
+Set in config:
+
+- `auth.enabled = true`
+- `auth.username`
+- `auth.password`
+
+Or override with flags/env vars.
+
+### Nice Extras Included
+
+- `/healthz` endpoint (no auth) for Compose/health checks
+- blocks direct access to `.git` paths when serving the project root
+- basic request logging
+- graceful shutdown on `SIGINT`/`SIGTERM`
+
+## Docker / Compose
+
+### Docker Compose
+
+From `project/`:
+
+```bash
+docker compose -f compose.yml up --build
+```
+
+The service:
+
+- builds the Go server image
+- mounts the project directory read-only
+- serves from `/srv/webtools`
+- reads config from `/srv/webtools/webtools.json`
+
+Change the port:
+
+```bash
+WEBTOOLS_PORT=9090 docker compose -f compose.yml up --build
+```
+
+Enable auth:
+
+```bash
+WEBTOOLS_AUTH_ENABLED=true \
+WEBTOOLS_AUTH_USER=dev \
+WEBTOOLS_AUTH_PASS='secret' \
+docker compose -f compose.yml up --build
+```
