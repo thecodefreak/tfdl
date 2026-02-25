@@ -55,6 +55,23 @@ optional unless you need static-file-only hosting compatibility.
 - Copy alias path and source path per tool
 - Shortcuts to open top visible tools with `1..0`
 
+## UI Framework (Phase 2)
+
+To keep the project minimal but consistent, the UI now uses a small local CSS
+framework in `assets/css/framework.css` (no external dependency/build step).
+
+What it provides:
+
+- shared design tokens (`--ui-*`) that map to the app theme
+- reusable component primitives (`ui-panel`, `ui-btn`, `ui-chip`, `ui-field-shell`)
+- utility classes for layout/spacing (`ui-stack`, `ui-row`, `ui-grid-2`, etc.)
+- dev-tool-friendly defaults (dark surfaces, compact controls, mono support)
+
+How it is loaded:
+
+- `assets/css/styles.css` imports `assets/css/framework.css`
+- existing launcher/tool styles remain app-specific and can be migrated gradually
+
 ## Notes
 
 - No build system or framework required.

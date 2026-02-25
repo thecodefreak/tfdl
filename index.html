@@ -8,9 +8,9 @@
   <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body class="dashboard-page theme-dark">
-  <main class="workspace" aria-label="Developer tools workspace">
-    <section class="app-frame" aria-label="Workspace shell">
-      <header class="chrome" aria-label="Application chrome">
+  <main class="workspace ui-page" aria-label="Developer tools workspace">
+    <section class="app-frame ui-surface" aria-label="Workspace shell">
+      <header class="chrome ui-toolbar" aria-label="Application chrome">
         <div class="chrome-left">
           <div class="traffic" aria-hidden="true">
             <span class="dot red"></span>
@@ -24,30 +24,30 @@
           </div>
         </div>
         <div class="chrome-center">
-          <code class="path-pill">~/projects/gumgum</code>
-          <code class="path-pill">registry: assets/js/tools.registry.js</code>
+          <code class="path-pill ui-pill ui-mono">~/projects/gumgum</code>
+          <code class="path-pill ui-pill ui-mono">registry: assets/js/tools.registry.js</code>
         </div>
         <div class="chrome-right" aria-label="Clock and URL convention">
           <span id="todayLabel" class="tiny mono"></span>
-          <code class="path-pill">t/&lt;alias&gt;/</code>
+          <code class="path-pill ui-pill ui-mono">t/&lt;alias&gt;/</code>
         </div>
       </header>
 
-      <section class="command-deck" aria-labelledby="controls-title">
+      <section class="command-deck ui-panel" aria-labelledby="controls-title">
         <div class="command-head">
           <div>
             <p class="eyebrow">Quick Access</p>
             <h1 id="controls-title">Tool Workspace</h1>
           </div>
           <div class="hint-cluster" aria-label="Search syntax hints">
-            <span class="hint-chip">@dev</span>
-            <span class="hint-chip">@utilities</span>
-            <span class="hint-chip">#json</span>
-            <span class="hint-chip">#timer</span>
+            <span class="hint-chip ui-chip">@dev</span>
+            <span class="hint-chip ui-chip">@utilities</span>
+            <span class="hint-chip ui-chip">#json</span>
+            <span class="hint-chip ui-chip">#timer</span>
           </div>
         </div>
 
-        <label class="search-wrap command-input" for="toolSearch">
+        <label class="search-wrap command-input ui-field-shell" for="toolSearch">
           <span class="prompt" aria-hidden="true">&gt;</span>
           <span class="visually-hidden">Search tools</span>
           <input
@@ -61,19 +61,19 @@
         <div class="deck-row">
           <div id="categoryChips" class="filter-row" aria-label="Category filters"></div>
           <div class="toggle-row-group" role="group" aria-label="View toggles">
-            <label class="toggle-row" for="pinnedOnly">
+            <label class="toggle-row ui-check-row" for="pinnedOnly">
               <input id="pinnedOnly" type="checkbox" />
               <span>Pinned</span>
             </label>
-            <label class="toggle-row" for="recentOnly">
+            <label class="toggle-row ui-check-row" for="recentOnly">
               <input id="recentOnly" type="checkbox" />
               <span>Recent</span>
             </label>
-            <button id="clearSearch" type="button" class="ghost-btn">Clear</button>
+            <button id="clearSearch" type="button" class="ghost-btn ui-btn ui-btn--ghost">Clear</button>
           </div>
         </div>
 
-        <div class="status-strip" aria-live="polite">
+        <div class="status-strip ui-divider" aria-live="polite">
           <span id="resultsCount" class="mono"></span>
           <span id="statusHint" class="mono">/ search · j/k move · Enter open · p pin · y alias · Y source · 1-0 open visible</span>
         </div>
@@ -81,7 +81,7 @@
 
       <section class="workspace-grid" id="workspaceGrid" aria-label="Workspace panels">
         <aside class="sidebar" aria-label="Tool side panels">
-          <section class="panel compact-panel">
+          <section class="panel compact-panel ui-panel">
             <div class="panel-head">
               <h2>
                 <span class="panel-title">
@@ -94,7 +94,7 @@
             <ol id="quickLaunchList" class="quick-list" aria-live="polite"></ol>
           </section>
 
-          <section class="panel compact-panel">
+          <section class="panel compact-panel ui-panel">
             <div class="panel-head">
               <h2>
                 <span class="panel-title">
@@ -102,12 +102,12 @@
                   <span>Recent</span>
                 </span>
               </h2>
-              <button id="clearRecent" class="ghost-btn ghost-btn-small" type="button">Clear</button>
+              <button id="clearRecent" class="ghost-btn ghost-btn-small ui-btn ui-btn--ghost ui-btn--sm" type="button">Clear</button>
             </div>
             <ul id="recentList" class="stack-list" aria-live="polite"></ul>
           </section>
 
-          <section class="panel compact-panel is-optional-in-cards">
+          <section class="panel compact-panel is-optional-in-cards ui-panel">
             <div class="panel-head">
               <h2>
                 <span class="panel-title">
@@ -132,7 +132,7 @@
             </ul>
           </section>
 
-          <section class="panel compact-panel is-optional-in-cards">
+          <section class="panel compact-panel is-optional-in-cards ui-panel">
             <div class="panel-head">
               <h2>
                 <span class="panel-title">
@@ -152,7 +152,7 @@
           </section>
         </aside>
 
-        <section class="table-panel" id="resultsPanel" aria-labelledby="tools-results-title">
+        <section class="table-panel ui-panel" id="resultsPanel" aria-labelledby="tools-results-title">
           <div class="panel-head table-head">
             <div>
               <p class="eyebrow">Index</p>
@@ -165,31 +165,31 @@
                 <span><i class="dot alias-dot"></i>alias route</span>
               </div>
               <div class="table-controls-row">
-                <details id="tableColumnMenu" class="column-menu">
-                  <summary id="tableColumnsSummary" class="ghost-btn ghost-btn-small" aria-label="Choose table columns">
+                <details id="tableColumnMenu" class="column-menu ui-popover">
+                  <summary id="tableColumnsSummary" class="ghost-btn ghost-btn-small ui-btn ui-btn--ghost ui-btn--sm" aria-label="Choose table columns">
                     <span class="icon-label">
                       <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-sliders"></use></svg>
                       <span id="tableColumnsSummaryLabel">Columns</span>
                     </span>
                   </summary>
-                  <div class="column-menu-panel">
+                  <div class="column-menu-panel ui-popover-panel">
                     <div class="column-menu-head">
                       <strong>Table Columns</strong>
                       <span class="tiny mono">table only</span>
                     </div>
                     <div id="tableColumnChecklist" class="column-checklist" role="group" aria-label="Toggle visible table columns"></div>
                     <div class="column-menu-actions">
-                      <button id="tableColumnsEssentialsBtn" type="button" class="ghost-btn ghost-btn-small">Essentials</button>
-                      <button id="tableColumnsAllBtn" type="button" class="ghost-btn ghost-btn-small">Show All</button>
+                      <button id="tableColumnsEssentialsBtn" type="button" class="ghost-btn ghost-btn-small ui-btn ui-btn--ghost ui-btn--sm">Essentials</button>
+                      <button id="tableColumnsAllBtn" type="button" class="ghost-btn ghost-btn-small ui-btn ui-btn--ghost ui-btn--sm">Show All</button>
                     </div>
                   </div>
                 </details>
 
-                <div class="view-switch" role="group" aria-label="Results view">
-                  <button id="tableViewBtn" type="button" class="ghost-btn ghost-btn-small" aria-pressed="true">
+                <div class="view-switch ui-segment" role="group" aria-label="Results view">
+                  <button id="tableViewBtn" type="button" class="ghost-btn ghost-btn-small ui-btn ui-btn--ghost ui-btn--sm" aria-pressed="true">
                     <span class="icon-label"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-table"></use></svg><span>Table</span></span>
                   </button>
-                  <button id="cardViewBtn" type="button" class="ghost-btn ghost-btn-small" aria-pressed="false">
+                  <button id="cardViewBtn" type="button" class="ghost-btn ghost-btn-small ui-btn ui-btn--ghost ui-btn--sm" aria-pressed="false">
                     <span class="icon-label"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-grid"></use></svg><span>Cards</span></span>
                   </button>
                 </div>

@@ -33,3 +33,12 @@ the server, and only add it if you still want static-file-only compatibility.
 ## Template
 
 Use `tools/_template/` when creating a new tool.
+
+The template and launcher now use the local UI framework (`assets/css/framework.css`,
+loaded through `assets/css/styles.css`) so new tools can reuse:
+
+- `ui-panel`
+- `ui-btn` / `ui-btn--ghost` / `ui-btn--primary`
+- `ui-chip` / `ui-code-chip`
+- `ui-field-shell`
+- `ui-stack` / `ui-row` / `ui-grid-2`

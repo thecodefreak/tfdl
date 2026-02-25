@@ -1,3 +1,7 @@
+@import url("./framework.css");
+
+/* App-specific launcher and tool styles (shared primitives live in framework.css). */
+
 :root {
   --bg: #090b0d;
   --panel: #101419;
