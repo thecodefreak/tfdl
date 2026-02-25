@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Developer-first daily web tools workspace." />
-  <title>Web Tools Workspace</title>
+  <meta name="description" content="TFDL - Tools For Dev Life." />
+  <title>TFDL - Tools For Dev Life</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
   <link rel="stylesheet" href="assets/css/skins/canva-dark.css" />
   <link rel="stylesheet" href="assets/css/user.css" />
@@ -20,17 +20,13 @@
             <span class="dot green"></span>
           </div>
           <div class="project-id">
-            <span class="project-name">web-tools</span>
-            <span class="project-sep">/</span>
-            <span class="project-mode">launcher</span>
+            <span class="project-name">TFDL</span>
+            <span class="project-sep">·</span>
+            <span class="project-mode">Tools For Dev Life</span>
           </div>
         </div>
-        <div class="chrome-center">
-          <code class="path-pill ui-pill ui-mono">~/projects/gumgum</code>
-          <code class="path-pill ui-pill ui-mono">registry: assets/js/tools.registry.js</code>
-        </div>
         <div class="chrome-right" aria-label="Clock and URL convention">
-          <span id="todayLabel" class="tiny mono"></span>
+          <span id="todayLabel" class="today-label path-pill ui-pill ui-mono"></span>
           <code class="path-pill ui-pill ui-mono">t/&lt;alias&gt;/</code>
         </div>
       </header>
@@ -107,31 +103,6 @@
               <button id="clearRecent" class="ghost-btn ghost-btn-small ui-btn ui-btn--ghost ui-btn--sm" type="button">Clear</button>
             </div>
             <ul id="recentList" class="stack-list" aria-live="polite"></ul>
-          </section>
-
-          <section class="panel compact-panel is-optional-in-cards ui-panel">
-            <div class="panel-head">
-              <h2>
-                <span class="panel-title">
-                  <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-braces"></use></svg>
-                  <span>Conventions</span>
-                </span>
-              </h2>
-            </div>
-            <ul class="meta-list">
-              <li>
-                <span class="meta-key mono">alias</span>
-                <code>t/&lt;alias&gt;/</code>
-              </li>
-              <li>
-                <span class="meta-key mono">source</span>
-                <code>tools/&lt;category&gt;/&lt;slug&gt;/</code>
-              </li>
-              <li>
-                <span class="meta-key mono">add tool</span>
-                <code>registry + source + alias</code>
-              </li>
-            </ul>
           </section>
 
           <section class="panel compact-panel is-optional-in-cards ui-panel">
@@ -290,6 +261,14 @@
     <symbol id="i-clock" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v5l3 2" />
+    </symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2.5M12 19.5V22M22 12h-2.5M4.5 12H2" />
+      <path d="m19.07 4.93-1.77 1.77M6.7 17.3l-1.77 1.77M19.07 19.07l-1.77-1.77M6.7 6.7 4.93 4.93" />
+    </symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24">
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
     </symbol>
     <symbol id="i-wrench" viewBox="0 0 24 24">
       <path d="M14.5 6.5a4 4 0 0 0-5 5l-6 6a2 2 0 1 0 3 3l6-6a4 4 0 0 0 5-5l-3 3-3-3 3-3Z" />

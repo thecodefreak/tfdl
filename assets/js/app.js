@@ -79,6 +79,7 @@
   let tableColumns = loadTableColumns();
 
   stampDate();
+  window.setInterval(stampDate, 1000);
   renderCategoryChips();
   renderTableColumnControls();
   bindEvents();
@@ -893,12 +894,28 @@
   function stampDate() {
     if (!refs.todayLabel) return;
     const now = new Date();
-    refs.todayLabel.textContent = now.toLocaleString(undefined, {
+    const hour = now.getHours();
+    const isNight = hour < 6 || hour >= 18;
+    const icon = isNight ? "moon" : "sun";
+    const label = now.toLocaleString(undefined, {
       weekday: "short",
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
+      second: "2-digit"
+    });
+    refs.todayLabel.classList.toggle("is-night", isNight);
+    refs.todayLabel.classList.toggle("is-day", !isNight);
+    refs.todayLabel.innerHTML = renderIconLabel(icon, label, "icon-label today-label-inner");
+    refs.todayLabel.title = now.toLocaleString(undefined, {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
     });
   }
 

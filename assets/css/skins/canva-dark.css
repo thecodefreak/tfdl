@@ -96,6 +96,7 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .app-frame {
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .chrome {
+  grid-template-columns: minmax(0, 1fr) auto;
   width: min(1880px, calc(100% - 32px));
   margin: 0 auto;
   padding: 12px 4px 0;
@@ -121,8 +122,15 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .project-name {
   letter-spacing: -0.01em;
 }
 
-body.dashboard-page.theme-dark:not(.theme-terminal) .chrome-center {
-  justify-content: flex-end;
+body.dashboard-page.theme-dark:not(.theme-terminal) .project-sep {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .project-mode {
+  text-transform: none;
+  color: var(--text-soft);
+  letter-spacing: 0;
+  font-size: 13px;
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .path-pill {
@@ -133,6 +141,21 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .path-pill {
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .chrome-right {
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .today-label {
+  border-color: rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.024);
+  padding-inline: 10px;
+}
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .today-label.is-day .ui-icon {
+  color: #ffd27a;
+}
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .today-label.is-night .ui-icon {
+  color: #b8c8ff;
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .command-deck {

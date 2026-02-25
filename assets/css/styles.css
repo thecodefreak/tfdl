@@ -114,7 +114,7 @@ kbd,
 
 .chrome {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
   padding: 9px 10px;
@@ -186,7 +186,7 @@ kbd,
 }
 
 .project-mode {
-  text-transform: lowercase;
+  text-transform: none;
 }
 
 .path-pill {
@@ -201,6 +201,29 @@ kbd,
   padding: 4px 8px;
   font-size: 12px;
   white-space: nowrap;
+}
+
+.today-label {
+  min-width: 0;
+  color: var(--text-soft);
+}
+
+.today-label .today-label-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.today-label .ui-icon {
+  opacity: 1;
+}
+
+.today-label.is-day .ui-icon {
+  color: #ffd37a;
+}
+
+.today-label.is-night .ui-icon {
+  color: #b4c6ff;
 }
 
 .command-deck {
