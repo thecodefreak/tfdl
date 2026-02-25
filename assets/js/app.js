@@ -3,6 +3,14 @@
   const RECENTS_KEY = "tools-workspace-recents";
   const VIEW_MODE_KEY = "tools-workspace-view-mode";
   const MAX_RECENTS = 12;
+  const CATEGORY_ICON_MAP = {
+    dev: "braces",
+    productivity: "clock",
+    utilities: "wrench",
+    finance: "wallet",
+    media: "image",
+    writing: "pen"
+  };
   const registry = window.TOOLS_REGISTRY;
 
   if (!registry || !Array.isArray(registry.tools)) {
@@ -405,7 +413,10 @@
         <td class="tool-name-cell">
           <div class="tool-name-wrap">
             <div class="tool-title-line">
-              <a class="tool-link" data-open-track="true" href="${escapeHtml(tool.aliasPath)}">${escapeHtml(tool.name)}</a>
+              <a class="tool-link" data-open-track="true" href="${escapeHtml(tool.aliasPath)}">${renderIcon(
+                getCategoryIconName(tool.category),
+                "ui-icon icon-xs"
+              )}<span>${escapeHtml(tool.name)}</span></a>
               ${isPinned ? '<span class="status-pill pinned">PIN</span>' : ""}
               ${isRecent ? '<span class="status-pill recent">RECENT</span>' : ""}
             </div>
@@ -417,7 +428,7 @@
       tool.aliasPath
     )}</code></a>
         </td>
-        <td><span class="category-chip">${escapeHtml(tool.category)}</span></td>
+        <td>${renderCategoryChip(tool.category)}</td>
         <td>
           <div class="tags-wrap">${tool.tags
             .map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`)
@@ -430,18 +441,31 @@
         </td>
         <td class="actions-cell">
           <div class="actions-wrap">
-            <button class="action-btn ${isPinned ? "pin-active" : ""}" type="button" data-action="pin" data-tool-id="${escapeHtml(
-      tool.id
-    )}">${isPinned ? "Unpin" : "Pin"}</button>
-            <button class="action-btn" type="button" data-action="copy-alias" data-tool-id="${escapeHtml(
-      tool.id
-    )}">Copy alias</button>
-            <button class="action-btn" type="button" data-action="copy-source" data-tool-id="${escapeHtml(
-      tool.id
-    )}">Copy source</button>
-            <button class="action-btn" type="button" data-action="open" data-tool-id="${escapeHtml(
-      tool.id
-    )}">Open</button>
+            ${renderActionButton({
+              toolId: tool.id,
+              action: "pin",
+              icon: "pin",
+              label: isPinned ? "Unpin" : "Pin",
+              className: `action-btn ${isPinned ? "pin-active" : ""}`.trim()
+            })}
+            ${renderActionButton({
+              toolId: tool.id,
+              action: "copy-alias",
+              icon: "copy",
+              label: "Alias"
+            })}
+            ${renderActionButton({
+              toolId: tool.id,
+              action: "copy-source",
+              icon: "folder",
+              label: "Source"
+            })}
+            ${renderActionButton({
+              toolId: tool.id,
+              action: "open",
+              icon: "open",
+              label: "Open"
+            })}
           </div>
         </td>
       </tr>`;
@@ -468,7 +492,10 @@
             <span class="index-badge${shortcutLabel ? " hotkey" : ""}">${escapeHtml(shortcutLabel || String(index + 1))}</span>
             <div class="tool-card-title-block">
               <div class="tool-card-title-line">
-                <a class="tool-card-title" data-open-track="true" href="${escapeHtml(tool.aliasPath)}">${escapeHtml(tool.name)}</a>
+                <a class="tool-card-title" data-open-track="true" href="${escapeHtml(tool.aliasPath)}">${renderIcon(
+                  getCategoryIconName(tool.category),
+                  "ui-icon icon-xs"
+                )}<span>${escapeHtml(tool.name)}</span></a>
                 ${isPinned ? '<span class="status-pill pinned">PIN</span>' : ""}
                 ${isRecent ? '<span class="status-pill recent">RECENT</span>' : ""}
               </div>
@@ -477,30 +504,41 @@
           </div>
           <div class="tool-card-meta">
             <div class="tool-card-line">
-              <span class="tool-card-key mono">alias</span>
+              <span class="tool-card-key mono">${renderIcon("link", "ui-icon icon-xs")}<span>alias</span></span>
               <a data-open-track="true" href="${escapeHtml(tool.aliasPath)}"><code>${escapeHtml(tool.aliasPath)}</code></a>
             </div>
             <div class="tool-card-line source-line">
-              <span class="tool-card-key mono">source</span>
+              <span class="tool-card-key mono">${renderIcon("folder", "ui-icon icon-xs")}<span>source</span></span>
               <a data-open-track="true" href="${escapeHtml(tool.canonicalPath)}"><code>${escapeHtml(tool.canonicalPath)}</code></a>
             </div>
           </div>
         </div>
         <div class="tool-card-foot">
           <div class="tool-card-strip">
-            <span class="category-chip">${escapeHtml(tool.category)}</span>
+            ${renderCategoryChip(tool.category)}
             <div class="tags-wrap">${tagsHtml}</div>
           </div>
           <div class="actions-wrap">
-            <button class="action-btn open-primary" type="button" data-action="open" data-tool-id="${escapeHtml(
-              tool.id
-            )}">Open</button>
-            <button class="action-btn ${isPinned ? "pin-active" : ""}" type="button" data-action="pin" data-tool-id="${escapeHtml(
-              tool.id
-            )}">${isPinned ? "Unpin" : "Pin"}</button>
-            <button class="action-btn" type="button" data-action="copy-alias" data-tool-id="${escapeHtml(
-              tool.id
-            )}">Copy alias</button>
+            ${renderActionButton({
+              toolId: tool.id,
+              action: "open",
+              icon: "open",
+              label: "Open",
+              className: "action-btn open-primary"
+            })}
+            ${renderActionButton({
+              toolId: tool.id,
+              action: "pin",
+              icon: "pin",
+              label: isPinned ? "Unpin" : "Pin",
+              className: `action-btn ${isPinned ? "pin-active" : ""}`.trim()
+            })}
+            ${renderActionButton({
+              toolId: tool.id,
+              action: "copy-alias",
+              icon: "copy",
+              label: "Alias"
+            })}
           </div>
         </div>
       </article>`;
@@ -522,7 +560,9 @@
           <li>
             <button class="quick-item-btn" type="button" data-open-id="${escapeHtml(tool.id)}">
               <div class="quick-line">
-                <strong>${hotkey}. ${escapeHtml(tool.name)}</strong>
+                <strong>${renderIcon(getCategoryIconName(tool.category), "ui-icon icon-xs")}<span>${hotkey}. ${escapeHtml(
+                  tool.name
+                )}</span></strong>
                 <span class="path-chip">${escapeHtml(tool.aliasPath)}</span>
               </div>
               <div class="subtle-line">${escapeHtml(tool.canonicalPath)}</div>
@@ -554,7 +594,9 @@
           <li>
             <button class="recent-item-btn" type="button" data-open-id="${escapeHtml(tool.id)}">
               <div class="recent-line">
-                <strong>${escapeHtml(tool.name)}</strong>
+                <strong>${renderIcon(getCategoryIconName(tool.category), "ui-icon icon-xs")}<span>${escapeHtml(
+                  tool.name
+                )}</span></strong>
                 <span class="path-chip">${escapeHtml(tool.aliasPath)}</span>
               </div>
               <div class="subtle-line">${escapeHtml(tool.canonicalPath)} • ${escapeHtml(tool.category)}</div>
@@ -711,11 +753,11 @@
 
   function flashButton(button) {
     button.classList.add("copy-ok");
-    const original = button.textContent;
-    button.textContent = "Copied";
+    const originalHtml = button.innerHTML;
+    button.innerHTML = renderIconLabel("check", "Copied");
     window.setTimeout(() => {
       button.classList.remove("copy-ok");
-      button.textContent = original;
+      button.innerHTML = originalHtml;
     }, 700);
   }
 
@@ -802,6 +844,31 @@
       .filter(Boolean)
       .map((part) => part[0].toUpperCase() + part.slice(1))
       .join(" ");
+  }
+
+  function getCategoryIconName(category) {
+    return CATEGORY_ICON_MAP[category] || "folder";
+  }
+
+  function renderCategoryChip(category) {
+    return `<span class="category-chip">${renderIcon(getCategoryIconName(category), "ui-icon icon-xs")}<span>${escapeHtml(
+      category
+    )}</span></span>`;
+  }
+
+  function renderActionButton({ toolId, action, icon, label, className = "action-btn" }) {
+    return `<button class="${escapeHtml(className)}" type="button" data-action="${escapeHtml(
+      action
+    )}" data-tool-id="${escapeHtml(toolId)}">${renderIconLabel(icon, label)}</button>`;
+  }
+
+  function renderIconLabel(iconName, text, className = "icon-label") {
+    return `<span class="${escapeHtml(className)}">${renderIcon(iconName)}<span>${escapeHtml(text)}</span></span>`;
+  }
+
+  function renderIcon(iconName, className = "ui-icon") {
+    const iconId = `i-${String(iconName || "folder").replace(/[^a-z0-9-]/gi, "")}`;
+    return `<svg class="${escapeHtml(className)}" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#${iconId}"></use></svg>`;
   }
 
   function escapeHtml(value) {

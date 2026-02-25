@@ -53,6 +53,42 @@ kbd,
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
 
+.icon-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.ui-icon {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  flex: 0 0 auto;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: middle;
+}
+
+.ui-icon.icon-xs {
+  width: 12px;
+  height: 12px;
+}
+
+.ui-icon.icon-sm {
+  width: 13px;
+  height: 13px;
+}
+
+.icon-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .workspace {
   width: min(1840px, calc(100% - 12px));
   margin: 6px auto;
@@ -321,10 +357,25 @@ kbd,
   cursor: pointer;
 }
 
+.ghost-btn .icon-label,
+.action-btn .icon-label {
+  gap: 5px;
+}
+
+.ghost-btn .ui-icon,
+.action-btn .ui-icon {
+  color: var(--text-dim);
+}
+
 .ghost-btn:hover,
 .action-btn:hover {
   border-color: #415265;
   color: var(--text);
+}
+
+.ghost-btn:hover .ui-icon,
+.action-btn:hover .ui-icon {
+  color: currentColor;
 }
 
 .ghost-btn-small {
@@ -434,6 +485,16 @@ kbd,
   letter-spacing: 0.02em;
 }
 
+.panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.panel-title .ui-icon {
+  color: var(--text-dim);
+}
+
 .tiny {
   color: var(--text-dim);
   font-size: 12px;
@@ -490,9 +551,17 @@ kbd,
 
 .quick-line strong,
 .recent-line strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   font-weight: 600;
   color: var(--text);
+}
+
+.quick-line strong .ui-icon,
+.recent-line strong .ui-icon {
+  color: var(--text-dim);
 }
 
 .subtle-line {
@@ -665,6 +734,11 @@ kbd {
   padding: 4px 10px;
 }
 
+.view-switch .ghost-btn .ui-icon {
+  color: currentColor;
+  opacity: 0.9;
+}
+
 .view-switch .ghost-btn[aria-pressed="true"] {
   border-color: rgba(110, 203, 255, 0.22);
   background: rgba(110, 203, 255, 0.08);
@@ -772,6 +846,9 @@ kbd {
   color: var(--text);
   text-decoration: none;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .tool-link:hover,
@@ -779,6 +856,10 @@ kbd {
   color: #c7eeff;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.tool-link .ui-icon {
+  color: var(--text-dim);
 }
 
 .tool-desc {
@@ -832,6 +913,7 @@ kbd {
 .category-chip {
   display: inline-flex;
   align-items: center;
+  gap: 5px;
   border: 1px solid var(--line);
   background: #0d1116;
   color: var(--text-soft);
@@ -839,6 +921,12 @@ kbd {
   padding: 1px 7px;
   font-size: 11px;
   text-transform: lowercase;
+}
+
+.category-chip .ui-icon {
+  width: 12px;
+  height: 12px;
+  color: var(--text-dim);
 }
 
 .tags-wrap {
@@ -881,6 +969,10 @@ kbd {
 
 .action-btn.copy-ok {
   border-color: rgba(132, 243, 203, 0.22);
+  color: #aaf7e0;
+}
+
+.action-btn.copy-ok .ui-icon {
   color: #aaf7e0;
 }
 
@@ -967,12 +1059,20 @@ kbd {
   font-weight: 700;
   text-decoration: none;
   letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
 .tool-card-title:hover,
 .tool-card-title:focus-visible {
   color: #c7eeff;
   text-decoration: underline;
+}
+
+.tool-card-title .ui-icon {
+  color: var(--text-dim);
 }
 
 .tool-card-desc {
@@ -1002,6 +1102,13 @@ kbd {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.09em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tool-card-key .ui-icon {
+  color: rgba(255, 255, 255, 0.42);
 }
 
 .tool-card-line a {
@@ -1069,6 +1176,14 @@ kbd {
 
 .tool-card .actions-wrap .action-btn.open-primary:hover {
   border-color: rgba(110, 203, 255, 0.34);
+}
+
+.tool-card .actions-wrap .action-btn .ui-icon {
+  opacity: 0.9;
+}
+
+.tool-card .actions-wrap .action-btn.open-primary .ui-icon {
+  color: #bdeaff;
 }
 
 .tool-card .tag {
