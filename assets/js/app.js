@@ -56,6 +56,7 @@
     statusHint: document.querySelector("#statusHint"),
     todayLabel: document.querySelector("#todayLabel"),
     workspaceGrid: document.querySelector("#workspaceGrid"),
+    shortcutsOverlay: document.querySelector("#shortcutsOverlay"),
     shortcutsPanel: document.querySelector("#shortcutsPanel"),
     hideShortcutsBtn: document.querySelector("#hideShortcutsBtn"),
     resultsPanel: document.querySelector("#resultsPanel"),
@@ -171,6 +172,9 @@
     refs.hideShortcutsBtn?.addEventListener("click", () => {
       applyShortcutsPanelUI(false);
     });
+    refs.shortcutsOverlay?.addEventListener("click", () => {
+      applyShortcutsPanelUI(false);
+    });
 
     refs.categoryChips?.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-filter]");
@@ -262,14 +266,6 @@
       if (!(target instanceof Node)) return;
       if (refs.tableColumnMenu.contains(target)) return;
       refs.tableColumnMenu.removeAttribute("open");
-    });
-
-    document.addEventListener("click", (event) => {
-      if (!isShortcutsPanelOpen()) return;
-      const target = event.target;
-      if (!(target instanceof Node)) return;
-      if (refs.shortcutsPanel?.contains(target)) return;
-      applyShortcutsPanelUI(false);
     });
 
     window.addEventListener("keydown", onGlobalKeydown);
@@ -385,11 +381,10 @@
   function applyShortcutsPanelUI(isOpen) {
     if (!refs.shortcutsPanel) return;
     refs.shortcutsPanel.hidden = !isOpen;
-    refs.workspaceGrid?.setAttribute("data-shortcuts-open", String(isOpen));
+    if (refs.shortcutsOverlay) refs.shortcutsOverlay.hidden = !isOpen;
     document.body.classList.toggle("shortcuts-open", isOpen);
     if (isOpen) {
       refs.hideShortcutsBtn?.focus({ preventScroll: true });
-      refs.shortcutsPanel.scrollIntoView({ block: "nearest" });
     }
     renderStatus();
   }

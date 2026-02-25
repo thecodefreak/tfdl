@@ -253,12 +253,14 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar > .panel {
   margin-left: 4px;
 }
 
-body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-shortcuts-open="true"]::before {
-  background: rgba(10, 12, 16, 0.58);
-  backdrop-filter: blur(8px);
+body.dashboard-page.theme-dark:not(.theme-terminal) .shortcuts-overlay {
+  background: rgba(7, 9, 12, 0.76);
+  backdrop-filter: blur(6px);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .shortcuts-panel {
+  position: fixed;
+  z-index: 9999;
   margin-left: 0 !important;
   border-radius: 16px;
   border-color: rgba(130, 182, 255, 0.14);

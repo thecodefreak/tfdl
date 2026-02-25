@@ -105,36 +105,6 @@
             <ul id="recentList" class="stack-list" aria-live="polite"></ul>
           </section>
 
-          <section
-            id="shortcutsPanel"
-            class="panel compact-panel ui-panel shortcuts-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="shortcutsTitle"
-            hidden
-          >
-            <div class="panel-head">
-              <h2>
-                <span class="panel-title">
-                  <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-keyboard"></use></svg>
-                  <span id="shortcutsTitle">Shortcuts</span>
-                </span>
-              </h2>
-              <div class="panel-head-actions">
-                <span class="tiny mono">Ctrl/Cmd+/</span>
-                <button id="hideShortcutsBtn" class="ghost-btn ghost-btn-small ui-btn ui-btn--ghost ui-btn--sm" type="button">Hide</button>
-              </div>
-            </div>
-            <ul class="keymap-list">
-              <li><kbd>/</kbd><span>focus search</span></li>
-              <li><kbd>Ctrl/Cmd</kbd><kbd>/</kbd><span>toggle shortcuts</span></li>
-              <li><kbd>j</kbd><kbd>k</kbd><span>move selection</span></li>
-              <li><kbd>Enter</kbd><span>open selected tool</span></li>
-              <li><kbd>p</kbd><span>pin selected tool</span></li>
-              <li><kbd>y</kbd><span>copy alias path</span></li>
-              <li><kbd>Shift+y</kbd><span>copy source path</span></li>
-            </ul>
-          </section>
         </aside>
 
         <section class="table-panel ui-panel" id="resultsPanel" aria-labelledby="tools-results-title">
@@ -205,6 +175,38 @@
       </section>
     </section>
   </main>
+
+  <div id="shortcutsOverlay" class="shortcuts-overlay" hidden></div>
+  <section
+    id="shortcutsPanel"
+    class="panel compact-panel ui-panel shortcuts-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="shortcutsTitle"
+    hidden
+  >
+    <div class="panel-head">
+      <h2>
+        <span class="panel-title">
+          <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-keyboard"></use></svg>
+          <span id="shortcutsTitle">Shortcuts</span>
+        </span>
+      </h2>
+      <div class="panel-head-actions">
+        <span class="tiny mono">Ctrl/Cmd+/</span>
+        <button id="hideShortcutsBtn" class="ghost-btn ghost-btn-small ui-btn ui-btn--ghost ui-btn--sm" type="button">Hide</button>
+      </div>
+    </div>
+    <ul class="keymap-list">
+      <li><kbd>/</kbd><span>focus search</span></li>
+      <li><kbd>Ctrl/Cmd</kbd><kbd>/</kbd><span>toggle shortcuts</span></li>
+      <li><kbd>j</kbd><kbd>k</kbd><span>move selection</span></li>
+      <li><kbd>Enter</kbd><span>open selected tool</span></li>
+      <li><kbd>p</kbd><span>pin selected tool</span></li>
+      <li><kbd>y</kbd><span>copy alias path</span></li>
+      <li><kbd>Shift+y</kbd><span>copy source path</span></li>
+    </ul>
+  </section>
 
   <svg class="icon-sprite" aria-hidden="true" focusable="false" width="0" height="0">
     <symbol id="i-zap" viewBox="0 0 24 24">

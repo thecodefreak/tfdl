@@ -688,12 +688,13 @@ kbd,
   border-style: solid;
   position: fixed;
   z-index: 80;
-  inset: 76px auto auto 50%;
-  transform: translateX(-50%);
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
   width: min(640px, calc(100vw - 24px));
-  max-height: min(72vh, 680px);
+  max-height: min(80vh, 680px);
   overflow: auto;
   margin: 0 !important;
+  overscroll-behavior: contain;
 }
 
 .shortcuts-panel .keymap-list {
@@ -710,12 +711,15 @@ kbd,
   display: none !important;
 }
 
-.workspace-grid[data-shortcuts-open="true"]::before {
-  content: "";
+.shortcuts-overlay {
   position: fixed;
   inset: 0;
   z-index: 70;
-  background: rgba(6, 8, 11, 0.55);
+  background: rgba(6, 8, 11, 0.68);
+}
+
+.shortcuts-overlay[hidden] {
+  display: none !important;
 }
 
 body.dashboard-page.shortcuts-open {
@@ -1640,9 +1644,9 @@ input:focus-visible {
   }
 
   .shortcuts-panel {
-    inset: 64px auto auto 50%;
+    inset: 50% auto auto 50%;
     width: min(620px, calc(100vw - 20px));
-    max-height: min(74vh, 640px);
+    max-height: min(82vh, 640px);
   }
 
   .table-head {
@@ -1690,9 +1694,9 @@ input:focus-visible {
   }
 
   .shortcuts-panel {
-    inset: 56px auto auto 50%;
+    inset: 50% auto auto 50%;
     width: calc(100vw - 12px);
-    max-height: min(78vh, 640px);
+    max-height: min(84vh, 640px);
     border-radius: 12px;
   }
 
