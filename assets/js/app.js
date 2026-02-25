@@ -2,7 +2,27 @@
   const PINS_KEY = "tools-workspace-pins";
   const RECENTS_KEY = "tools-workspace-recents";
   const VIEW_MODE_KEY = "tools-workspace-view-mode";
+  const TABLE_COLUMNS_KEY = "tools-workspace-table-columns";
   const MAX_RECENTS = 12;
+  const TABLE_COLUMNS = [
+    { id: "index", label: "#", icon: "table", defaultVisible: true, essential: true },
+    { id: "tool", label: "Tool", icon: "wrench", defaultVisible: true, essential: true, locked: true },
+    { id: "alias", label: "Alias", icon: "link", defaultVisible: true, essential: true },
+    { id: "category", label: "Category", icon: "grid", defaultVisible: true, essential: true },
+    { id: "tags", label: "Tags", icon: "hash", defaultVisible: false, essential: false },
+    { id: "source", label: "Source", icon: "folder", defaultVisible: false, essential: false },
+    { id: "actions", label: "Actions", icon: "sliders", defaultVisible: true, essential: true }
+  ];
+  const TABLE_COLUMN_MAP = new Map(TABLE_COLUMNS.map((column) => [column.id, column]));
+  const TABLE_COLUMN_WIDTH_HINTS = {
+    index: 56,
+    tool: 300,
+    alias: 170,
+    category: 110,
+    tags: 240,
+    source: 280,
+    actions: 260
+  };
   const CATEGORY_ICON_MAP = {
     dev: "braces",
     productivity: "clock",
@@ -24,6 +44,12 @@
     recentOnlyInput: document.querySelector("#recentOnly"),
     clearSearchBtn: document.querySelector("#clearSearch"),
     clearRecentBtn: document.querySelector("#clearRecent"),
+    tableColumnMenu: document.querySelector("#tableColumnMenu"),
+    tableColumnsSummary: document.querySelector("#tableColumnsSummary"),
+    tableColumnsSummaryLabel: document.querySelector("#tableColumnsSummaryLabel"),
+    tableColumnChecklist: document.querySelector("#tableColumnChecklist"),
+    tableColumnsEssentialsBtn: document.querySelector("#tableColumnsEssentialsBtn"),
+    tableColumnsAllBtn: document.querySelector("#tableColumnsAllBtn"),
     tableViewBtn: document.querySelector("#tableViewBtn"),
     cardViewBtn: document.querySelector("#cardViewBtn"),
     resultsCount: document.querySelector("#resultsCount"),
@@ -31,6 +57,7 @@
     todayLabel: document.querySelector("#todayLabel"),
     workspaceGrid: document.querySelector("#workspaceGrid"),
     resultsPanel: document.querySelector("#resultsPanel"),
+    toolsTable: document.querySelector(".tools-table"),
     tbody: document.querySelector("#toolRows"),
     cardsView: document.querySelector("#toolCards"),
     emptyState: document.querySelector("#emptyState"),
@@ -49,9 +76,11 @@
   let selectedToolId = null;
   let visibleTools = [];
   let viewMode = loadViewMode();
+  let tableColumns = loadTableColumns();
 
   stampDate();
   renderCategoryChips();
+  renderTableColumnControls();
   bindEvents();
   seedSelectionFromHash();
   applyViewModeUI();
@@ -111,6 +140,15 @@
     refs.searchInput?.addEventListener("input", render);
     refs.pinnedOnlyInput?.addEventListener("change", render);
     refs.recentOnlyInput?.addEventListener("change", render);
+    refs.tableColumnChecklist?.addEventListener("change", onTableColumnChecklistChanged);
+    refs.tableColumnsEssentialsBtn?.addEventListener("click", () => {
+      applyTableColumnPreset("essentials");
+      refs.tableColumnMenu?.removeAttribute("open");
+    });
+    refs.tableColumnsAllBtn?.addEventListener("click", () => {
+      applyTableColumnPreset("all");
+      refs.tableColumnMenu?.removeAttribute("open");
+    });
     refs.tableViewBtn?.addEventListener("click", () => setViewMode("table"));
     refs.cardViewBtn?.addEventListener("click", () => setViewMode("cards"));
 
@@ -210,6 +248,14 @@
       openToolById(card.dataset.toolId);
     });
 
+    document.addEventListener("click", (event) => {
+      if (!refs.tableColumnMenu?.hasAttribute("open")) return;
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (refs.tableColumnMenu.contains(target)) return;
+      refs.tableColumnMenu.removeAttribute("open");
+    });
+
     window.addEventListener("keydown", onGlobalKeydown);
   }
 
@@ -231,6 +277,11 @@
       if (event.key === "Escape") {
         if (active instanceof HTMLElement) active.blur();
       }
+      return;
+    }
+
+    if (event.key === "Escape" && refs.tableColumnMenu?.hasAttribute("open")) {
+      refs.tableColumnMenu.removeAttribute("open");
       return;
     }
 
@@ -306,6 +357,79 @@
         )}" aria-pressed="${String(isActive)}">${escapeHtml(item.label)}</button>`;
       })
       .join("");
+  }
+
+  function renderTableColumnControls() {
+    if (!refs.tableColumnChecklist) return;
+
+    refs.tableColumnChecklist.innerHTML = TABLE_COLUMNS.map((column) => {
+      const checked = isTableColumnVisible(column.id);
+      const disabled = Boolean(column.locked);
+      const meta = column.locked ? "locked" : column.essential ? "core" : "optional";
+
+      return `
+        <label class="column-check-item${disabled ? " is-locked" : ""}">
+          <span class="column-check-main">
+            <input type="checkbox" data-column-id="${escapeHtml(column.id)}"${checked ? " checked" : ""}${
+        disabled ? " disabled" : ""
+      } />
+            ${renderIcon(column.icon || "folder", "ui-icon icon-xs")}
+            <span>${escapeHtml(column.label)}</span>
+          </span>
+          <span class="column-check-meta mono">${escapeHtml(meta)}</span>
+        </label>`;
+    }).join("");
+
+    syncTableColumnControlsUI();
+  }
+
+  function syncTableColumnControlsUI() {
+    if (refs.tableColumnChecklist) {
+      refs.tableColumnChecklist.querySelectorAll("input[data-column-id]").forEach((input) => {
+        if (!(input instanceof HTMLInputElement)) return;
+        const id = input.getAttribute("data-column-id") || "";
+        input.checked = isTableColumnVisible(id);
+      });
+    }
+
+    if (refs.tableColumnsSummaryLabel) {
+      const visibleCount = TABLE_COLUMNS.filter((column) => isTableColumnVisible(column.id)).length;
+      refs.tableColumnsSummaryLabel.textContent = `Columns ${visibleCount}/${TABLE_COLUMNS.length}`;
+    }
+  }
+
+  function onTableColumnChecklistChanged(event) {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (target.type !== "checkbox") return;
+    const columnId = target.getAttribute("data-column-id");
+    if (!columnId || !TABLE_COLUMN_MAP.has(columnId)) return;
+
+    const updated = setTableColumnVisibility(columnId, target.checked);
+    if (!updated) {
+      target.checked = isTableColumnVisible(columnId);
+      return;
+    }
+
+    persistTableColumns();
+    applyTableColumnVisibility();
+    renderStatus();
+  }
+
+  function applyTableColumnPreset(mode) {
+    const next = {};
+    for (const column of TABLE_COLUMNS) {
+      if (column.locked) {
+        next[column.id] = true;
+        continue;
+      }
+      next[column.id] = mode === "all" ? true : Boolean(column.essential);
+    }
+    tableColumns = next;
+    persistTableColumns();
+    syncTableColumnControlsUI();
+    applyTableColumnVisibility();
+    renderStatus();
   }
 
   function render() {
@@ -385,6 +509,8 @@
       .map((tool, index) => renderRow(tool, index))
       .join("");
 
+    applyTableColumnVisibility();
+
     refs.emptyState?.classList.toggle("is-hidden", visibleTools.length > 0);
   }
 
@@ -407,10 +533,10 @@
 
     return `
       <tr data-tool-id="${escapeHtml(tool.id)}"${isSelected ? ' class="selected"' : ""}>
-        <td class="row-index">
+        <td class="row-index" data-col="index">
           <span class="index-badge${shortcutLabel ? " hotkey" : ""}">${shortcutLabel || rowIndexLabel}</span>
         </td>
-        <td class="tool-name-cell">
+        <td class="tool-name-cell" data-col="tool">
           <div class="tool-name-wrap">
             <div class="tool-title-line">
               <a class="tool-link" data-open-track="true" href="${escapeHtml(tool.aliasPath)}">${renderIcon(
@@ -423,23 +549,23 @@
             <div class="tool-desc">${escapeHtml(tool.description || "")}</div>
           </div>
         </td>
-        <td>
+        <td data-col="alias">
           <a class="alias-link" data-open-track="true" href="${escapeHtml(tool.aliasPath)}"><code>${escapeHtml(
       tool.aliasPath
     )}</code></a>
         </td>
-        <td>${renderCategoryChip(tool.category)}</td>
-        <td>
+        <td data-col="category">${renderCategoryChip(tool.category)}</td>
+        <td data-col="tags">
           <div class="tags-wrap">${tool.tags
             .map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`)
             .join("")}</div>
         </td>
-        <td>
+        <td data-col="source">
           <a class="path-link" data-open-track="true" href="${escapeHtml(tool.canonicalPath)}"><code>${escapeHtml(
       tool.canonicalPath
     )}</code></a>
         </td>
-        <td class="actions-cell">
+        <td class="actions-cell" data-col="actions">
           <div class="actions-wrap">
             ${renderActionButton({
               toolId: tool.id,
@@ -619,9 +745,12 @@
     const totalCount = tools.length;
     const visibleCount = visibleTools.length;
     const categoryLabel = activeCategory === "all" ? "all" : activeCategory;
+    const visibleTableColumns = TABLE_COLUMNS.filter((column) => isTableColumnVisible(column.id)).length;
 
     if (refs.resultsCount) {
-      refs.resultsCount.textContent = `${visibleCount}/${totalCount} visible • ${pinnedCount} pinned • ${recentCount} recent • category:${categoryLabel}`;
+      refs.resultsCount.textContent = `${visibleCount}/${totalCount} visible • ${pinnedCount} pinned • ${recentCount} recent • category:${categoryLabel}${
+        viewMode === "table" ? ` • cols:${visibleTableColumns}/${TABLE_COLUMNS.length}` : ""
+      }`;
     }
 
     if (refs.statusHint) {
@@ -793,6 +922,101 @@
 
   function normalizeViewMode(value) {
     return value === "cards" ? "cards" : "table";
+  }
+
+  function loadTableColumns() {
+    try {
+      const raw = localStorage.getItem(TABLE_COLUMNS_KEY);
+      if (!raw) return getDefaultTableColumns();
+      const parsed = JSON.parse(raw);
+      return normalizeTableColumns(parsed);
+    } catch {
+      return getDefaultTableColumns();
+    }
+  }
+
+  function getDefaultTableColumns() {
+    const out = {};
+    for (const column of TABLE_COLUMNS) {
+      out[column.id] = Boolean(column.defaultVisible);
+    }
+    return out;
+  }
+
+  function normalizeTableColumns(value) {
+    const defaults = getDefaultTableColumns();
+    if (!value || typeof value !== "object") return defaults;
+
+    for (const column of TABLE_COLUMNS) {
+      if (Object.prototype.hasOwnProperty.call(value, column.id)) {
+        defaults[column.id] = Boolean(value[column.id]);
+      }
+      if (column.locked) {
+        defaults[column.id] = true;
+      }
+    }
+
+    if (!defaults.tool) defaults.tool = true;
+    return defaults;
+  }
+
+  function persistTableColumns() {
+    try {
+      localStorage.setItem(TABLE_COLUMNS_KEY, JSON.stringify(tableColumns));
+    } catch {
+      // localStorage can be unavailable in some environments
+    }
+  }
+
+  function isTableColumnVisible(columnId) {
+    const column = TABLE_COLUMN_MAP.get(columnId);
+    if (!column) return true;
+    if (column.locked) return true;
+    return tableColumns[columnId] !== false;
+  }
+
+  function setTableColumnVisibility(columnId, visible) {
+    const column = TABLE_COLUMN_MAP.get(columnId);
+    if (!column) return false;
+    if (column.locked) {
+      tableColumns[columnId] = true;
+      return false;
+    }
+
+    tableColumns[columnId] = Boolean(visible);
+    if (!isTableColumnVisible("tool")) tableColumns.tool = true;
+    syncTableColumnControlsUI();
+    return true;
+  }
+
+  function applyTableColumnVisibility() {
+    const tableRoot = refs.toolsTable;
+    if (!tableRoot) return;
+
+    tableRoot.querySelectorAll("[data-col]").forEach((cell) => {
+      const columnId = cell.getAttribute("data-col") || "";
+      const hidden = !isTableColumnVisible(columnId);
+      cell.classList.toggle("is-col-hidden", hidden);
+      if (hidden) {
+        cell.setAttribute("aria-hidden", "true");
+      } else {
+        cell.removeAttribute("aria-hidden");
+      }
+    });
+
+    const visibleCount = TABLE_COLUMNS.filter((column) => isTableColumnVisible(column.id)).length;
+    refs.resultsPanel?.setAttribute("data-table-visible-cols", String(visibleCount));
+    refs.resultsPanel?.style.setProperty("--table-min-width", `${computeTableMinWidth()}px`);
+    syncTableColumnControlsUI();
+  }
+
+  function computeTableMinWidth() {
+    let width = 36;
+    for (const column of TABLE_COLUMNS) {
+      if (!isTableColumnVisible(column.id)) continue;
+      width += TABLE_COLUMN_WIDTH_HINTS[column.id] || 120;
+    }
+    return Math.max(620, Math.round(width));
   }
 
   function loadViewMode() {
