@@ -54,7 +54,7 @@ kbd,
 }
 
 .workspace {
-  width: min(1600px, calc(100% - 12px));
+  width: min(1840px, calc(100% - 12px));
   margin: 6px auto;
 }
 
@@ -570,6 +570,13 @@ kbd {
   padding: 10px;
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(17, 22, 28, 0.92), rgba(14, 18, 23, 0.92));
+  align-items: start;
+}
+
+.table-head-actions {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
 }
 
 .legend {
@@ -603,6 +610,30 @@ kbd {
 
 .alias-dot {
   background: rgba(110, 203, 255, 0.55);
+}
+
+.view-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(8, 11, 15, 0.92);
+}
+
+.view-switch .ghost-btn {
+  border-radius: 999px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-dim);
+  padding: 4px 9px;
+}
+
+.view-switch .ghost-btn[aria-pressed="true"] {
+  border-color: rgba(110, 203, 255, 0.22);
+  background: rgba(110, 203, 255, 0.08);
+  color: #c4ecff;
 }
 
 .table-scroll {
@@ -808,6 +839,166 @@ kbd {
 .action-btn.copy-ok {
   border-color: rgba(132, 243, 203, 0.22);
   color: #aaf7e0;
+}
+
+.table-panel[data-view="cards"] .table-scroll {
+  display: none;
+}
+
+.table-panel[data-view="cards"] .tools-card-grid {
+  display: grid;
+}
+
+.table-panel[data-view="table"] .tools-card-grid {
+  display: none;
+}
+
+.tools-card-grid {
+  padding: 10px;
+  display: none;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  align-content: start;
+  min-height: 0;
+  overflow: auto;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.008), rgba(255, 255, 255, 0));
+}
+
+.tool-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(12, 16, 20, 0.96), rgba(9, 12, 16, 0.94));
+  padding: 10px;
+  display: grid;
+  gap: 9px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.01);
+}
+
+.tool-card:hover {
+  border-color: #3f4f61;
+}
+
+.tool-card.selected {
+  border-color: rgba(110, 203, 255, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.01),
+    inset 0 0 0 1px rgba(110, 203, 255, 0.1);
+  background:
+    linear-gradient(180deg, rgba(16, 22, 27, 0.98), rgba(10, 14, 18, 0.96));
+}
+
+.tool-card-top {
+  display: grid;
+  gap: 6px;
+}
+
+.tool-card-headline {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.tool-card-title-block {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.tool-card-title-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+
+.tool-card-title {
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.tool-card-title:hover,
+.tool-card-title:focus-visible {
+  color: #c7eeff;
+  text-decoration: underline;
+}
+
+.tool-card-desc {
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.tool-card-meta {
+  display: grid;
+  gap: 6px;
+}
+
+.tool-card-line {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.tool-card-key {
+  color: var(--text-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tool-card-line a {
+  color: var(--accent-2);
+  text-decoration: none;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tool-card-line a:hover,
+.tool-card-line a:focus-visible {
+  text-decoration: underline;
+}
+
+.tool-card-line a code {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tool-card-foot {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding-top: 8px;
+}
+
+.tool-card-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tool-card .tags-wrap {
+  max-width: none;
+}
+
+.tool-card .actions-wrap {
+  gap: 6px;
+}
+
+.tool-card .actions-wrap .action-btn {
+  flex: 0 0 auto;
 }
 
 .empty-state {
@@ -1031,6 +1222,18 @@ input:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
   }
+
+  .table-head {
+    align-items: start;
+  }
+
+  .table-head-actions {
+    justify-items: start;
+  }
+
+  .legend {
+    gap: 8px;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1058,6 +1261,25 @@ input:focus-visible {
 
   .sidebar {
     grid-template-columns: 1fr;
+  }
+
+  .tools-card-grid {
+    grid-template-columns: 1fr;
+    padding: 8px;
+  }
+
+  .tool-card {
+    padding: 9px;
+    gap: 8px;
+  }
+
+  .tool-card-line {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .tool-card-key {
+    font-size: 10px;
   }
 
   .tool-shell header,

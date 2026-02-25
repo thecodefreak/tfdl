@@ -1,6 +1,7 @@
 (() => {
   const PINS_KEY = "tools-workspace-pins";
   const RECENTS_KEY = "tools-workspace-recents";
+  const VIEW_MODE_KEY = "tools-workspace-view-mode";
   const MAX_RECENTS = 12;
   const registry = window.TOOLS_REGISTRY;
 
@@ -15,10 +16,14 @@
     recentOnlyInput: document.querySelector("#recentOnly"),
     clearSearchBtn: document.querySelector("#clearSearch"),
     clearRecentBtn: document.querySelector("#clearRecent"),
+    tableViewBtn: document.querySelector("#tableViewBtn"),
+    cardViewBtn: document.querySelector("#cardViewBtn"),
     resultsCount: document.querySelector("#resultsCount"),
     statusHint: document.querySelector("#statusHint"),
     todayLabel: document.querySelector("#todayLabel"),
+    resultsPanel: document.querySelector("#resultsPanel"),
     tbody: document.querySelector("#toolRows"),
+    cardsView: document.querySelector("#toolCards"),
     emptyState: document.querySelector("#emptyState"),
     quickLaunchList: document.querySelector("#quickLaunchList"),
     recentList: document.querySelector("#recentList")
@@ -34,11 +39,13 @@
   let activeCategory = "all";
   let selectedToolId = null;
   let visibleTools = [];
+  let viewMode = loadViewMode();
 
   stampDate();
   renderCategoryChips();
   bindEvents();
   seedSelectionFromHash();
+  applyViewModeUI();
   render();
 
   function normalizeCategories(inputCategories, inputTools) {
@@ -95,6 +102,8 @@
     refs.searchInput?.addEventListener("input", render);
     refs.pinnedOnlyInput?.addEventListener("change", render);
     refs.recentOnlyInput?.addEventListener("change", render);
+    refs.tableViewBtn?.addEventListener("click", () => setViewMode("table"));
+    refs.cardViewBtn?.addEventListener("click", () => setViewMode("cards"));
 
     refs.clearSearchBtn?.addEventListener("click", () => {
       if (refs.searchInput) refs.searchInput.value = "";
@@ -132,7 +141,7 @@
         if (shouldRender) {
           render();
         } else if (row) {
-          updateSelectedRowUI();
+          updateSelectedToolUI();
         }
         return;
       }
@@ -144,7 +153,7 @@
       }
 
       if (row) {
-        updateSelectedRowUI();
+        updateSelectedToolUI();
       }
     });
 
@@ -152,6 +161,44 @@
       const row = event.target instanceof HTMLElement ? event.target.closest("tr[data-tool-id]") : null;
       if (!row?.dataset.toolId) return;
       openToolById(row.dataset.toolId);
+    });
+
+    refs.cardsView?.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      const card = target.closest("article[data-tool-id]");
+      if (card) {
+        selectedToolId = card.dataset.toolId;
+      }
+
+      const actionButton = target.closest("button[data-action]");
+      if (actionButton) {
+        event.preventDefault();
+        const shouldRender = handleRowAction(actionButton, card?.dataset.toolId || "");
+        if (shouldRender) {
+          render();
+        } else if (card) {
+          updateSelectedToolUI();
+        }
+        return;
+      }
+
+      const anchor = target.closest("a[data-open-track='true']");
+      if (anchor instanceof HTMLAnchorElement && card?.dataset.toolId) {
+        trackOpen(card.dataset.toolId);
+        return;
+      }
+
+      if (card) {
+        updateSelectedToolUI();
+      }
+    });
+
+    refs.cardsView?.addEventListener("dblclick", (event) => {
+      const card = event.target instanceof HTMLElement ? event.target.closest("article[data-tool-id]") : null;
+      if (!card?.dataset.toolId) return;
+      openToolById(card.dataset.toolId);
     });
 
     window.addEventListener("keydown", onGlobalKeydown);
@@ -203,6 +250,12 @@
       return;
     }
 
+    if (event.key === "v") {
+      event.preventDefault();
+      setViewMode(viewMode === "table" ? "cards" : "table");
+      return;
+    }
+
     if (event.key === "y") {
       event.preventDefault();
       if (!selectedToolId) return;
@@ -250,10 +303,11 @@
     visibleTools = getVisibleTools();
     ensureValidSelection();
     renderTable();
+    renderCards();
     renderQuickLaunch();
     renderRecentList();
     renderStatus();
-    updateSelectedRowUI();
+    updateSelectedToolUI();
   }
 
   function getVisibleTools() {
@@ -325,6 +379,16 @@
     refs.emptyState?.classList.toggle("is-hidden", visibleTools.length > 0);
   }
 
+  function renderCards() {
+    if (!refs.cardsView) return;
+
+    refs.cardsView.innerHTML = visibleTools
+      .map((tool, index) => renderCard(tool, index))
+      .join("");
+
+    refs.emptyState?.classList.toggle("is-hidden", visibleTools.length > 0);
+  }
+
   function renderRow(tool, index) {
     const isPinned = pins.includes(tool.id);
     const isRecent = recents.includes(tool.id);
@@ -380,6 +444,62 @@
           </div>
         </td>
       </tr>`;
+  }
+
+  function renderCard(tool, index) {
+    const isPinned = pins.includes(tool.id);
+    const isRecent = recents.includes(tool.id);
+    const isSelected = selectedToolId === tool.id;
+    const shortcutLabel = index < 10 ? (index === 9 ? "0" : String(index + 1)) : null;
+
+    return `
+      <article class="tool-card${isSelected ? " selected" : ""}" data-tool-id="${escapeHtml(tool.id)}">
+        <div class="tool-card-top">
+          <div class="tool-card-headline">
+            <span class="index-badge${shortcutLabel ? " hotkey" : ""}">${escapeHtml(shortcutLabel || String(index + 1))}</span>
+            <div class="tool-card-title-block">
+              <div class="tool-card-title-line">
+                <a class="tool-card-title" data-open-track="true" href="${escapeHtml(tool.aliasPath)}">${escapeHtml(tool.name)}</a>
+                ${isPinned ? '<span class="status-pill pinned">PIN</span>' : ""}
+                ${isRecent ? '<span class="status-pill recent">RECENT</span>' : ""}
+              </div>
+              <div class="tool-card-desc">${escapeHtml(tool.description || "")}</div>
+            </div>
+          </div>
+          <div class="tool-card-meta">
+            <div class="tool-card-line">
+              <span class="tool-card-key mono">alias</span>
+              <a data-open-track="true" href="${escapeHtml(tool.aliasPath)}"><code>${escapeHtml(tool.aliasPath)}</code></a>
+            </div>
+            <div class="tool-card-line">
+              <span class="tool-card-key mono">source</span>
+              <a data-open-track="true" href="${escapeHtml(tool.canonicalPath)}"><code>${escapeHtml(tool.canonicalPath)}</code></a>
+            </div>
+          </div>
+        </div>
+        <div class="tool-card-foot">
+          <div class="tool-card-strip">
+            <span class="category-chip">${escapeHtml(tool.category)}</span>
+            <div class="tags-wrap">${tool.tags
+              .map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`)
+              .join("")}</div>
+          </div>
+          <div class="actions-wrap">
+            <button class="action-btn ${isPinned ? "pin-active" : ""}" type="button" data-action="pin" data-tool-id="${escapeHtml(
+              tool.id
+            )}">${isPinned ? "Unpin" : "Pin"}</button>
+            <button class="action-btn" type="button" data-action="copy-alias" data-tool-id="${escapeHtml(
+              tool.id
+            )}">Copy alias</button>
+            <button class="action-btn" type="button" data-action="copy-source" data-tool-id="${escapeHtml(
+              tool.id
+            )}">Copy source</button>
+            <button class="action-btn" type="button" data-action="open" data-tool-id="${escapeHtml(
+              tool.id
+            )}">Open</button>
+          </div>
+        </div>
+      </article>`;
   }
 
   function renderQuickLaunch() {
@@ -457,15 +577,44 @@
     if (refs.resultsCount) {
       refs.resultsCount.textContent = `${visibleCount}/${totalCount} visible • ${pinnedCount} pinned • ${recentCount} recent • category:${categoryLabel}`;
     }
+
+    if (refs.statusHint) {
+      refs.statusHint.textContent = `/ search · j/k move · Enter open · p pin · v view:${viewMode} · y alias · Y source · 1-0 open visible`;
+    }
   }
 
-  function updateSelectedRowUI() {
+  function setViewMode(nextMode) {
+    const normalized = normalizeViewMode(nextMode);
+    if (normalized === viewMode) return;
+    viewMode = normalized;
+    persistViewMode(viewMode);
+    applyViewModeUI();
+    updateSelectedToolUI();
+    renderStatus();
+  }
+
+  function applyViewModeUI() {
+    refs.resultsPanel?.setAttribute("data-view", viewMode);
+    if (refs.tableViewBtn) refs.tableViewBtn.setAttribute("aria-pressed", String(viewMode === "table"));
+    if (refs.cardViewBtn) refs.cardViewBtn.setAttribute("aria-pressed", String(viewMode === "cards"));
+  }
+
+  function updateSelectedToolUI() {
     const rows = refs.tbody?.querySelectorAll("tr[data-tool-id]") || [];
     rows.forEach((row) => {
       const isSelected = row.getAttribute("data-tool-id") === selectedToolId;
       row.classList.toggle("selected", isSelected);
-      if (isSelected) {
+      if (isSelected && viewMode === "table") {
         row.scrollIntoView({ block: "nearest" });
+      }
+    });
+
+    const cards = refs.cardsView?.querySelectorAll("article[data-tool-id]") || [];
+    cards.forEach((card) => {
+      const isSelected = card.getAttribute("data-tool-id") === selectedToolId;
+      card.classList.toggle("selected", isSelected);
+      if (isSelected && viewMode === "cards") {
+        card.scrollIntoView({ block: "nearest" });
       }
     });
   }
@@ -476,7 +625,7 @@
     const safeIndex = currentIndex === -1 ? 0 : currentIndex;
     const nextIndex = Math.max(0, Math.min(visibleTools.length - 1, safeIndex + delta));
     selectedToolId = visibleTools[nextIndex].id;
-    updateSelectedRowUI();
+    updateSelectedToolUI();
   }
 
   function handleRowAction(button, toolId) {
@@ -592,6 +741,33 @@
 
     if (refs.searchInput) {
       refs.searchInput.value = hash;
+    }
+  }
+
+  function normalizeViewMode(value) {
+    return value === "cards" ? "cards" : "table";
+  }
+
+  function loadViewMode() {
+    try {
+      const raw = localStorage.getItem(VIEW_MODE_KEY);
+      if (raw) return normalizeViewMode(raw);
+    } catch {
+      // localStorage can be unavailable
+    }
+
+    if (typeof window !== "undefined" && window.matchMedia?.("(max-width: 1440px)").matches) {
+      return "cards";
+    }
+
+    return "table";
+  }
+
+  function persistViewMode(mode) {
+    try {
+      localStorage.setItem(VIEW_MODE_KEY, normalizeViewMode(mode));
+    } catch {
+      // localStorage can be unavailable in some environments
     }
   }
 
