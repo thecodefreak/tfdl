@@ -21,6 +21,7 @@
     resultsCount: document.querySelector("#resultsCount"),
     statusHint: document.querySelector("#statusHint"),
     todayLabel: document.querySelector("#todayLabel"),
+    workspaceGrid: document.querySelector("#workspaceGrid"),
     resultsPanel: document.querySelector("#resultsPanel"),
     tbody: document.querySelector("#toolRows"),
     cardsView: document.querySelector("#toolCards"),
@@ -451,6 +452,14 @@
     const isRecent = recents.includes(tool.id);
     const isSelected = selectedToolId === tool.id;
     const shortcutLabel = index < 10 ? (index === 9 ? "0" : String(index + 1)) : null;
+    const visibleTags = tool.tags.slice(0, 4);
+    const hiddenTagCount = Math.max(0, tool.tags.length - visibleTags.length);
+    const tagsHtml = [
+      ...visibleTags.map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`),
+      hiddenTagCount ? `<span class="tag tag-muted">+${hiddenTagCount}</span>` : ""
+    ]
+      .filter(Boolean)
+      .join("");
 
     return `
       <article class="tool-card${isSelected ? " selected" : ""}" data-tool-id="${escapeHtml(tool.id)}">
@@ -471,7 +480,7 @@
               <span class="tool-card-key mono">alias</span>
               <a data-open-track="true" href="${escapeHtml(tool.aliasPath)}"><code>${escapeHtml(tool.aliasPath)}</code></a>
             </div>
-            <div class="tool-card-line">
+            <div class="tool-card-line source-line">
               <span class="tool-card-key mono">source</span>
               <a data-open-track="true" href="${escapeHtml(tool.canonicalPath)}"><code>${escapeHtml(tool.canonicalPath)}</code></a>
             </div>
@@ -480,23 +489,18 @@
         <div class="tool-card-foot">
           <div class="tool-card-strip">
             <span class="category-chip">${escapeHtml(tool.category)}</span>
-            <div class="tags-wrap">${tool.tags
-              .map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`)
-              .join("")}</div>
+            <div class="tags-wrap">${tagsHtml}</div>
           </div>
           <div class="actions-wrap">
+            <button class="action-btn open-primary" type="button" data-action="open" data-tool-id="${escapeHtml(
+              tool.id
+            )}">Open</button>
             <button class="action-btn ${isPinned ? "pin-active" : ""}" type="button" data-action="pin" data-tool-id="${escapeHtml(
               tool.id
             )}">${isPinned ? "Unpin" : "Pin"}</button>
             <button class="action-btn" type="button" data-action="copy-alias" data-tool-id="${escapeHtml(
               tool.id
             )}">Copy alias</button>
-            <button class="action-btn" type="button" data-action="copy-source" data-tool-id="${escapeHtml(
-              tool.id
-            )}">Copy source</button>
-            <button class="action-btn" type="button" data-action="open" data-tool-id="${escapeHtml(
-              tool.id
-            )}">Open</button>
           </div>
         </div>
       </article>`;
@@ -594,6 +598,7 @@
   }
 
   function applyViewModeUI() {
+    refs.workspaceGrid?.setAttribute("data-view", viewMode);
     refs.resultsPanel?.setAttribute("data-view", viewMode);
     if (refs.tableViewBtn) refs.tableViewBtn.setAttribute("aria-pressed", String(viewMode === "table"));
     if (refs.cardViewBtn) refs.cardViewBtn.setAttribute("aria-pressed", String(viewMode === "cards"));
