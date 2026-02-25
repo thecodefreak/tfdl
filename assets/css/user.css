@@ -1,0 +1,21 @@
+/* Developer override stylesheet (loaded last on launcher/tool/alias pages).
+ *
+ * Use this file for local branding/theme tweaks without editing core CSS files.
+ * It is intentionally empty by default.
+ *
+ * Examples:
+ *
+ * 1) Opt out of the default soft skin on a page:
+ *    Add `theme-terminal` to the <body> class in that page.
+ *
+ * 2) Tweak shared tokens globally:
+ *    body.theme-dark {
+ *      --accent: #ffb86b;
+ *      --accent-2: #89f2d0;
+ *    }
+ *
+ * 3) Override launcher cards:
+ *    body.dashboard-page .tool-card {
+ *      border-radius: 20px;
+ *    }
+ */

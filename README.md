@@ -72,6 +72,22 @@ How it is loaded:
 - `assets/css/styles.css` imports `assets/css/framework.css`
 - existing launcher/tool styles remain app-specific and can be migrated gradually
 
+## UI Skins & Custom Styles
+
+The default UI now uses a softer dark skin (`assets/css/skins/canva-dark.css`)
+that loads after `assets/css/styles.css`.
+
+A shared developer override file is also loaded last on every launcher/tool/alias
+page:
+
+- `assets/css/user.css`
+
+Use `assets/css/user.css` for local branding, spacing tweaks, or custom themes
+without editing core CSS files.
+
+If you want the older terminal-style look on a page, add `theme-terminal` to the
+`<body>` class for that page to opt out of the default soft skin.
+
 ## Notes
 
 - No build system or framework required.

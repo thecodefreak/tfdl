@@ -42,3 +42,11 @@ loaded through `assets/css/styles.css`) so new tools can reuse:
 - `ui-chip` / `ui-code-chip`
 - `ui-field-shell`
 - `ui-stack` / `ui-row` / `ui-grid-2`
+
+All tool pages also load:
+
+- `assets/css/skins/canva-dark.css` (default soft dark skin)
+- `assets/css/user.css` (developer overrides, loaded last)
+
+If you want a tool page to use the older terminal look, add `theme-terminal` to
+that page's `<body>` class.

@@ -4,6 +4,8 @@
 
 - `framework.css` - local shared UI framework (tokens, primitives, utilities)
 - `styles.css` - project-specific launcher/tool-shell styling and overrides
+- `skins/canva-dark.css` - default soft dark skin overlay (loaded after `styles.css`)
+- `user.css` - developer override file (loaded last)
 
 ## Why a Local Framework
 
@@ -17,8 +19,13 @@ third-party CSS dependency. `framework.css` provides a small reusable layer for:
 
 ## Usage Pattern
 
-`styles.css` imports `framework.css`, so tool pages that already include
-`assets/css/styles.css` can use framework classes immediately.
+`styles.css` imports `framework.css`, and pages then load:
+
+1. `assets/css/styles.css`
+2. `assets/css/skins/canva-dark.css` (default skin)
+3. `assets/css/user.css` (developer overrides)
+
+This keeps the base styles stable while making theme/polish changes easy.
 
 Example:
 
@@ -39,3 +46,8 @@ Example:
 
 Use the framework for shared structure and controls. Keep tool-specific layout
 and interactions in each tool's own `styles.css`.
+
+## Theme Opt-Out (Legacy Look)
+
+The default soft skin applies to `theme-dark` pages. To keep the older terminal
+look on a specific page, add `theme-terminal` to that page's `<body>` class.

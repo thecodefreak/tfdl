@@ -1,6 +1,8 @@
 @import url("./framework.css");
 
-/* App-specific launcher and tool styles (shared primitives live in framework.css). */
+/* App-specific launcher and tool styles (shared primitives live in framework.css).
+ * Skins and user overrides are linked from HTML so they can load after this file.
+ */
 
 :root {
   --bg: #090b0d;
