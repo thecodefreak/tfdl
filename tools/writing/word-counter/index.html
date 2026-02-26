@@ -6,38 +6,155 @@
   <title>Word Counter</title>
   <link rel="stylesheet" href="../../../assets/css/styles.css" />
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
+  <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
   <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
   <wt-tool-shell
+    class="wc-shell"
     eyebrow="Writing"
     heading="Word Counter"
-    lede="Count words, characters, and reading time for drafts."
+    lede="Count words, characters, sentences, and reading time with live text analysis and frequency insights."
     back-href="../../../index.html"
     back-class="back-link"
-    aria-label="Word Counter placeholder page"
+    aria-label="Word Counter tool"
   >
+    <section class="tool-panel wc-panel" aria-labelledby="wc-title">
+      <div class="wc-toolbar">
+        <div>
+          <h2 id="wc-title">Text Analyzer</h2>
+          <p class="wc-subtext">Local only. No uploads. Live counts update while you type (toggleable).</p>
+        </div>
+        <div class="wc-toolbar-actions">
+          <button class="action-btn accent-btn" type="button" id="analyzeBtn">Analyze</button>
+          <button class="action-btn" type="button" id="copySummaryBtn">Copy Summary</button>
+          <button class="action-btn" type="button" id="loadSampleBtn">Sample</button>
+          <button class="action-btn" type="button" id="clearBtn">Clear</button>
+        </div>
+      </div>
 
-    <div class="tool-shell-grid">
-      <section class="tool-panel" aria-labelledby="work-area">
-        <h2 id="work-area">Placeholder Shell</h2>
-        <p>This is the tool shell page. Replace this panel with your actual UI.</p>
-        <ul>
-          <li>Keep the path stable so bookmarks and aliases do not break.</li>
-          <li>If the tool grows, add local <code>app.js</code> and <code>styles.css</code> here.</li>
-          <li>Keep core utility logic client-side where possible for local usage.</li>
-        </ul>
-      </section>
+      <div class="wc-controls-row" role="group" aria-label="Word counter options">
+        <div class="wc-toggle-group">
+          <label class="toggle-row" for="liveAnalyzeToggle">
+            <input id="liveAnalyzeToggle" type="checkbox" checked />
+            <span>Live analyze</span>
+          </label>
+          <label class="toggle-row" for="includeNumbersToggle">
+            <input id="includeNumbersToggle" type="checkbox" checked />
+            <span>Count numbers as words</span>
+          </label>
+          <label class="toggle-row" for="ignoreCommonWordsToggle">
+            <input id="ignoreCommonWordsToggle" type="checkbox" checked />
+            <span>Ignore common words in top list</span>
+          </label>
+        </div>
 
-      <section class="tool-panel" aria-labelledby="routing-meta">
-        <h2 id="routing-meta">Routing & Files</h2>
-        <p class="code-chip">Alias: t/words/</p>
-        <p class="code-chip">Source: tools/writing/word-counter/</p>
-        <p style="margin-top: 0.35rem;">This page should remain the canonical implementation path.</p>
-        <p style="margin-top: 0.35rem;">Use the short alias for daily navigation and bookmarks.</p>
-      </section>
-    </div>
+        <div class="wc-inline-controls">
+          <label class="wc-inline-field compact-field" for="minTopWordLengthInput">
+            <span>Top Word Min Len</span>
+            <input id="minTopWordLengthInput" class="ui-input mono" type="number" min="1" max="12" step="1" value="3" />
+          </label>
+          <label class="wc-inline-field compact-field" for="readingWpmInput">
+            <span>Read WPM</span>
+            <input id="readingWpmInput" class="ui-input mono" type="number" min="80" max="600" step="5" value="225" />
+          </label>
+          <label class="wc-inline-field compact-field" for="speakingWpmInput">
+            <span>Speak WPM</span>
+            <input id="speakingWpmInput" class="ui-input mono" type="number" min="60" max="300" step="5" value="130" />
+          </label>
+        </div>
+
+        <div class="wc-route-chips" aria-label="Routing metadata">
+          <span class="code-chip">Alias: t/words/</span>
+          <span class="code-chip">Source: tools/writing/word-counter/</span>
+        </div>
+      </div>
+
+      <div class="wc-grid">
+        <section class="wc-card wc-editor-card" aria-labelledby="wc-editor-heading">
+          <div class="wc-card-head">
+            <div>
+              <h3 id="wc-editor-heading">Input Text</h3>
+              <p id="editorStatus" class="tiny mono">Ready. Paste or type text to analyze.</p>
+            </div>
+            <div class="wc-inline-actions">
+              <button class="ghost-btn ghost-btn-small" type="button" id="pasteBtn">Paste</button>
+              <button class="ghost-btn ghost-btn-small" type="button" id="selectAllBtn">Select All</button>
+            </div>
+          </div>
+          <textarea
+            id="inputText"
+            class="wc-editor"
+            spellcheck="true"
+            placeholder="Paste or type text here..."
+            aria-label="Text input for word counting"
+          ></textarea>
+          <div class="wc-editor-footer">
+            <span id="selectionHint" class="tiny mono">No selection</span>
+            <span id="liveStateHint" class="tiny mono">Live analysis on</span>
+            <span id="sourceHint" class="tiny mono">Shortcut: Ctrl/Cmd + Enter = analyze</span>
+          </div>
+        </section>
+
+        <div class="wc-side-stack">
+          <section class="wc-card" aria-labelledby="wc-metrics-heading">
+            <div class="wc-card-head">
+              <h3 id="wc-metrics-heading">Counts & Timing</h3>
+              <span id="statusBadge" class="wc-status-badge idle">idle</span>
+            </div>
+            <p id="statusMessage" class="wc-status-message">Ready.</p>
+            <div class="wc-metric-grid" aria-label="Text metrics">
+              <div class="wc-metric-chip"><span>Words</span><strong id="metricWords">0</strong></div>
+              <div class="wc-metric-chip"><span>Unique</span><strong id="metricUniqueWords">0</strong></div>
+              <div class="wc-metric-chip"><span>Characters</span><strong id="metricCharacters">0</strong></div>
+              <div class="wc-metric-chip"><span>No Spaces</span><strong id="metricNoSpaces">0</strong></div>
+              <div class="wc-metric-chip"><span>Lines</span><strong id="metricLines">0</strong></div>
+              <div class="wc-metric-chip"><span>Paragraphs</span><strong id="metricParagraphs">0</strong></div>
+              <div class="wc-metric-chip"><span>Sentences</span><strong id="metricSentences">0</strong></div>
+              <div class="wc-metric-chip"><span>Avg Word Len</span><strong id="metricAvgWordLength">0</strong></div>
+              <div class="wc-metric-chip"><span>Read Time</span><strong id="metricReadTime">0s</strong></div>
+              <div class="wc-metric-chip"><span>Speak Time</span><strong id="metricSpeakTime">0s</strong></div>
+            </div>
+          </section>
+
+          <section class="wc-card" aria-labelledby="wc-top-words-heading">
+            <div class="wc-card-head">
+              <h3 id="wc-top-words-heading">Top Words</h3>
+              <span id="topWordsMeta" class="tiny mono">0 items</span>
+            </div>
+            <ol id="topWordsList" class="wc-top-words-list" aria-label="Top words frequency list"></ol>
+            <p id="topWordsEmpty" class="ui-empty">Add more text to populate the frequency list.</p>
+          </section>
+
+          <section class="wc-card" aria-labelledby="wc-details-heading">
+            <div class="wc-card-head">
+              <h3 id="wc-details-heading">Details & Selection</h3>
+              <span id="selectionBadge" class="tiny mono">selection: 0 chars</span>
+            </div>
+
+            <div class="wc-two-col">
+              <div class="wc-detail-block">
+                <h4>Selection</h4>
+                <div id="selectionStats" class="wc-kv-list"></div>
+              </div>
+              <div class="wc-detail-block">
+                <h4>Breakdown</h4>
+                <div id="detailStats" class="wc-kv-list"></div>
+              </div>
+            </div>
+
+            <ul id="warningList" class="wc-warning-list is-hidden" aria-live="polite"></ul>
+            <p class="wc-foot-hints tiny mono">
+              <code>Ctrl/Cmd + Enter</code> analyze manually.
+              <span>Clipboard paste uses browser permissions.</span>
+            </p>
+          </section>
+        </div>
+      </div>
+    </section>
   </wt-tool-shell>
+
+  <script src="app.js"></script>
 </body>
 </html>
