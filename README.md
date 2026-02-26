@@ -21,62 +21,79 @@ You can use it in two ways:
 
 ## Quick Start
 
-### 1. Static (no server)
+### Run the binary (recommended)
 
-Open `index.html` in a browser.
-
-- Works for the launcher UI and canonical tool pages
-- Does not support `/t/<alias>/` routes (those require the Go server)
-
-### 2. Run the local Go server (recommended)
-
-Requirements:
-
-- Go `1.25+` (see `go.mod`)
-
-From the repo root:
+Download the latest release for your platform from GitHub releases, then:
 
 ```bash
-go run ./cmd/tfdl serve
+./tfdl_v1.0.0_linux_amd64
+# Serves on http://0.0.0.0:8080 using embedded files
 ```
 
-Open `http://127.0.0.1:8080`.
+No configuration needed! Static files are bundled in the binary.
 
-Optional local config (recommended if you want to customize defaults):
+**Custom options:**
 
 ```bash
-cp tfdl.example.json tfdl.json
+./tfdl -port 3000                    # Custom port
+./tfdl -root /path/to/files          # Serve external files instead of embedded
+./tfdl -config ./tfdl.json           # Use config file
+./tfdl -auth-enabled=true -auth-user dev -auth-pass secret
+./tfdl -debug                        # Enable debug logging
+./tfdl version                       # Show version
 ```
 
-Useful examples:
+### Build from source
 
-```bash
-go run ./cmd/tfdl serve -port 9000
-go run ./cmd/tfdl serve -config ./tfdl.json -root .
-go run ./cmd/tfdl serve -auth-enabled=true -auth-user dev -auth-pass 'secret'
-```
-
-You can also build a local binary:
+Requirements: Go `1.25+` (see `go.mod`)
 
 ```bash
 go build -o tfdl ./cmd/tfdl
-./tfdl serve
+./tfdl
 ```
 
-### 3. Docker Compose
+### Development workflow
+
+**Option 1: Fast iteration with `go run`** (recommended for development)
 
 ```bash
-docker compose -f compose.yml up --build
+go run ./cmd/tfdl serve
+# Edit HTML/CSS/JS files → just refresh browser
 ```
 
-Compose uses the tracked `tfdl.example.json` by default, so it works without a
-local `tfdl.json`.
+With `go run`, embedded files are read from disk in real-time, so you can edit and see changes immediately.
+
+**Option 2: Build and test**
+
+```bash
+go build -o tfdl ./cmd/tfdl
+./tfdl
+# Rebuild after making changes to see them
+```
+
+Compiled binaries have files frozen at build time.
+
+### Docker Compose (for container development)
+
+```bash
+docker compose up --build
+# Edit files → refresh browser (volume mount active)
+```
+
+The compose setup mounts project files for easy iteration.
 
 Examples:
 
 ```bash
-TFDL_PORT=9090 docker compose -f compose.yml up --build
+TFDL_PORT=9090 docker compose up --build
 ```
+
+### Static mode (no server)
+
+Open `index.html` directly in a browser.
+
+- Works for the launcher UI and canonical tool pages
+- Does not support `/t/<alias>/` routes (requires server)
 
 ```bash
 TFDL_AUTH_ENABLED=true \
@@ -183,13 +200,22 @@ Example:
 {
   "server": {
     "bind": "0.0.0.0",
-    "port": 8080,
-    "root_dir": "."
+    "port": 8080
   },
   "auth": {
     "enabled": false,
     "username": "admin",
     "password": ""
+  }
+}
+```
+
+**Note:** `root_dir` is optional. If omitted (default), embedded files are used. Set it only if you want to serve external files:
+
+```json
+{
+  "server": {
+    "root_dir": "/path/to/custom/files"
   }
 }
 ```
@@ -208,6 +234,8 @@ Environment variable overrides:
 - `TFDL_AUTH_ENABLED`
 - `TFDL_AUTH_USER`
 - `TFDL_AUTH_PASS`
+
+**Priority:** Flags > Environment > Config file > Defaults
 
 ## Server Features
 
