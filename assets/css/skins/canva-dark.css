@@ -214,6 +214,13 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid {
   grid-template-columns: 344px minmax(0, 1fr);
 }
 
+body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-view="cards"] {
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "results"
+    "sidebar";
+}
+
 body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-view="cards"] .sidebar {
   position: static;
   top: auto;
@@ -572,10 +579,14 @@ body.tool-shell-page.theme-dark:not(.theme-terminal) .back-link {
 
   body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid:not([data-view="cards"]) {
     grid-template-columns: 344px minmax(0, 1fr);
+    grid-template-areas: "sidebar results";
   }
 
   body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-view="cards"] {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "results"
+      "sidebar";
   }
 
   body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-view="cards"] .sidebar {

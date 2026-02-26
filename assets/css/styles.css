@@ -1648,11 +1648,18 @@ input:focus-visible {
     justify-content: flex-start;
   }
 
-  .workspace-grid {
+  .workspace-grid:not([data-view="cards"]) {
     grid-template-columns: 1fr;
     grid-template-areas:
       "sidebar"
       "results";
+  }
+
+  .workspace-grid[data-view="cards"] {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "results"
+      "sidebar";
   }
 
   .sidebar {
