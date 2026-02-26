@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run Go tests
+        run: go test ./...
+
+      - name: Build Go binaries
+        run: go build ./...
+
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t js_files < <(find assets/js tools -type f -name '*.js' | sort)
+          if [[ ${#js_files[@]} -eq 0 ]]; then
+            echo "No JavaScript files found"
+            exit 0
+          fi
+
+          for file in "${js_files[@]}"; do
+            node --check "$file"
+          done

@@ -7,6 +7,6 @@
   "auth": {
     "enabled": false,
     "username": "admin",
-    "password": "change-me"
+    "password": ""
   }
 }

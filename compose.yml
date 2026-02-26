@@ -8,7 +8,7 @@ services:
     command:
       - serve
       - -config
-      - /srv/tfdl/tfdl.json
+      - /srv/tfdl/tfdl.example.json
       - -root
       - /srv/tfdl
       - -port

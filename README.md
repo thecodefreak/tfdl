@@ -42,6 +42,12 @@ go run ./cmd/tfdl serve
 
 Open `http://127.0.0.1:8080`.
 
+Optional local config (recommended if you want to customize defaults):
+
+```bash
+cp tfdl.example.json tfdl.json
+```
+
 Useful examples:
 
 ```bash
@@ -62,6 +68,9 @@ go build -o tfdl ./cmd/tfdl
 ```bash
 docker compose -f compose.yml up --build
 ```
+
+Compose uses the tracked `tfdl.example.json` by default, so it works without a
+local `tfdl.json`.
 
 Examples:
 
@@ -115,7 +124,8 @@ Aliases are generated dynamically by the Go server from
 - `tools/` - canonical tool implementations by category
 - `cmd/tfdl/` - Go CLI entrypoint (`serve`, `print-config`)
 - `internal/tfdl/` - Go server and config logic
-- `tfdl.json` - optional server config file
+- `tfdl.example.json` - tracked starter config template
+- `tfdl.json` - optional local server config (ignored by git)
 
 ## Add a Tool
 
@@ -158,6 +168,14 @@ Supported `serve` flags:
 ## `tfdl.json` Format
 
 The config file is JSON (no YAML dependency).
+
+The repo includes a tracked template: `tfdl.example.json`.
+
+Create a local config file from it:
+
+```bash
+cp tfdl.example.json tfdl.json
+```
 
 Example:
 
