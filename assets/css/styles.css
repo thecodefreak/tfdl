@@ -489,16 +489,6 @@ kbd,
   min-height: 560px;
 }
 
-.workspace-grid[data-view="cards"] .sidebar {
-  grid-area: sidebar;
-  width: 100%;
-  max-width: none;
-  position: sticky;
-  top: 8px;
-  grid-template-columns: 1fr;
-  gap: 10px;
-}
-
 .workspace-grid[data-view="cards"] .sidebar .is-optional-in-cards {
   display: none;
 }
