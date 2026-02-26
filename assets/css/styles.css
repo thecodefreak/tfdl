@@ -443,6 +443,7 @@ kbd,
 .workspace-grid {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-areas: "sidebar results";
   gap: 12px;
   padding: 0 10px 10px;
   align-items: start;
@@ -451,6 +452,7 @@ kbd,
 }
 
 .sidebar {
+  grid-area: sidebar;
   display: grid;
   gap: 10px;
   position: sticky;
@@ -476,20 +478,21 @@ kbd,
 
 .workspace-grid[data-view="cards"] {
   grid-template-columns: 1fr;
+  grid-template-areas:
+    "results"
+    "sidebar";
   justify-items: stretch;
 }
 
 .workspace-grid[data-view="cards"] .table-panel {
-  order: 1;
-  grid-column: 1 / -1;
+  grid-area: results;
   width: 100%;
   max-width: none;
   min-height: 560px;
 }
 
 .workspace-grid[data-view="cards"] .sidebar {
-  order: 2;
-  grid-column: 1 / -1;
+  grid-area: sidebar;
   width: 100%;
   max-width: none;
   position: static;
@@ -759,6 +762,7 @@ kbd {
 }
 
 .table-panel {
+  grid-area: results;
   min-width: 0;
   overflow: hidden;
   display: grid;
@@ -1646,6 +1650,9 @@ input:focus-visible {
 
   .workspace-grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "sidebar"
+      "results";
   }
 
   .sidebar {
