@@ -1,119 +1,48 @@
-# Web Tools Workspace (Developer-First)
+# TFDL (Tools For Dev Life)
 
-A local-first launcher and folder structure for daily web tools, designed for predictable paths and fast access.
+TFDL is a local-first launcher for browser-based utility tools (formatters, timers,
+calculators, writing helpers, finance tools, and more). It is designed for fast
+keyboard use, predictable paths, and zero frontend build tooling.
 
-## What Changed (Design Principles)
+You can use it in two ways:
 
-- Compact dark UI optimized for scanning, not decorative cards
-- Single source of truth tool registry: `assets/js/tools.registry.js`
-- Predictable canonical paths: `tools/<category>/<slug>/`
-- Short daily-use aliases: `t/<alias>/`
-- Keyboard-first navigation on the dashboard (`/`, `j/k`, `Enter`, `p`, `y`, `Y`, `1-0`)
+- Static mode: open `index.html` directly and use canonical tool pages under `tools/`
+- Server mode (recommended): run the included Go server for `/t/<alias>/` shortcuts,
+  optional Basic Auth, and `/healthz`
 
-## Directory Layout
+## Highlights
 
-- `index.html` — developer launcher dashboard (rendered from registry)
-- `assets/css/styles.css` — shared dark styling (dashboard + tool shells)
-- `assets/js/tools.registry.js` — all tool metadata (name, alias, category, tags)
-- `assets/js/app.js` — registry rendering, search/filter, pins, recents, copy actions
-- `tools/` — canonical implementation folders by category
-- `/t/<alias>/` — short alias URLs served dynamically by the Go server
+- Keyboard-first launcher (`/`, `j/k`, `Enter`, `p`, `y`, `Y`, `1-0`, `v`)
+- Registry-driven dashboard from `assets/js/tools.registry.js`
+- Stable canonical paths: `tools/<category>/<slug>/`
+- Short aliases: `/t/<alias>/` (served dynamically by the Go server)
+- No Node build step required
+- Docker and Docker Compose support
 
-## URL Strategy
+## Quick Start
 
-Use two paths for every tool:
+### 1. Static (no server)
 
-- Canonical implementation path: `tools/<category>/<slug>/`
-- Short alias path (daily use/bookmarks): `t/<alias>/`
+Open `index.html` in a browser.
 
-Examples:
+- Works for the launcher UI and canonical tool pages
+- Does not support `/t/<alias>/` routes (those require the Go server)
 
-- `t/json/` → `tools/dev/json-formatter/`
-- `t/focus/` → `tools/productivity/focus-timer/`
-- `t/words/` → `tools/writing/word-counter/`
+### 2. Run the local Go server (recommended)
 
-This keeps source organized while keeping navigation fast. Alias redirects for
-`/t/<alias>/` are generated dynamically by the Go server from
-`assets/js/tools.registry.js` (there is no `t/` redirect folder).
+Requirements:
 
-## Add a New Tool (Recommended Workflow)
+- Go `1.25+` (see `go.mod`)
 
-1. Copy `tools/_template/` into the target category and rename to your slug.
-2. Implement the tool at `tools/<category>/<slug>/index.html`.
-3. Add the tool entry to `assets/js/tools.registry.js`.
-4. Reload `index.html` and verify search + alias link + source path.
-
-## Dashboard Features
-
-- Search by name, alias, path, category, and description
-- Token filters: `@dev`, `@utilities`, `#json`, `#timer`
-- Pinned tools (stored in browser `localStorage`)
-- Recent launches (stored in browser `localStorage`)
-- Copy alias path and source path per tool
-- Shortcuts to open top visible tools with `1..0`
-
-## UI Framework (Phase 2)
-
-To keep the project minimal but consistent, the UI now uses a small local CSS
-framework in `assets/css/framework.css` (no external dependency/build step).
-
-What it provides:
-
-- shared design tokens (`--ui-*`) that map to the app theme
-- reusable component primitives (`ui-panel`, `ui-btn`, `ui-chip`, `ui-field-shell`)
-- utility classes for layout/spacing (`ui-stack`, `ui-row`, `ui-grid-2`, etc.)
-- dev-tool-friendly defaults (dark surfaces, compact controls, mono support)
-
-How it is loaded:
-
-- `assets/css/styles.css` imports `assets/css/framework.css`
-- existing launcher/tool styles remain app-specific and can be migrated gradually
-
-## UI Skins & Custom Styles
-
-The default UI now uses a softer dark skin (`assets/css/skins/canva-dark.css`)
-that loads after `assets/css/styles.css`.
-
-A shared developer override file is also loaded last on every launcher/tool
-page:
-
-- `assets/css/user.css`
-
-Use `assets/css/user.css` for local branding, spacing tweaks, or custom themes
-without editing core CSS files.
-
-If you want the older terminal-style look on a page, add `theme-terminal` to the
-`<body>` class for that page to opt out of the default soft skin.
-
-## Notes
-
-- No build system or framework required.
-- Canonical pages work as static files; short `t/<alias>/` aliases require the Go server.
-- Alias routes stay stable because they are generated from `assets/js/tools.registry.js`.
-
-## Run as a Web Server (Go)
-
-This project now includes a small Go server so you can run the static workspace as a local web app or package it as a command.
-
-Files:
-
-- `cmd/webtools/` - CLI entrypoint (`serve`, `print-config`)
-- `internal/webtools/` - server + config logic
-- `webtools.json` - shared dev config (portable defaults)
-
-### Quick Start
-
-From `project/`:
+From the repo root:
 
 ```bash
 go run ./cmd/webtools serve
 ```
 
-Open:
+Open `http://127.0.0.1:8080`.
 
-- `http://127.0.0.1:8080`
-
-### Useful Flags
+Useful examples:
 
 ```bash
 go run ./cmd/webtools serve -port 9000
@@ -121,27 +50,139 @@ go run ./cmd/webtools serve -config ./webtools.json -root .
 go run ./cmd/webtools serve -auth-enabled=true -auth-user dev -auth-pass 'secret'
 ```
 
-Supported overrides:
+You can also build a local binary:
 
+```bash
+go build -o webtools ./cmd/webtools
+./webtools serve
+```
+
+### 3. Docker Compose
+
+```bash
+docker compose -f compose.yml up --build
+```
+
+Examples:
+
+```bash
+WEBTOOLS_PORT=9090 docker compose -f compose.yml up --build
+```
+
+```bash
+WEBTOOLS_AUTH_ENABLED=true \
+WEBTOOLS_AUTH_USER=dev \
+WEBTOOLS_AUTH_PASS='secret' \
+docker compose -f compose.yml up --build
+```
+
+## How It Works
+
+### Canonical Paths and Aliases
+
+Each tool has:
+
+- A canonical source path: `tools/<category>/<slug>/`
+- A short alias URL: `/t/<alias>/`
+
+Examples:
+
+- `/t/json/` -> `tools/dev/json-formatter/`
+- `/t/focus/` -> `tools/productivity/focus-timer/`
+- `/t/words/` -> `tools/writing/word-counter/`
+
+Aliases are generated dynamically by the Go server from
+`assets/js/tools.registry.js`. The registry is the single source of truth.
+
+## Launcher Features
+
+- Search by name, alias, category, path, and description
+- Token filters such as `@dev`, `@finance`, `#json`, `#timer`
+- Pin tools and store recents in browser `localStorage`
+- Copy alias path and source path from the launcher
+- Open top visible results with `1..0`
+- Card and table views with keyboard navigation
+
+## Project Layout
+
+- `index.html` - launcher dashboard
+- `assets/css/styles.css` - shared styling for launcher and tools
+- `assets/css/framework.css` - local UI framework primitives/utilities
+- `assets/css/skins/canva-dark.css` - default skin
+- `assets/css/user.css` - local overrides loaded last
+- `assets/js/tools.registry.js` - tool metadata registry (name, alias, category, tags)
+- `assets/js/app.js` - launcher behavior (search, filters, pins, recents, views)
+- `tools/` - canonical tool implementations by category
+- `cmd/webtools/` - Go CLI entrypoint (`serve`, `print-config`)
+- `internal/webtools/` - Go server and config logic
+- `webtools.json` - optional server config file
+
+## Add a Tool
+
+1. Copy `tools/_template/` into the target category and rename it to your slug.
+2. Implement `tools/<category>/<slug>/index.html` (and page assets if needed).
+3. Add the tool entry to `assets/js/tools.registry.js`.
+4. Reload the launcher and verify:
+   - search results
+   - alias path (`/t/<alias>/`)
+   - source path link
+
+Recommended quick validation:
+
+```bash
+node --check assets/js/app.js
+node --check assets/js/tools.registry.js
+```
+
+If you changed a tool script, run `node --check` on that file too.
+
+## Go Server Configuration
+
+The Go server is optional, but enables alias routing and a better local app flow.
+
+Commands:
+
+- `webtools serve` - run the static file server (default command)
+- `webtools print-config` - print the effective config after file + env resolution
+
+Supported `serve` flags:
+
+- `-config`
 - `-port`
 - `-bind`
 - `-root`
-- `-config`
 - `-auth-enabled`
 - `-auth-user`
 - `-auth-pass`
 
-### Config File (`webtools.json`)
+## `webtools.json` Format
 
-The server uses `webtools.json` (JSON instead of YAML to keep the Go implementation dependency-free).
+The config file is JSON (no YAML dependency).
 
-Lookup order:
+Example:
+
+```json
+{
+  "server": {
+    "bind": "0.0.0.0",
+    "port": 8080,
+    "root_dir": "."
+  },
+  "auth": {
+    "enabled": false,
+    "username": "admin",
+    "password": ""
+  }
+}
+```
+
+Config lookup order:
 
 1. `-config <path>`
 2. `WEBTOOLS_CONFIG`
 3. `./webtools.json` (if present)
 
-Environment variables also override config values:
+Environment variable overrides:
 
 - `WEBTOOLS_PORT`
 - `WEBTOOLS_BIND`
@@ -150,54 +191,26 @@ Environment variables also override config values:
 - `WEBTOOLS_AUTH_USER`
 - `WEBTOOLS_AUTH_PASS`
 
-### Password Protection
+## Server Features
 
-Basic Auth is supported and is **disabled by default**.
+- Dynamic `/t/<alias>/` redirects from the registry
+- `/healthz` endpoint (no auth)
+- Optional Basic Auth (disabled by default)
+- Blocks direct access to `.git` paths when serving project root
+- Request logging and graceful shutdown (`SIGINT` / `SIGTERM`)
 
-Set in config:
+## Theming and Local Overrides
 
-- `auth.enabled = true`
-- `auth.username`
-- `auth.password`
+- `assets/css/styles.css` imports `assets/css/framework.css`
+- `assets/css/skins/canva-dark.css` provides the default skin
+- `assets/css/user.css` is loaded last for local tweaks/branding
 
-Or override with flags/env vars.
+To use the older terminal-style look on a page, add `theme-terminal` to that
+page's `<body>` class.
 
-### Nice Extras Included
+## Naming Note
 
-- `/healthz` endpoint (no auth) for Compose/health checks
-- blocks direct access to `.git` paths when serving the project root
-- dynamic `/t/<alias>` redirects loaded from `assets/js/tools.registry.js`
-- basic request logging
-- graceful shutdown on `SIGINT`/`SIGTERM`
-
-## Docker / Compose
-
-### Docker Compose
-
-From `project/`:
-
-```bash
-docker compose -f compose.yml up --build
-```
-
-The service:
-
-- builds the Go server image
-- mounts the project directory read-only
-- serves from `/srv/webtools`
-- reads config from `/srv/webtools/webtools.json`
-
-Change the port:
-
-```bash
-WEBTOOLS_PORT=9090 docker compose -f compose.yml up --build
-```
-
-Enable auth:
-
-```bash
-WEBTOOLS_AUTH_ENABLED=true \
-WEBTOOLS_AUTH_USER=dev \
-WEBTOOLS_AUTH_PASS='secret' \
-docker compose -f compose.yml up --build
-```
+TFDL is the public/project name ("Tools For Dev Life"). Some internal code and
+packaging names still use `webtools` (Go module path, CLI binary name, config
+filename, Docker image references), which is expected unless you want to rename
+the server package/binary as a separate follow-up.
