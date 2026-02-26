@@ -31,7 +31,7 @@ func DefaultConfig() Config {
 		Server: ServerConfig{
 			Bind:    "0.0.0.0",
 			Port:    8080,
-			RootDir: ".",
+			RootDir: "", // Empty = use embedded files
 		},
 		Auth: AuthConfig{
 			Enabled:  false,
@@ -61,12 +61,9 @@ func LoadConfigFile(path string) (Config, error) {
 		return Config{}, fmt.Errorf("decode config file: %w", err)
 	}
 
-	if cfg.Server.RootDir == "" {
-		cfg.Server.RootDir = "."
-	}
-
-	// Resolve relative roots from the config file location so configs are portable.
-	if !filepath.IsAbs(cfg.Server.RootDir) {
+	// Note: cfg.Server.RootDir is allowed to be empty (will use embedded files)
+	// Only resolve relative paths if a root_dir was actually specified
+	if cfg.Server.RootDir != "" && !filepath.IsAbs(cfg.Server.RootDir) {
 		cfg.Server.RootDir = filepath.Join(filepath.Dir(cleanPath), cfg.Server.RootDir)
 	}
 
@@ -88,31 +85,32 @@ func (c *Config) NormalizeAndValidate() error {
 	if c.Server.Port == 0 {
 		c.Server.Port = 8080
 	}
-	if c.Server.RootDir == "" {
-		c.Server.RootDir = "."
-	}
 
 	if c.Server.Port < 1 || c.Server.Port > 65535 {
 		return fmt.Errorf("server.port must be between 1 and 65535 (got %d)", c.Server.Port)
 	}
 
-	absRoot, err := filepath.Abs(c.Server.RootDir)
-	if err != nil {
-		return fmt.Errorf("resolve server.root_dir: %w", err)
-	}
-	c.Server.RootDir = absRoot
+	// Validate root_dir ONLY if specified (non-empty means user wants external files)
+	if c.Server.RootDir != "" {
+		absRoot, err := filepath.Abs(c.Server.RootDir)
+		if err != nil {
+			return fmt.Errorf("resolve server.root_dir: %w", err)
+		}
+		c.Server.RootDir = absRoot
 
-	info, err := os.Stat(c.Server.RootDir)
-	if err != nil {
-		return fmt.Errorf("stat server.root_dir: %w", err)
-	}
-	if !info.IsDir() {
-		return errors.New("server.root_dir must be a directory")
-	}
+		info, err := os.Stat(c.Server.RootDir)
+		if err != nil {
+			return fmt.Errorf("stat server.root_dir: %w", err)
+		}
+		if !info.IsDir() {
+			return errors.New("server.root_dir must be a directory")
+		}
 
-	if _, err := os.Stat(filepath.Join(c.Server.RootDir, "index.html")); err != nil {
-		return fmt.Errorf("server.root_dir must contain index.html: %w", err)
+		if _, err := os.Stat(filepath.Join(c.Server.RootDir, "index.html")); err != nil {
+			return fmt.Errorf("server.root_dir must contain index.html: %w", err)
+		}
 	}
+	// If RootDir is empty, embedded files will be used (no validation needed)
 
 	if c.Auth.Enabled {
 		if c.Auth.Username == "" {

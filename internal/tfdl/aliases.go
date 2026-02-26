@@ -3,9 +3,9 @@ package tfdl
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"os"
 	"path"
-	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -21,9 +21,11 @@ type aliasRegistryTool struct {
 	ID       string `json:"id"`
 }
 
-func LoadAliasRedirects(rootDir string) (map[string]string, error) {
-	registryPath := filepath.Join(rootDir, "assets", "js", "tools.registry.js")
-	data, err := os.ReadFile(registryPath)
+// LoadAliasRedirects loads alias mappings from tools.registry.js using a filesystem interface.
+// This supports both embedded filesystems (embed.FS) and external directories (os.DirFS).
+func LoadAliasRedirects(fsys fs.FS) (map[string]string, error) {
+	registryPath := "assets/js/tools.registry.js"
+	data, err := fs.ReadFile(fsys, registryPath)
 	if err != nil {
 		return nil, fmt.Errorf("read registry: %w", err)
 	}
@@ -64,6 +66,12 @@ func LoadAliasRedirects(rootDir string) (map[string]string, error) {
 	}
 
 	return redirects, nil
+}
+
+// LoadAliasRedirectsFromPath loads alias mappings from a directory path.
+// This is a convenience wrapper for external file systems.
+func LoadAliasRedirectsFromPath(rootDir string) (map[string]string, error) {
+	return LoadAliasRedirects(os.DirFS(rootDir))
 }
 
 func LookupAliasRedirect(aliasRedirects map[string]string, requestPath string) (string, bool) {

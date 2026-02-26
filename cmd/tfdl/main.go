@@ -18,6 +18,12 @@ import (
 	tfdl "tfdl/internal/tfdl"
 )
 
+var (
+	// Version information, set via -ldflags during build
+	version   = "dev"
+	buildTime = "unknown"
+)
+
 func main() {
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
@@ -35,6 +41,9 @@ func run(args []string, logger *log.Logger) error {
 	switch args[0] {
 	case "serve":
 		return runServe(args[1:], logger)
+	case "version":
+		fmt.Printf("tfdl %s (built %s)\n", version, buildTime)
+		return nil
 	case "print-config":
 		return runPrintConfig(args[1:], logger)
 	case "help", "-h", "--help":
@@ -56,10 +65,11 @@ func runServe(args []string, logger *log.Logger) error {
 	configPathFlag := fs.String("config", "", "path to config file (default: TFDL_CONFIG or ./tfdl.json if present)")
 	portFlag := fs.Int("port", 0, "port override")
 	bindFlag := fs.String("bind", "", "bind address override (for example 0.0.0.0)")
-	rootFlag := fs.String("root", "", "static root directory override")
+	rootFlag := fs.String("root", "", "serve from external directory instead of embedded files")
 	authEnabledFlag := fs.String("auth-enabled", "", "override auth enabled (true/false)")
 	authUserFlag := fs.String("auth-user", "", "override basic auth username")
 	authPassFlag := fs.String("auth-pass", "", "override basic auth password")
+	debugFlag := fs.Bool("debug", false, "enable debug logging")
 
 	fs.Usage = func() {
 		fmt.Fprintf(fs.Output(), "Usage: tfdl serve [options]\n\n")
@@ -93,7 +103,7 @@ func runServe(args []string, logger *log.Logger) error {
 	}
 
 	addr := tfdl.ListenAddr(cfg)
-	mux := tfdl.NewMux(cfg, logger)
+	mux := tfdl.NewMux(cfg, logger, *debugFlag)
 	server := &http.Server{
 		Addr:              addr,
 		Handler:           mux,
@@ -101,7 +111,11 @@ func runServe(args []string, logger *log.Logger) error {
 	}
 
 	logger.Printf("tfdl server starting")
-	logger.Printf("  root: %s", cfg.Server.RootDir)
+	if cfg.Server.RootDir == "" {
+		logger.Printf("  files: embedded")
+	} else {
+		logger.Printf("  files: %s", cfg.Server.RootDir)
+	}
 	if configPath != "" {
 		logger.Printf("  config: %s", configPath)
 	} else {
@@ -272,11 +286,16 @@ func printRootHelp(out *os.File) {
 	fmt.Fprintln(out)
 	fmt.Fprintln(out, "Commands:")
 	fmt.Fprintln(out, "  serve        Run the static web server (default command)")
+	fmt.Fprintln(out, "  version      Show version information")
 	fmt.Fprintln(out, "  print-config Print the effective config after file+env resolution")
 	fmt.Fprintln(out)
 	fmt.Fprintln(out, "Examples:")
-	fmt.Fprintln(out, "  tfdl serve -port 8080")
-	fmt.Fprintln(out, "  tfdl serve -config ./tfdl.json -auth-enabled=true -auth-user dev -auth-pass secret")
+	fmt.Fprintln(out, "  tfdl                                    # Serve embedded files on port 8080")
+	fmt.Fprintln(out, "  tfdl -port 3000                         # Serve on custom port")
+	fmt.Fprintln(out, "  tfdl -root /path/to/files               # Serve external files")
+	fmt.Fprintln(out, "  tfdl -config ./tfdl.json                # Use config file")
+	fmt.Fprintln(out, "  tfdl -auth-enabled=true -auth-user dev -auth-pass secret")
+	fmt.Fprintln(out, "  tfdl -debug                             # Enable debug logging")
 }
 
 func ternary[T any](cond bool, a, b T) T {

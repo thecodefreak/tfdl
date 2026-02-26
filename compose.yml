@@ -4,13 +4,10 @@ services:
       context: .
       dockerfile: Dockerfile
     image: tfdl-workspace:local
-    working_dir: /srv/tfdl
     command:
       - serve
-      - -config
-      - /srv/tfdl/tfdl.example.json
       - -root
-      - /srv/tfdl
+      - /mnt/dev
       - -port
       - ${TFDL_PORT:-8080}
     environment:
@@ -18,7 +15,7 @@ services:
       TFDL_AUTH_USER: ${TFDL_AUTH_USER:-}
       TFDL_AUTH_PASS: ${TFDL_AUTH_PASS:-}
     volumes:
-      - ./:/srv/tfdl:ro
+      - ./:/mnt/dev:ro
     ports:
       - "${TFDL_PORT:-8080}:${TFDL_PORT:-8080}"
     restart: unless-stopped

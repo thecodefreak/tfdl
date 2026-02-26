@@ -8,21 +8,52 @@ import (
 	"path"
 	"strings"
 	"time"
+
+	static "tfdl"
 )
 
-func NewMux(cfg Config, logger *log.Logger) http.Handler {
+func NewMux(cfg Config, logger *log.Logger, debug bool) http.Handler {
 	if logger == nil {
 		logger = log.Default()
 	}
 
-	aliasRedirects, err := LoadAliasRedirects(cfg.Server.RootDir)
-	if err != nil {
-		logger.Printf("alias redirects disabled: %v", err)
-	} else if len(aliasRedirects) > 0 {
-		logger.Printf("loaded %d dynamic alias redirects from registry", len(aliasRedirects))
+	var fileHandler http.Handler
+	var aliasRedirects map[string]string
+	var err error
+
+	if cfg.Server.RootDir == "" {
+		// Mode 1: Use embedded files (default, no config needed)
+		if debug {
+			logger.Printf("[DEBUG] Using embedded files")
+		}
+		fileHandler = http.FileServer(http.FS(static.FS))
+		aliasRedirects, err = LoadAliasRedirects(static.FS)
+		if err != nil {
+			logger.Printf("alias redirects disabled: %v", err)
+		} else if len(aliasRedirects) > 0 {
+			logger.Printf("loaded %d alias redirects from embedded registry", len(aliasRedirects))
+		}
+	} else {
+		// Mode 2: Use external files (override via -root or config)
+		if debug {
+			logger.Printf("[DEBUG] Using external files from: %s", cfg.Server.RootDir)
+		}
+		fileHandler = http.FileServer(http.Dir(cfg.Server.RootDir))
+		aliasRedirects, err = LoadAliasRedirectsFromPath(cfg.Server.RootDir)
+		if err != nil {
+			logger.Printf("alias redirects disabled: %v", err)
+		} else if len(aliasRedirects) > 0 {
+			logger.Printf("loaded %d alias redirects from %s", len(aliasRedirects), cfg.Server.RootDir)
+		}
 	}
 
-	fileHandler := http.FileServer(http.Dir(cfg.Server.RootDir))
+	if debug && len(aliasRedirects) > 0 {
+		logger.Printf("[DEBUG] Available aliases:")
+		for alias, target := range aliasRedirects {
+			logger.Printf("[DEBUG]   /t/%s → %s", alias, target)
+		}
+	}
+
 	staticChain := withNoGitAccess(fileHandler)
 	if len(aliasRedirects) > 0 {
 		staticChain = withAliasRedirects(aliasRedirects, staticChain)

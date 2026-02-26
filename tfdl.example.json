@@ -1,8 +1,8 @@
 {
+  "_comment": "Root dir is optional. Omit it to use embedded files (default). Set it to serve external files.",
   "server": {
     "bind": "0.0.0.0",
-    "port": 8080,
-    "root_dir": "."
+    "port": 8080
   },
   "auth": {
     "enabled": false,

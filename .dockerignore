@@ -1,6 +1,19 @@
+# Git and development files
 .git
+.github
 .gk
-*.log
+
+# Build artifacts
 tfdl
-tfdl.json
 bin/
+dist/
+
+# Config and logs
+tfdl.json
+*.log
+
+# Documentation (not needed in Docker image)
+*.md
+LICENSE
+CONTRIBUTING*
+SECURITY*
