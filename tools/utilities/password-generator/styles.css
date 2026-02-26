@@ -1,0 +1,530 @@
+.passgen-shell {
+  width: min(1440px, 100%);
+}
+
+.passgen-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.passgen-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.95rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.passgen-toolbar h2 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.passgen-subtext {
+  margin: 0.2rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+}
+
+.passgen-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.passgen-toolbar-actions .action-btn {
+  font-size: 0.74rem;
+  padding: 0.35rem 0.6rem;
+}
+
+.passgen-toolbar-actions .accent-btn {
+  border-color: rgba(110, 203, 255, 0.22);
+  color: #bdeaff;
+  background: rgba(110, 203, 255, 0.05);
+}
+
+.passgen-meta-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.mode-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+  padding: 0.2rem;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.mode-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-dim);
+  padding: 0.38rem 0.75rem;
+  min-height: 30px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.mode-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mode-btn[aria-pressed="true"],
+.mode-btn.is-active {
+  color: #cfe7ff;
+  border-color: rgba(110, 203, 255, 0.2);
+  background: rgba(110, 203, 255, 0.08);
+}
+
+.mode-btn:focus-visible {
+  outline: 2px solid rgba(110, 203, 255, 0.35);
+  outline-offset: 1px;
+}
+
+.passgen-inline-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: end;
+  gap: 0.6rem 0.8rem;
+  min-width: 0;
+}
+
+.passgen-route-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.passgen-inline-field,
+.passgen-field {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.passgen-inline-field > span,
+.passgen-field > span {
+  color: var(--text-soft);
+  font-size: 0.76rem;
+}
+
+.passgen-inline-field.compact-field {
+  width: 88px;
+}
+
+.passgen-grid {
+  display: grid;
+  grid-template-columns: minmax(330px, 430px) minmax(0, 1fr);
+  align-items: start;
+  border-top: 1px solid rgba(255, 255, 255, 0.01);
+}
+
+.passgen-config-stack,
+.passgen-output-stack {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+}
+
+.passgen-config-stack {
+  border-right: 1px solid var(--line);
+}
+
+.passgen-card {
+  min-width: 0;
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.passgen-card:last-child {
+  border-bottom: 0;
+}
+
+.passgen-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.passgen-card-head h3 {
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+.passgen-range-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 100px;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.passgen-range-grid input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.passgen-check-grid {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.passgen-check-grid--compact {
+  gap: 0.4rem;
+}
+
+.passgen-card .toggle-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.012);
+  padding: 0.45rem 0.55rem;
+  color: var(--text-soft);
+}
+
+.passgen-card .toggle-row:hover {
+  border-color: rgba(110, 203, 255, 0.14);
+}
+
+.passgen-card .toggle-row input {
+  margin: 0;
+}
+
+.passgen-card .toggle-row span {
+  min-width: 0;
+  font-size: 0.78rem;
+}
+
+.passgen-help {
+  margin: -0.15rem 0 0;
+  color: var(--text-dim);
+}
+
+.passgen-two-col {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 1fr);
+  gap: 0.65rem;
+  align-items: end;
+}
+
+#customSeparatorField.is-hidden {
+  display: none;
+}
+
+.passgen-output-card {
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.passgen-output {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: rgba(8, 11, 15, 0.96);
+  color: var(--text);
+  padding: 0.75rem 0.85rem;
+  font: 600 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.passgen-output:focus-visible {
+  outline: 2px solid rgba(110, 203, 255, 0.35);
+  outline-offset: 1px;
+}
+
+.passgen-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.passgen-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+}
+
+.passgen-list-head strong {
+  color: var(--text);
+  font-size: 0.78rem;
+}
+
+.passgen-result-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.passgen-result-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.55rem;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.012);
+  padding: 0.45rem 0.55rem;
+}
+
+.passgen-result-item.is-primary {
+  border-color: rgba(110, 203, 255, 0.16);
+  background: rgba(110, 203, 255, 0.03);
+}
+
+.passgen-result-main {
+  min-width: 0;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.passgen-result-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+  font: 600 12px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.passgen-result-meta {
+  color: var(--text-dim);
+  font-size: 0.7rem;
+}
+
+.passgen-result-item .ghost-btn,
+.passgen-result-item .action-btn {
+  padding: 0.3rem 0.45rem;
+  font-size: 0.72rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.13rem 0.5rem;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.015);
+  color: var(--text-dim);
+}
+
+.status-badge.ok {
+  border-color: rgba(132, 243, 203, 0.2);
+  color: #abf5df;
+}
+
+.status-badge.warn {
+  border-color: rgba(255, 211, 122, 0.2);
+  color: #ffd990;
+}
+
+.status-badge.error {
+  border-color: rgba(255, 127, 134, 0.22);
+  color: #ffb7bb;
+}
+
+.status-message {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.8rem;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.metric-chip {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.012);
+  padding: 0.5rem 0.55rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.metric-label {
+  color: var(--text-dim);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metric-chip strong {
+  color: var(--text);
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+.metric-chip strong.strength-weak {
+  color: #ffb7bb;
+}
+
+.metric-chip strong.strength-fair {
+  color: #ffd990;
+}
+
+.metric-chip strong.strength-good {
+  color: #bdeaff;
+}
+
+.metric-chip strong.strength-strong {
+  color: #abf5df;
+}
+
+.passgen-kv-list {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.passgen-kv-item {
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: start;
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.01);
+  padding: 0.45rem 0.55rem;
+}
+
+.passgen-kv-key {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  text-transform: lowercase;
+}
+
+.passgen-kv-value {
+  min-width: 0;
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.passgen-kv-value code {
+  color: var(--text);
+}
+
+.passgen-warning-list {
+  margin: 0;
+  padding-left: 1rem;
+  color: #ffd990;
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.76rem;
+}
+
+.passgen-warning-list li {
+  margin: 0;
+}
+
+.passgen-foot-hints {
+  margin: 0;
+  color: var(--text-dim);
+}
+
+.passgen-foot-hints code {
+  color: var(--text-soft);
+}
+
+@media (max-width: 1180px) {
+  .passgen-meta-row {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .passgen-inline-controls,
+  .passgen-route-chips {
+    justify-content: flex-start;
+  }
+
+  .passgen-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .passgen-config-stack {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 760px) {
+  .passgen-toolbar,
+  .passgen-meta-row,
+  .passgen-card {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .passgen-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .passgen-toolbar-actions {
+    justify-content: stretch;
+  }
+
+  .passgen-toolbar-actions .action-btn {
+    flex: 1 1 auto;
+  }
+
+  .passgen-range-grid,
+  .passgen-two-col,
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .passgen-inline-field.compact-field {
+    width: 100px;
+  }
+
+  .passgen-result-item {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .passgen-result-item .passgen-inline-actions,
+  .passgen-result-item .result-copy-wrap {
+    justify-content: flex-start;
+  }
+
+  .passgen-kv-item {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+}

@@ -6,38 +6,243 @@
   <title>Password Generator</title>
   <link rel="stylesheet" href="../../../assets/css/styles.css" />
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
+  <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
   <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
   <wt-tool-shell
+    class="passgen-shell"
     eyebrow="Utilities"
     heading="Password Generator"
-    lede="Create strong random passwords or passphrases locally."
+    lede="Create strong random passwords or passphrases locally with crypto-random generation, batch output, and quick copy actions."
     back-href="../../../index.html"
     back-class="back-link"
-    aria-label="Password Generator placeholder page"
+    aria-label="Password Generator tool"
   >
+    <section class="tool-panel passgen-panel" aria-labelledby="passgen-tool-title">
+      <div class="passgen-toolbar">
+        <div>
+          <h2 id="passgen-tool-title">Generator</h2>
+          <p class="passgen-subtext">Local-only generation • no network calls • Web Crypto random when available</p>
+        </div>
+        <div class="passgen-toolbar-actions">
+          <button class="action-btn accent-btn" id="generateBtn" type="button">Generate</button>
+          <button class="action-btn" id="copyPrimaryBtn" type="button">Copy First</button>
+          <button class="action-btn" id="copyAllBtn" type="button">Copy All</button>
+        </div>
+      </div>
 
-    <div class="tool-shell-grid">
-      <section class="tool-panel" aria-labelledby="work-area">
-        <h2 id="work-area">Placeholder Shell</h2>
-        <p>This is the tool shell page. Replace this panel with your actual UI.</p>
-        <ul>
-          <li>Keep the path stable so bookmarks and aliases do not break.</li>
-          <li>If the tool grows, add local <code>app.js</code> and <code>styles.css</code> here.</li>
-          <li>Keep core utility logic client-side where possible for local usage.</li>
-        </ul>
-      </section>
+      <div class="passgen-meta-row">
+        <div class="mode-switch" role="group" aria-label="Generation mode">
+          <button class="mode-btn is-active" id="modePasswordBtn" type="button" aria-pressed="true">Password</button>
+          <button class="mode-btn" id="modePassphraseBtn" type="button" aria-pressed="false">Passphrase</button>
+        </div>
 
-      <section class="tool-panel" aria-labelledby="routing-meta">
-        <h2 id="routing-meta">Routing & Files</h2>
-        <p class="code-chip">Alias: t/pass/</p>
-        <p class="code-chip">Source: tools/utilities/password-generator/</p>
-        <p style="margin-top: 0.35rem;">This page should remain the canonical implementation path.</p>
-        <p style="margin-top: 0.35rem;">Use the short alias for daily navigation and bookmarks.</p>
-      </section>
-    </div>
+        <div class="passgen-inline-controls">
+          <label class="passgen-inline-field compact-field" for="resultCountInput">
+            <span>Batch</span>
+            <input id="resultCountInput" class="ui-input mono" type="number" min="1" max="20" step="1" value="6" />
+          </label>
+          <label class="toggle-row" for="liveRegenerateToggle">
+            <input id="liveRegenerateToggle" type="checkbox" checked />
+            <span>Live regenerate</span>
+          </label>
+        </div>
+
+        <div class="passgen-route-chips" aria-label="Routing metadata">
+          <span class="code-chip">Alias: t/pass/</span>
+          <span class="code-chip">Source: tools/utilities/password-generator/</span>
+        </div>
+      </div>
+
+      <div class="passgen-grid">
+        <div class="passgen-config-stack">
+          <section class="passgen-card" id="passwordConfigCard" aria-labelledby="password-options-title">
+            <div class="passgen-card-head">
+              <h3 id="password-options-title">Password Options</h3>
+              <span class="tiny mono">random characters</span>
+            </div>
+
+            <div class="passgen-range-grid">
+              <label class="passgen-field" for="passwordLengthRange">
+                <span>Length</span>
+                <input id="passwordLengthRange" type="range" min="6" max="128" step="1" value="20" />
+              </label>
+              <label class="passgen-field compact-field" for="passwordLengthInput">
+                <span>Value</span>
+                <input id="passwordLengthInput" class="ui-input mono" type="number" min="6" max="128" step="1" value="20" />
+              </label>
+            </div>
+
+            <div class="passgen-check-grid" role="group" aria-label="Character sets">
+              <label class="toggle-row" for="includeLowercaseToggle">
+                <input id="includeLowercaseToggle" type="checkbox" checked />
+                <span>Lowercase (a-z)</span>
+              </label>
+              <label class="toggle-row" for="includeUppercaseToggle">
+                <input id="includeUppercaseToggle" type="checkbox" checked />
+                <span>Uppercase (A-Z)</span>
+              </label>
+              <label class="toggle-row" for="includeNumbersToggle">
+                <input id="includeNumbersToggle" type="checkbox" checked />
+                <span>Numbers (0-9)</span>
+              </label>
+              <label class="toggle-row" for="includeSymbolsToggle">
+                <input id="includeSymbolsToggle" type="checkbox" checked />
+                <span>Symbols</span>
+              </label>
+            </div>
+
+            <label class="passgen-field" for="symbolsInput">
+              <span>Symbols Set</span>
+              <input
+                id="symbolsInput"
+                class="ui-input mono"
+                type="text"
+                spellcheck="false"
+                value="!@#$%^&*()-_=+[]{};:,.?/~"
+                placeholder="Custom symbols"
+                aria-describedby="symbolsHelp"
+              />
+            </label>
+            <p id="symbolsHelp" class="tiny passgen-help">Used when <em>Symbols</em> is enabled. Duplicate characters are removed automatically.</p>
+
+            <div class="passgen-check-grid passgen-check-grid--compact" role="group" aria-label="Password constraints">
+              <label class="toggle-row" for="requireEachSetToggle">
+                <input id="requireEachSetToggle" type="checkbox" checked />
+                <span>Require at least one from each enabled set</span>
+              </label>
+              <label class="toggle-row" for="excludeAmbiguousToggle">
+                <input id="excludeAmbiguousToggle" type="checkbox" />
+                <span>Exclude ambiguous chars (O/0, l/1, etc.)</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="passgen-card is-hidden" id="passphraseConfigCard" aria-labelledby="passphrase-options-title">
+            <div class="passgen-card-head">
+              <h3 id="passphrase-options-title">Passphrase Options</h3>
+              <span class="tiny mono">word list mode</span>
+            </div>
+
+            <div class="passgen-range-grid">
+              <label class="passgen-field" for="passphraseWordsRange">
+                <span>Word Count</span>
+                <input id="passphraseWordsRange" type="range" min="3" max="12" step="1" value="7" />
+              </label>
+              <label class="passgen-field compact-field" for="passphraseWordsInput">
+                <span>Value</span>
+                <input id="passphraseWordsInput" class="ui-input mono" type="number" min="3" max="12" step="1" value="7" />
+              </label>
+            </div>
+
+            <div class="passgen-two-col">
+              <label class="passgen-field" for="separatorSelect">
+                <span>Separator</span>
+                <select id="separatorSelect" class="ui-select mono">
+                  <option value="-">Hyphen (-)</option>
+                  <option value="_">Underscore (_)</option>
+                  <option value=".">Dot (.)</option>
+                  <option value="space">Space</option>
+                  <option value="none">None</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </label>
+              <label class="passgen-field" for="wordCaseSelect">
+                <span>Word Case</span>
+                <select id="wordCaseSelect" class="ui-select mono">
+                  <option value="lower">lowercase</option>
+                  <option value="title">Title Case</option>
+                  <option value="upper">UPPERCASE</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="passgen-field" for="customSeparatorInput" id="customSeparatorField">
+              <span>Custom Separator</span>
+              <input id="customSeparatorInput" class="ui-input mono" type="text" value="~" maxlength="8" />
+            </label>
+
+            <div class="passgen-two-col">
+              <label class="toggle-row" for="appendNumberToggle">
+                <input id="appendNumberToggle" type="checkbox" checked />
+                <span>Append random number</span>
+              </label>
+              <label class="passgen-field compact-field" for="appendDigitsInput">
+                <span>Digits</span>
+                <input id="appendDigitsInput" class="ui-input mono" type="number" min="1" max="8" step="1" value="2" />
+              </label>
+            </div>
+
+            <div class="passgen-two-col">
+              <label class="toggle-row" for="appendSymbolToggle">
+                <input id="appendSymbolToggle" type="checkbox" />
+                <span>Append symbol</span>
+              </label>
+              <label class="passgen-field" for="passphraseSymbolInput">
+                <span>Passphrase Symbols</span>
+                <input id="passphraseSymbolInput" class="ui-input mono" type="text" spellcheck="false" value="!@#$%&*?" />
+              </label>
+            </div>
+          </section>
+
+          <section class="passgen-card" aria-labelledby="summary-title" aria-live="polite">
+            <div class="passgen-card-head">
+              <h3 id="summary-title">Status & Metrics</h3>
+              <span id="statusBadge" class="status-badge idle">idle</span>
+            </div>
+            <p id="statusMessage" class="status-message">Ready. Adjust options and click Generate.</p>
+            <div class="metric-grid" aria-label="Generation metrics">
+              <div class="metric-chip"><span class="metric-label">Mode</span><strong id="metricMode">password</strong></div>
+              <div class="metric-chip"><span class="metric-label">Entropy</span><strong id="metricEntropy">0 bits</strong></div>
+              <div class="metric-chip"><span class="metric-label">Strength</span><strong id="metricStrength">n/a</strong></div>
+              <div class="metric-chip"><span class="metric-label">Length</span><strong id="metricLength">0</strong></div>
+              <div class="metric-chip"><span class="metric-label">Batch</span><strong id="metricCount">0</strong></div>
+              <div class="metric-chip"><span class="metric-label">RNG</span><strong id="metricRng">crypto</strong></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="passgen-output-stack">
+          <section class="passgen-card passgen-output-card" aria-labelledby="output-title">
+            <div class="passgen-card-head">
+              <h3 id="output-title">Generated Output</h3>
+              <div class="passgen-inline-actions">
+                <button class="ghost-btn ghost-btn-small" id="selectPrimaryBtn" type="button">Select</button>
+                <button class="ghost-btn ghost-btn-small" id="regenerateSecondaryBtn" type="button">Generate</button>
+              </div>
+            </div>
+
+            <label class="passgen-field" for="primaryOutput">
+              <span>Primary Result</span>
+              <textarea id="primaryOutput" class="passgen-output" readonly spellcheck="false" placeholder="Generated value will appear here"></textarea>
+            </label>
+
+            <div class="passgen-list-head">
+              <strong>Batch Results</strong>
+              <span id="batchMeta" class="tiny mono">0 items</span>
+            </div>
+            <ol id="resultList" class="passgen-result-list" aria-label="Generated results list"></ol>
+            <p id="emptyResults" class="ui-empty is-hidden">No results yet. Click <em>Generate</em>.</p>
+          </section>
+
+          <section class="passgen-card" aria-labelledby="details-title">
+            <div class="passgen-card-head">
+              <h3 id="details-title">Generation Details</h3>
+              <span id="detailModeHint" class="tiny mono">password</span>
+            </div>
+            <div id="detailList" class="passgen-kv-list" aria-live="polite"></div>
+            <ul id="warningList" class="passgen-warning-list is-hidden" aria-live="polite"></ul>
+            <p class="tiny mono passgen-foot-hints">
+              <code>Ctrl/Cmd + Enter</code> generate • <code>Copy First</code> copies the primary result • local only
+            </p>
+          </section>
+        </div>
+      </div>
+    </section>
   </wt-tool-shell>
+
+  <script src="app.js"></script>
 </body>
 </html>
