@@ -267,16 +267,6 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.015);
 }
 
-body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar::before {
-  content: "";
-  position: absolute;
-  inset: 8px auto 8px 8px;
-  width: 2px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(130, 182, 255, 0.2), rgba(113, 224, 194, 0.08), transparent 90%);
-  pointer-events: none;
-}
-
 body.dashboard-page.theme-dark:not(.theme-terminal) .panel,
 body.dashboard-page.theme-dark:not(.theme-terminal) .table-panel {
   border-radius: 18px;
@@ -292,7 +282,6 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .panel {
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar > .panel {
   position: relative;
-  margin-left: 4px;
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .shortcuts-overlay {
@@ -647,6 +636,7 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .today-label {
   background: rgba(255, 255, 255, 0.03);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
   padding-inline: 11px;
+  font-size: 14px;
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .command-deck {
@@ -793,13 +783,6 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar {
     0 10px 24px rgba(0, 0, 0, 0.08);
 }
 
-body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar::before {
-  width: 3px;
-  background:
-    linear-gradient(180deg, rgba(130, 182, 255, 0.28), rgba(113, 224, 194, 0.12), transparent 88%);
-  opacity: 0.95;
-}
-
 body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid .panel,
 body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid .table-panel {
   border-color: rgba(255, 255, 255, 0.06);
@@ -812,10 +795,6 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid .table-panel
 body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid .panel {
   padding: 13px;
   gap: 11px;
-}
-
-body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar > .panel {
-  margin-left: 6px;
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .panel-head {
@@ -1202,10 +1181,6 @@ body.tool-shell-page.theme-dark:not(.theme-terminal) .back-link {
     padding: 6px;
     border-radius: 16px;
   }
-
-  body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar::before {
-    inset: 6px auto 6px 6px;
-  }
 }
 
 /* Breakpoint deadband:
@@ -1280,10 +1255,6 @@ body.tool-shell-page.theme-dark:not(.theme-terminal) .back-link {
     border-radius: 0;
     background: transparent;
     box-shadow: none;
-  }
-
-  body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar::before {
-    display: none;
   }
 
   body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar > .panel {

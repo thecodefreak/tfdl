@@ -10,7 +10,6 @@
     { id: "alias", label: "Alias", icon: "link", defaultVisible: true, essential: true },
     { id: "category", label: "Category", icon: "grid", defaultVisible: true, essential: true },
     { id: "tags", label: "Tags", icon: "hash", defaultVisible: false, essential: false },
-    { id: "source", label: "Source", icon: "folder", defaultVisible: false, essential: false },
     { id: "actions", label: "Actions", icon: "sliders", defaultVisible: true, essential: true }
   ];
   const TABLE_COLUMN_MAP = new Map(TABLE_COLUMNS.map((column) => [column.id, column]));
@@ -20,7 +19,6 @@
     alias: 170,
     category: 110,
     tags: 240,
-    source: 280,
     actions: 260
   };
   const CATEGORY_ICON_MAP = {
@@ -604,11 +602,6 @@
             .map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`)
             .join("")}</div>
         </td>
-        <td data-col="source">
-          <a class="path-link" data-open-track="true" href="${escapeHtml(tool.canonicalPath)}"><code>${escapeHtml(
-      tool.canonicalPath
-    )}</code></a>
-        </td>
         <td class="actions-cell" data-col="actions">
           <div class="actions-wrap">
             ${renderActionButton({
@@ -623,12 +616,6 @@
               action: "copy-alias",
               icon: "copy",
               label: "Alias"
-            })}
-            ${renderActionButton({
-              toolId: tool.id,
-              action: "copy-source",
-              icon: "folder",
-              label: "Source"
             })}
             ${renderActionButton({
               toolId: tool.id,
@@ -676,10 +663,6 @@
             <div class="tool-card-line">
               <span class="tool-card-key mono">${renderIcon("link", "ui-icon icon-xs")}<span>alias</span></span>
               <a data-open-track="true" href="${escapeHtml(tool.aliasPath)}"><code>${escapeHtml(tool.aliasPath)}</code></a>
-            </div>
-            <div class="tool-card-line source-line">
-              <span class="tool-card-key mono">${renderIcon("folder", "ui-icon icon-xs")}<span>source</span></span>
-              <a data-open-track="true" href="${escapeHtml(tool.canonicalPath)}"><code>${escapeHtml(tool.canonicalPath)}</code></a>
             </div>
           </div>
         </div>
