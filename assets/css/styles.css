@@ -493,20 +493,6 @@ kbd,
   display: none;
 }
 
-.workspace-grid[data-view="cards"] .quick-list,
-.workspace-grid[data-view="cards"] .stack-list {
-  overflow: auto;
-  padding-right: 2px;
-}
-
-.workspace-grid[data-view="cards"] .quick-list {
-  max-height: 460px;
-}
-
-.workspace-grid[data-view="cards"] .stack-list {
-  max-height: 220px;
-}
-
 .panel-head {
   display: flex;
   align-items: center;
