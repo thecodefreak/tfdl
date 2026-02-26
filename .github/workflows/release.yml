@@ -1,0 +1,134 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "release-v*"
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  TAG_PREFIX: release-v
+  GO_VERSION_FILE: go.mod
+  APP_NAME: webtools
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set release variables
+        id: vars
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag="${GITHUB_REF_NAME}"
+          prefix="${TAG_PREFIX}"
+
+          if [[ "${tag}" != "${prefix}"* ]]; then
+            echo "Tag '${tag}' does not match expected prefix '${prefix}'" >&2
+            exit 1
+          fi
+
+          version="${tag#${prefix}}"
+          if [[ -z "${version}" ]]; then
+            echo "Parsed version is empty for tag '${tag}'" >&2
+            exit 1
+          fi
+
+          repo_lc="$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+          image="ghcr.io/${repo_lc}"
+
+          bin_asset="${APP_NAME}_${version}_linux_amd64"
+          src_asset="${APP_NAME}_${version}_source.tar.gz"
+          checksum_asset="${APP_NAME}_${version}_SHA256SUMS.txt"
+
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          echo "image=${image}" >> "${GITHUB_OUTPUT}"
+          echo "bin_asset=${bin_asset}" >> "${GITHUB_OUTPUT}"
+          echo "src_asset=${src_asset}" >> "${GITHUB_OUTPUT}"
+          echo "checksum_asset=${checksum_asset}" >> "${GITHUB_OUTPUT}"
+
+          if [[ "${version}" == *-* ]]; then
+            echo "is_prerelease=true" >> "${GITHUB_OUTPUT}"
+            echo "docker_tags=${image}:${version}" >> "${GITHUB_OUTPUT}"
+          else
+            echo "is_prerelease=false" >> "${GITHUB_OUTPUT}"
+            {
+              echo "docker_tags<<EOF"
+              echo "${image}:${version}"
+              echo "${image}:latest"
+              echo "EOF"
+            } >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+
+      - name: Build release binary (linux/amd64, static)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+            go build -trimpath -ldflags="-s -w" \
+            -o "dist/${{ steps.vars.outputs.bin_asset }}" ./cmd/webtools
+          chmod +x "dist/${{ steps.vars.outputs.bin_asset }}"
+
+      - name: Create source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          git archive \
+            --format=tar.gz \
+            --prefix="${APP_NAME}-${{ steps.vars.outputs.version }}/" \
+            --output="dist/${{ steps.vars.outputs.src_asset }}" \
+            HEAD
+
+      - name: Create checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd dist && sha256sum * > "${{ steps.vars.outputs.checksum_asset }}")
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: ${{ steps.vars.outputs.docker_tags }}
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.vars.outputs.tag }}
+          name: ${{ env.APP_NAME }} ${{ steps.vars.outputs.version }}
+          generate_release_notes: true
+          prerelease: ${{ steps.vars.outputs.is_prerelease }}
+          files: |
+            dist/${{ steps.vars.outputs.bin_asset }}
+            dist/${{ steps.vars.outputs.src_asset }}
+            dist/${{ steps.vars.outputs.checksum_asset }}
