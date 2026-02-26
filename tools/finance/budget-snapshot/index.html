@@ -6,38 +6,232 @@
   <title>Budget Snapshot</title>
   <link rel="stylesheet" href="../../../assets/css/styles.css" />
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
+  <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
   <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
   <wt-tool-shell
+    class="budget-shell"
     eyebrow="Finance"
     heading="Budget Snapshot"
-    lede="Track quick income/expense totals to estimate remaining budget."
+    lede="Track quick income and expense entries, compare against a spending limit, and estimate ending balance in one local snapshot."
     back-href="../../../index.html"
     back-class="back-link"
-    aria-label="Budget Snapshot placeholder page"
+    aria-label="Budget Snapshot tool"
   >
+    <section class="tool-panel budget-panel" aria-labelledby="budget-tool-title">
+      <div class="budget-toolbar">
+        <div>
+          <h2 id="budget-tool-title">Snapshot Builder</h2>
+          <p class="budget-subtext">Local-only budgeting helper. Add line items and adjust starting balance / limits to see your current budget picture.</p>
+        </div>
+        <div class="budget-toolbar-actions">
+          <button class="action-btn accent-btn" type="button" id="recalcBtn">Recalculate</button>
+          <button class="action-btn" type="button" id="sampleBtn">Load Sample</button>
+          <button class="action-btn" type="button" id="copySummaryBtn">Copy Summary</button>
+          <button class="action-btn" type="button" id="clearEntriesBtn">Clear Entries</button>
+          <button class="action-btn" type="button" id="resetSnapshotBtn">Reset All</button>
+        </div>
+      </div>
 
-    <div class="tool-shell-grid">
-      <section class="tool-panel" aria-labelledby="work-area">
-        <h2 id="work-area">Placeholder Shell</h2>
-        <p>This is the tool shell page. Replace this panel with your actual UI.</p>
-        <ul>
-          <li>Keep the path stable so bookmarks and aliases do not break.</li>
-          <li>If the tool grows, add local <code>app.js</code> and <code>styles.css</code> here.</li>
-          <li>Keep core utility logic client-side where possible for local usage.</li>
-        </ul>
-      </section>
+      <div class="budget-controls-row" role="group" aria-label="Snapshot controls">
+        <div class="budget-inline-controls">
+          <label class="budget-inline-field" for="snapshotNameInput">
+            <span>Snapshot Name</span>
+            <input id="snapshotNameInput" class="ui-input" type="text" value="Monthly Snapshot" maxlength="80" />
+          </label>
+          <label class="budget-inline-field" for="periodLabelInput">
+            <span>Period Label</span>
+            <input id="periodLabelInput" class="ui-input" type="text" value="" maxlength="60" placeholder="March 2026" />
+          </label>
+          <label class="budget-inline-field compact-field" for="currencySelect">
+            <span>Currency</span>
+            <select id="currencySelect" class="ui-select"></select>
+          </label>
+        </div>
 
-      <section class="tool-panel" aria-labelledby="routing-meta">
-        <h2 id="routing-meta">Routing & Files</h2>
-        <p class="code-chip">Alias: t/budget/</p>
-        <p class="code-chip">Source: tools/finance/budget-snapshot/</p>
-        <p style="margin-top: 0.35rem;">This page should remain the canonical implementation path.</p>
-        <p style="margin-top: 0.35rem;">Use the short alias for daily navigation and bookmarks.</p>
-      </section>
-    </div>
+        <div class="budget-toggle-group">
+          <label class="toggle-row" for="liveSummaryToggle">
+            <input id="liveSummaryToggle" type="checkbox" checked />
+            <span>Live recalculate</span>
+          </label>
+          <label class="toggle-row" for="autosaveToggle">
+            <input id="autosaveToggle" type="checkbox" checked />
+            <span>Autosave in browser</span>
+          </label>
+        </div>
+
+        <div class="budget-route-chips" aria-label="Routing metadata">
+          <span class="code-chip">Alias: t/budget/</span>
+          <span class="code-chip">Source: tools/finance/budget-snapshot/</span>
+        </div>
+      </div>
+
+      <div class="budget-grid">
+        <div class="budget-left">
+          <section class="budget-card" aria-labelledby="budget-settings-title">
+            <div class="budget-card-head">
+              <h3 id="budget-settings-title">Snapshot Settings</h3>
+              <span class="tiny mono">high level targets</span>
+            </div>
+            <div class="budget-two-col">
+              <label class="budget-field" for="startingBalanceInput">
+                <span>Starting Balance</span>
+                <input id="startingBalanceInput" class="ui-input mono" type="text" inputmode="decimal" value="0" />
+              </label>
+              <label class="budget-field" for="spendingLimitInput">
+                <span>Spending Limit</span>
+                <input id="spendingLimitInput" class="ui-input mono" type="text" inputmode="decimal" value="3000" />
+              </label>
+            </div>
+            <div class="budget-two-col">
+              <label class="budget-field" for="savingsTargetInput">
+                <span>Savings Target</span>
+                <input id="savingsTargetInput" class="ui-input mono" type="text" inputmode="decimal" value="1000" />
+              </label>
+              <div class="budget-help-item">
+                <span class="tiny mono">Notes</span>
+                <p>Leave limit or savings target at <code>0</code> to disable those comparisons.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="budget-card" aria-labelledby="entry-form-title">
+            <div class="budget-card-head">
+              <h3 id="entry-form-title">Add / Edit Entry</h3>
+              <span id="entryFormModeHint" class="tiny mono">mode: add</span>
+            </div>
+
+            <div class="budget-type-switch" role="group" aria-label="Entry type">
+              <button class="budget-type-btn is-active" id="entryTypeExpenseBtn" type="button" aria-pressed="true">Expense</button>
+              <button class="budget-type-btn" id="entryTypeIncomeBtn" type="button" aria-pressed="false">Income</button>
+            </div>
+
+            <div class="budget-two-col">
+              <label class="budget-field" for="entryLabelInput">
+                <span>Label</span>
+                <input id="entryLabelInput" class="ui-input" type="text" maxlength="80" placeholder="Rent, paycheck, groceries..." />
+              </label>
+              <label class="budget-field" for="entryAmountInput">
+                <span>Amount</span>
+                <input id="entryAmountInput" class="ui-input mono" type="text" inputmode="decimal" placeholder="0.00" />
+              </label>
+            </div>
+
+            <div class="budget-two-col">
+              <label class="budget-field" for="entryCategorySelect">
+                <span>Category</span>
+                <select id="entryCategorySelect" class="ui-select"></select>
+              </label>
+              <label class="budget-field" for="entryDateInput">
+                <span>Date</span>
+                <input id="entryDateInput" class="ui-input mono" type="date" />
+              </label>
+            </div>
+
+            <label class="budget-field" for="entryNoteInput">
+              <span>Note (optional)</span>
+              <input id="entryNoteInput" class="ui-input" type="text" maxlength="140" placeholder="Short note for context" />
+            </label>
+
+            <div class="budget-form-actions">
+              <button class="action-btn accent-btn" type="button" id="addEntryBtn">Add Entry</button>
+              <button class="action-btn is-hidden" type="button" id="updateEntryBtn">Update Entry</button>
+              <button class="action-btn is-hidden" type="button" id="cancelEditBtn">Cancel Edit</button>
+              <button class="action-btn" type="button" id="resetFormBtn">Reset Form</button>
+            </div>
+          </section>
+
+          <section class="budget-card" aria-labelledby="entries-title">
+            <div class="budget-card-head">
+              <h3 id="entries-title">Entries</h3>
+              <div class="budget-card-head-actions">
+                <button class="ghost-btn ghost-btn-small" type="button" id="toggleEntriesLayoutBtn" aria-pressed="false">Expand Table</button>
+                <span id="entriesMeta" class="tiny mono">0 items</span>
+              </div>
+            </div>
+
+            <div class="budget-table-wrap">
+              <table class="budget-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Label</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="entriesTableBody"></tbody>
+              </table>
+            </div>
+            <p id="entriesEmpty" class="ui-empty">No entries yet. Add income and expense items to build a snapshot.</p>
+          </section>
+        </div>
+
+        <div class="budget-right">
+          <section class="budget-card budget-summary-card" aria-labelledby="summary-title">
+            <div class="budget-card-head">
+              <h3 id="summary-title">Snapshot Summary</h3>
+              <span id="statusBadge" class="budget-status-badge idle">idle</span>
+            </div>
+            <p id="statusMessage" class="budget-status-message">Ready. Add entries to build your snapshot.</p>
+
+            <div class="budget-progress-wrap" aria-label="Spending limit usage">
+              <div class="budget-progress-bar" aria-hidden="true">
+                <div id="budgetProgressFill" class="budget-progress-fill"></div>
+              </div>
+              <div id="budgetProgressLabel" class="tiny mono">No spending limit comparison yet.</div>
+            </div>
+
+            <div class="budget-metric-grid" aria-label="Budget metrics">
+              <div class="budget-metric-chip"><span>Income</span><strong id="metricIncome">-</strong></div>
+              <div class="budget-metric-chip"><span>Expenses</span><strong id="metricExpenses">-</strong></div>
+              <div class="budget-metric-chip"><span>Net</span><strong id="metricNet">-</strong></div>
+              <div class="budget-metric-chip"><span>End Balance</span><strong id="metricEndBalance">-</strong></div>
+              <div class="budget-metric-chip"><span>Budget Left</span><strong id="metricBudgetLeft">-</strong></div>
+              <div class="budget-metric-chip"><span>Savings Gap</span><strong id="metricSavingsGap">-</strong></div>
+              <div class="budget-metric-chip"><span>Savings Rate</span><strong id="metricSavingsRate">-</strong></div>
+              <div class="budget-metric-chip"><span>Entries</span><strong id="metricEntryCount">0</strong></div>
+              <div class="budget-metric-chip"><span>Avg Expense</span><strong id="metricAvgExpense">-</strong></div>
+              <div class="budget-metric-chip"><span>Largest Expense</span><strong id="metricLargestExpense">-</strong></div>
+            </div>
+          </section>
+
+          <section class="budget-card" aria-labelledby="breakdown-title">
+            <div class="budget-card-head">
+              <h3 id="breakdown-title">Category Breakdown</h3>
+              <span id="breakdownMeta" class="tiny mono">0 categories</span>
+            </div>
+
+            <div class="budget-breakdown-switch" role="group" aria-label="Breakdown mode">
+              <button class="budget-mode-btn is-active" id="breakdownExpenseBtn" type="button" aria-pressed="true">Expenses</button>
+              <button class="budget-mode-btn" id="breakdownIncomeBtn" type="button" aria-pressed="false">Income</button>
+            </div>
+
+            <ol id="breakdownList" class="budget-breakdown-list" aria-label="Budget category breakdown"></ol>
+            <p id="breakdownEmpty" class="ui-empty">Add entries to see category breakdowns.</p>
+          </section>
+
+          <section class="budget-card" aria-labelledby="details-title">
+            <div class="budget-card-head">
+              <h3 id="details-title">Details & Warnings</h3>
+              <span id="detailModeHint" class="tiny mono">snapshot</span>
+            </div>
+            <div id="detailList" class="budget-kv-list" aria-live="polite"></div>
+            <ul id="warningList" class="budget-warning-list is-hidden" aria-live="polite"></ul>
+            <p class="budget-foot-hints tiny mono">
+              <span><code>Ctrl/Cmd + Enter</code> recalculate</span>
+              <span><code>Autosave</code> stores data in this browser only.</span>
+            </p>
+          </section>
+        </div>
+      </div>
+    </section>
   </wt-tool-shell>
+
+  <script src="app.js"></script>
 </body>
 </html>

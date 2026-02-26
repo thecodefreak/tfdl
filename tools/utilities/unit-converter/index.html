@@ -6,38 +6,173 @@
   <title>Unit Converter</title>
   <link rel="stylesheet" href="../../../assets/css/styles.css" />
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
+  <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
   <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
   <wt-tool-shell
+    class="units-shell"
     eyebrow="Utilities"
     heading="Unit Converter"
-    lede="Convert common units for daily calculations and quick checks."
+    lede="Convert common measurements quickly across length, mass, temperature, area, volume, speed, time, and data."
     back-href="../../../index.html"
     back-class="back-link"
-    aria-label="Unit Converter placeholder page"
+    aria-label="Unit Converter tool"
   >
+    <section class="tool-panel units-panel" aria-labelledby="units-tool-title">
+      <div class="units-toolbar">
+        <div>
+          <h2 id="units-tool-title">Converter</h2>
+          <p class="units-subtext">Local-only conversion with bidirectional unit selection, precision controls, and an all-units result table.</p>
+        </div>
+        <div class="units-toolbar-actions">
+          <button class="action-btn accent-btn" type="button" id="convertBtn">Convert</button>
+          <button class="action-btn" type="button" id="swapBtn">Swap</button>
+          <button class="action-btn" type="button" id="copyResultBtn">Copy Result</button>
+          <button class="action-btn" type="button" id="copyTableBtn">Copy Table</button>
+          <button class="action-btn" type="button" id="clearBtn">Clear</button>
+        </div>
+      </div>
 
-    <div class="tool-shell-grid">
-      <section class="tool-panel" aria-labelledby="work-area">
-        <h2 id="work-area">Placeholder Shell</h2>
-        <p>This is the tool shell page. Replace this panel with your actual UI.</p>
-        <ul>
-          <li>Keep the path stable so bookmarks and aliases do not break.</li>
-          <li>If the tool grows, add local <code>app.js</code> and <code>styles.css</code> here.</li>
-          <li>Keep core utility logic client-side where possible for local usage.</li>
-        </ul>
-      </section>
+      <div class="units-controls-row" role="group" aria-label="Converter controls">
+        <div class="units-inline-controls">
+          <label class="units-inline-field" for="categorySelect">
+            <span>Category</span>
+            <select id="categorySelect" class="ui-select"></select>
+          </label>
+          <label class="units-inline-field compact-field" for="precisionInput">
+            <span>Precision</span>
+            <input id="precisionInput" class="ui-input mono" type="number" min="0" max="12" step="1" value="4" />
+          </label>
+        </div>
 
-      <section class="tool-panel" aria-labelledby="routing-meta">
-        <h2 id="routing-meta">Routing & Files</h2>
-        <p class="code-chip">Alias: t/units/</p>
-        <p class="code-chip">Source: tools/utilities/unit-converter/</p>
-        <p style="margin-top: 0.35rem;">This page should remain the canonical implementation path.</p>
-        <p style="margin-top: 0.35rem;">Use the short alias for daily navigation and bookmarks.</p>
-      </section>
-    </div>
+        <div class="units-toggle-group">
+          <label class="toggle-row" for="liveConvertToggle">
+            <input id="liveConvertToggle" type="checkbox" checked />
+            <span>Live convert</span>
+          </label>
+          <label class="toggle-row" for="scientificToggle">
+            <input id="scientificToggle" type="checkbox" />
+            <span>Scientific notation for extreme values</span>
+          </label>
+          <label class="toggle-row" for="trimZerosToggle">
+            <input id="trimZerosToggle" type="checkbox" checked />
+            <span>Trim trailing zeros</span>
+          </label>
+        </div>
+
+        <div class="units-route-chips" aria-label="Routing metadata">
+          <span class="code-chip">Alias: t/units/</span>
+          <span class="code-chip">Source: tools/utilities/unit-converter/</span>
+        </div>
+      </div>
+
+      <div class="units-grid">
+        <div class="units-left">
+          <section class="units-card" aria-labelledby="input-panel-title">
+            <div class="units-card-head">
+              <h3 id="input-panel-title">Input & Units</h3>
+              <span id="categoryMeta" class="tiny mono">base: -</span>
+            </div>
+
+            <label class="units-field" for="valueInput">
+              <span>Value</span>
+              <input id="valueInput" class="ui-input mono units-value-input" type="text" inputmode="decimal" value="1" spellcheck="false" />
+            </label>
+
+            <div class="units-convert-grid">
+              <label class="units-field" for="fromUnitSelect">
+                <span>From Unit</span>
+                <select id="fromUnitSelect" class="ui-select"></select>
+              </label>
+              <div class="units-swap-wrap">
+                <button class="ghost-btn" type="button" id="swapCenterBtn" aria-label="Swap from and to units">Swap</button>
+              </div>
+              <label class="units-field" for="toUnitSelect">
+                <span>To Unit</span>
+                <select id="toUnitSelect" class="ui-select"></select>
+              </label>
+            </div>
+
+            <div class="units-quick-values" role="group" aria-label="Quick input values">
+              <span class="tiny mono">Quick values</span>
+              <div class="units-chip-row">
+                <button class="ghost-btn ghost-btn-small" type="button" data-quick-value="1">1</button>
+                <button class="ghost-btn ghost-btn-small" type="button" data-quick-value="10">10</button>
+                <button class="ghost-btn ghost-btn-small" type="button" data-quick-value="100">100</button>
+                <button class="ghost-btn ghost-btn-small" type="button" data-quick-value="0.5">0.5</button>
+                <button class="ghost-btn ghost-btn-small" type="button" data-quick-value="-1">-1</button>
+                <button class="ghost-btn ghost-btn-small" type="button" data-quick-value="3.14159">pi</button>
+              </div>
+            </div>
+
+            <div class="units-help-grid">
+              <div class="units-help-item">
+                <span class="tiny mono">Tip</span>
+                <p>Use <code>Ctrl/Cmd + Enter</code> to convert manually.</p>
+              </div>
+              <div class="units-help-item">
+                <span class="tiny mono">Parsing</span>
+                <p>Inputs accept signs, decimals, and scientific notation (for example <code>1.2e3</code>).</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="units-card" aria-labelledby="details-panel-title">
+            <div class="units-card-head">
+              <h3 id="details-panel-title">Details</h3>
+              <span id="statusBadge" class="units-status-badge idle">idle</span>
+            </div>
+            <p id="statusMessage" class="units-status-message">Ready.</p>
+            <div id="detailList" class="units-kv-list" aria-live="polite"></div>
+            <ul id="warningList" class="units-warning-list is-hidden" aria-live="polite"></ul>
+          </section>
+        </div>
+
+        <div class="units-right">
+          <section class="units-card units-result-card" aria-labelledby="result-panel-title">
+            <div class="units-card-head">
+              <h3 id="result-panel-title">Primary Result</h3>
+              <div class="units-inline-actions">
+                <button class="ghost-btn ghost-btn-small" type="button" id="selectResultBtn">Select</button>
+                <button class="ghost-btn ghost-btn-small" type="button" id="useResultAsInputBtn">Use as Input</button>
+              </div>
+            </div>
+
+            <div id="resultValue" class="units-result-value" aria-live="polite">-</div>
+            <p id="resultFormula" class="units-result-formula mono">Enter a value and choose units.</p>
+            <div class="units-result-meta">
+              <div class="units-meta-chip"><span>Inverse</span><strong id="inverseValue">-</strong></div>
+              <div class="units-meta-chip"><span>Base Value</span><strong id="baseValue">-</strong></div>
+              <div class="units-meta-chip"><span>Category</span><strong id="activeCategoryLabel">-</strong></div>
+            </div>
+          </section>
+
+          <section class="units-card" aria-labelledby="table-panel-title">
+            <div class="units-card-head">
+              <h3 id="table-panel-title">All Units</h3>
+              <span id="tableMeta" class="tiny mono">0 rows</span>
+            </div>
+            <div class="units-table-wrap">
+              <table class="units-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Unit</th>
+                    <th scope="col">Symbol</th>
+                    <th scope="col">Value</th>
+                  </tr>
+                </thead>
+                <tbody id="unitsTableBody"></tbody>
+              </table>
+            </div>
+            <p id="tableEmpty" class="ui-empty">No conversion yet.</p>
+          </section>
+        </div>
+      </div>
+    </section>
   </wt-tool-shell>
+
+  <script src="app.js"></script>
 </body>
 </html>
