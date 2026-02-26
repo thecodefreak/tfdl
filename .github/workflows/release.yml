@@ -75,6 +75,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: ${{ env.GO_VERSION_FILE }}
+          cache: false
 
       - name: Build release binary (linux/amd64, static)
         shell: bash
