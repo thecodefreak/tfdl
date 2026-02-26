@@ -477,10 +477,8 @@ kbd,
 }
 
 .workspace-grid[data-view="cards"] {
-  grid-template-columns: 1fr;
-  grid-template-areas:
-    "results"
-    "sidebar";
+  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-areas: "sidebar results";
   justify-items: stretch;
 }
 
@@ -495,10 +493,10 @@ kbd,
   grid-area: sidebar;
   width: 100%;
   max-width: none;
-  position: static;
-  top: auto;
-  grid-template-columns: minmax(340px, 1.25fr) minmax(280px, 0.75fr);
-  gap: 12px;
+  position: sticky;
+  top: 8px;
+  grid-template-columns: 1fr;
+  gap: 10px;
 }
 
 .workspace-grid[data-view="cards"] .sidebar .is-optional-in-cards {
@@ -1658,8 +1656,8 @@ input:focus-visible {
   .workspace-grid[data-view="cards"] {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "results"
-      "sidebar";
+      "sidebar"
+      "results";
   }
 
   .sidebar {

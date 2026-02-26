@@ -215,17 +215,15 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid {
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-view="cards"] {
-  grid-template-columns: 1fr;
-  grid-template-areas:
-    "results"
-    "sidebar";
+  grid-template-columns: 344px minmax(0, 1fr);
+  grid-template-areas: "sidebar results";
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-view="cards"] .sidebar {
-  position: static;
-  top: auto;
-  gap: 14px;
-  grid-template-columns: minmax(360px, 1.1fr) minmax(320px, 0.9fr);
+  position: sticky;
+  top: 12px;
+  gap: 12px;
+  grid-template-columns: 1fr;
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar {
@@ -583,17 +581,15 @@ body.tool-shell-page.theme-dark:not(.theme-terminal) .back-link {
   }
 
   body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-view="cards"] {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "results"
-      "sidebar";
+    grid-template-columns: 344px minmax(0, 1fr);
+    grid-template-areas: "sidebar results";
   }
 
   body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-view="cards"] .sidebar {
-    position: static;
-    top: auto;
-    gap: 14px;
-    grid-template-columns: minmax(360px, 1.1fr) minmax(320px, 0.9fr);
+    position: sticky;
+    top: 12px;
+    gap: 12px;
+    grid-template-columns: 1fr;
   }
 
   body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar {
