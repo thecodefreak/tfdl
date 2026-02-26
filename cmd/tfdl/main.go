@@ -276,7 +276,7 @@ func printRootHelp(out *os.File) {
 	fmt.Fprintln(out)
 	fmt.Fprintln(out, "Examples:")
 	fmt.Fprintln(out, "  tfdl serve -port 8080")
-	fmt.Fprintln(out, "  tfdl serve -config ./tfdl.json -auth-enabled=true -auth-user amal -auth-pass secret")
+	fmt.Fprintln(out, "  tfdl serve -config ./tfdl.json -auth-enabled=true -auth-user dev -auth-pass secret")
 }
 
 func ternary[T any](cond bool, a, b T) T {

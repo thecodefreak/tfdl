@@ -1,7 +1,7 @@
 (() => {
   const STORAGE_KEY = "tool-json-formatter-input";
   const SAMPLE_JSON = {
-    name: "Amal",
+    name: "Dev",
     project: "gumgum",
     tools: [
       { id: "json", enabled: true },

@@ -1,7 +1,7 @@
 (() => {
   const STORAGE_KEY = "tool-url-encoder-state";
   const SAMPLE_URL = "https://api.example.com/search?q=hello world&lang=en-US&tag=dev&tag=tools&page=2#results";
-  const SAMPLE_QUERY = "name=Amal+Khan&city=San+Francisco&tool=json&tool=regex&redirect=https%3A%2F%2Fexample.com%2Fa%3Fb%3D1";
+  const SAMPLE_QUERY = "name=Dev+Khan&city=San+Francisco&tool=json&tool=regex&redirect=https%3A%2F%2Fexample.com%2Fa%3Fb%3D1";
 
   const refs = {
     modeSelect: document.getElementById("modeSelect"),

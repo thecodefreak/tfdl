@@ -1,6 +1,6 @@
 (() => {
   const STORAGE_KEY = "tool-regex-playground-state";
-  const SAMPLE_TEXT = `User: Amal (id: 1024)\nEmail: amal@example.com\nOrder IDs: ORD-1001, ORD-1002, ORD-1042\nDate: 2026-02-23\nIP: 192.168.0.14\nTags: #regex #debug #tooling`;
+  const SAMPLE_TEXT = `User: Dev (id: 1024)\nEmail: dev@example.com\nOrder IDs: ORD-1001, ORD-1002, ORD-1042\nDate: 2026-02-23\nIP: 192.168.0.14\nTags: #regex #debug #tooling`;
 
   const refs = {
     patternInput: document.getElementById("patternInput"),
