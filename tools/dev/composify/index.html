@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Composify</title>
+  <link rel="stylesheet" href="../../../assets/css/styles.css" />
+  <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="../../../assets/css/user.css" />
+  <script src="../../../assets/js/layout.shell.js" defer></script>
+</head>
+<body class="tool-shell-page theme-dark">
+  <wt-tool-shell
+    class="composify-tool-shell"
+    eyebrow="Developer Tools"
+    heading="Composify"
+    lede="Convert common Docker run commands to Compose YAML and Compose services back to docker run, with a live container/network diagram."
+    back-href="../../../index.html"
+    aria-label="Composify Docker and Compose converter"
+  >
+    <section class="tool-panel composify-panel" aria-labelledby="composify-main-title">
+      <div class="composify-toolbar">
+        <div>
+          <h2 id="composify-main-title">Converter</h2>
+          <p class="composify-subtext">
+            Supports common <code>docker run</code> flags and Compose service fields. Paste commands or a Compose YAML file and convert.
+          </p>
+        </div>
+        <div class="composify-toolbar-actions" role="group" aria-label="Conversion actions">
+          <button class="action-btn accent-btn" type="button" id="autoConvertBtn">Auto Convert</button>
+          <button class="action-btn" type="button" id="dockerToComposeBtn">Docker → Compose</button>
+          <button class="action-btn" type="button" id="composeToDockerBtn">Compose → Docker</button>
+          <button class="action-btn" type="button" id="copyOutputBtn">Copy Output</button>
+          <button class="action-btn" type="button" id="swapEditorsBtn">Swap</button>
+          <button class="action-btn" type="button" id="clearBtn">Clear</button>
+        </div>
+      </div>
+
+      <div class="composify-options-row" role="group" aria-label="Output options">
+        <label class="toggle-row" for="wrapDockerOutput">
+          <input id="wrapDockerOutput" type="checkbox" checked />
+          <span>Wrap docker run output across lines</span>
+        </label>
+        <span class="code-chip">Alias: t/compose/</span>
+        <span class="code-chip">Source: tools/dev/composify/</span>
+      </div>
+
+      <div class="composify-editor-grid">
+        <section class="editor-card" aria-labelledby="input-title">
+          <div class="editor-card-head">
+            <div>
+              <h3 id="input-title">Input</h3>
+              <p id="inputStats" class="tiny mono">chars: 0 • lines: 1</p>
+            </div>
+            <div class="editor-card-actions">
+              <button class="ghost-btn ghost-btn-small" type="button" id="sampleDockerBtn">Docker Sample</button>
+              <button class="ghost-btn ghost-btn-small" type="button" id="sampleComposeBtn">Compose Sample</button>
+              <button class="ghost-btn ghost-btn-small" type="button" id="pasteInputBtn">Paste</button>
+            </div>
+          </div>
+          <textarea
+            id="inputEditor"
+            class="code-editor"
+            spellcheck="false"
+            aria-label="Composify input"
+            placeholder="Paste one or more docker run commands, or a Compose YAML file."
+          ></textarea>
+        </section>
+
+        <section class="editor-card" aria-labelledby="output-title">
+          <div class="editor-card-head">
+            <div>
+              <h3 id="output-title">Output</h3>
+              <p id="outputStats" class="tiny mono">chars: 0 • lines: 1</p>
+            </div>
+            <div class="editor-card-actions">
+              <button class="ghost-btn ghost-btn-small" type="button" id="useOutputBtn">Use Output → Input</button>
+              <button class="ghost-btn ghost-btn-small" type="button" id="selectOutputBtn">Select All</button>
+              <button class="ghost-btn ghost-btn-small" type="button" id="downloadBtn">Download</button>
+            </div>
+          </div>
+          <textarea
+            id="outputEditor"
+            class="code-editor code-editor-output"
+            spellcheck="false"
+            aria-label="Composify output"
+            placeholder="Conversion output appears here."
+          ></textarea>
+        </section>
+      </div>
+
+      <div class="composify-bottom-grid">
+        <section class="status-card" aria-labelledby="status-title" aria-live="polite">
+          <div class="status-head">
+            <h3 id="status-title">Status</h3>
+            <span id="statusBadge" class="status-badge idle">idle</span>
+          </div>
+          <p id="statusMessage" class="status-message">Ready.</p>
+          <p class="tiny mono status-meta" id="statusMeta">Detected: — • Last output: —</p>
+          <div id="warningBlock" class="warning-block is-hidden">
+            <h4>Warnings</h4>
+            <ul id="warningList" class="warning-list"></ul>
+          </div>
+          <div class="tiny mono hint-row">
+            <span><code>Ctrl/Cmd + Enter</code> auto convert</span>
+            <span><code>Ctrl/Cmd + Shift + D</code> Docker → Compose</span>
+            <span><code>Ctrl/Cmd + Shift + R</code> Compose → Docker</span>
+          </div>
+        </section>
+
+        <section class="diagram-card" aria-labelledby="diagram-title">
+          <div class="diagram-card-head">
+            <div>
+              <h3 id="diagram-title">Container Diagram</h3>
+              <p id="diagramMeta" class="tiny mono">No parsed services yet.</p>
+            </div>
+          </div>
+          <div class="diagram-wrap">
+            <div id="diagramEmpty" class="diagram-empty">Convert input to render a container/network diagram.</div>
+            <svg
+              id="diagramSvg"
+              class="diagram-svg"
+              viewBox="0 0 1000 520"
+              role="img"
+              aria-label="Container and network diagram"
+              xmlns="http://www.w3.org/2000/svg"
+            ></svg>
+          </div>
+          <div id="diagramLegend" class="diagram-legend"></div>
+        </section>
+      </div>
+    </section>
+  </wt-tool-shell>
+
+  <script src="app.js"></script>
+</body>
+</html>

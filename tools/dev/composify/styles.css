@@ -1,0 +1,495 @@
+.composify-tool-shell {
+  width: min(1680px, 100%);
+}
+
+.composify-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.composify-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 0.9rem;
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+}
+
+.composify-toolbar h2 {
+  margin: 0;
+  font-size: 0.96rem;
+}
+
+.composify-subtext {
+  margin: 0.2rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  max-width: 68ch;
+}
+
+.composify-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.composify-toolbar-actions .action-btn {
+  font-size: 0.74rem;
+  padding: 0.35rem 0.55rem;
+}
+
+.composify-toolbar-actions .accent-btn {
+  border-color: rgba(110, 203, 255, 0.22);
+  color: #bdeaff;
+}
+
+.composify-options-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.composify-editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: min(54vh, 720px);
+}
+
+.editor-card {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  border-right: 1px solid var(--line);
+}
+
+.editor-card:last-child {
+  border-right: 0;
+}
+
+.editor-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.editor-card-head h3 {
+  margin: 0;
+  font-size: 0.86rem;
+}
+
+.editor-card-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.code-editor {
+  width: 100%;
+  min-height: 280px;
+  height: 100%;
+  border: 0;
+  outline: none;
+  resize: none;
+  background: rgba(7, 10, 13, 0.98);
+  color: var(--text);
+  padding: 0.9rem;
+  tab-size: 2;
+  font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.code-editor-output {
+  background: rgba(8, 11, 15, 0.98);
+}
+
+.code-editor::placeholder {
+  color: var(--text-dim);
+}
+
+.composify-bottom-grid {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  border-top: 1px solid var(--line);
+}
+
+.status-card,
+.diagram-card {
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.status-card {
+  padding: 0.8rem 0.9rem;
+  border-right: 1px solid var(--line);
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+}
+
+.status-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-head h3 {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.12rem 0.45rem;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.015);
+  color: var(--text-dim);
+}
+
+.status-badge.ok {
+  border-color: rgba(132, 243, 203, 0.18);
+  color: #abf5df;
+}
+
+.status-badge.warn {
+  border-color: rgba(255, 211, 122, 0.2);
+  color: #ffd990;
+}
+
+.status-badge.error {
+  border-color: rgba(255, 127, 134, 0.2);
+  color: #ffadb2;
+}
+
+.status-message {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.8rem;
+}
+
+.status-meta {
+  margin: 0;
+  color: var(--text-dim);
+}
+
+.warning-block {
+  margin-top: 0.25rem;
+  border: 1px solid rgba(255, 211, 122, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 211, 122, 0.03);
+  padding: 0.65rem;
+}
+
+.warning-block h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.74rem;
+  color: #ffe1a9;
+}
+
+.warning-list {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.28rem;
+  color: var(--text-soft);
+  font-size: 0.75rem;
+}
+
+.hint-row {
+  margin-top: 0.1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  color: var(--text-dim);
+}
+
+.diagram-card {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.diagram-card-head {
+  padding: 0.75rem 0.9rem 0.45rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.diagram-card-head h3 {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.diagram-card-head p {
+  margin: 0.25rem 0 0;
+  color: var(--text-dim);
+}
+
+.diagram-wrap {
+  position: relative;
+  min-height: 320px;
+  background:
+    linear-gradient(180deg, rgba(7, 10, 13, 0.97), rgba(7, 9, 12, 0.99)),
+    radial-gradient(circle at 10% 10%, rgba(110, 203, 255, 0.06), transparent 32%);
+}
+
+.diagram-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 1rem;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+
+.diagram-empty.is-hidden {
+  display: none;
+}
+
+.diagram-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.diagram-svg.is-hidden {
+  display: none;
+}
+
+.diagram-svg .bg-grid line {
+  stroke: rgba(255, 255, 255, 0.025);
+  stroke-width: 1;
+}
+
+.diagram-svg .edge-network {
+  stroke: rgba(110, 203, 255, 0.55);
+  stroke-width: 2.2;
+}
+
+.diagram-svg .edge-dep {
+  stroke: rgba(255, 211, 122, 0.7);
+  stroke-width: 2.1;
+  stroke-dasharray: 7 5;
+  marker-end: url(#depArrow);
+}
+
+.diagram-svg .network-node {
+  fill: rgba(16, 29, 41, 0.96);
+  stroke: rgba(110, 203, 255, 0.5);
+  stroke-width: 2;
+}
+
+.diagram-svg .network-node.mode {
+  fill: rgba(30, 20, 12, 0.92);
+  stroke: rgba(255, 211, 122, 0.45);
+}
+
+.diagram-svg .network-node-text {
+  fill: #d6eefc;
+  font: 12px/1.1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  text-anchor: middle;
+}
+
+.diagram-svg .network-node-subtext {
+  fill: rgba(214, 238, 252, 0.72);
+  font: 10px/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  text-anchor: middle;
+}
+
+.diagram-svg .service-box {
+  fill: rgba(13, 18, 24, 0.96);
+  stroke: rgba(132, 243, 203, 0.28);
+  stroke-width: 2;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18));
+}
+
+.diagram-svg .service-accent {
+  fill: rgba(132, 243, 203, 0.06);
+  stroke: rgba(132, 243, 203, 0.18);
+  stroke-width: 1;
+}
+
+.diagram-svg .service-title {
+  fill: #d8fff1;
+  font: 700 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.diagram-svg .service-image {
+  fill: #b6c3d2;
+  font: 11px/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.diagram-svg .service-meta {
+  fill: rgba(182, 195, 210, 0.82);
+  font: 10px/1.15 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.diagram-svg .port-pill {
+  fill: rgba(110, 203, 255, 0.08);
+  stroke: rgba(110, 203, 255, 0.26);
+  stroke-width: 1;
+}
+
+.diagram-svg .port-pill-text {
+  fill: #bdeaff;
+  font: 10px/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.diagram-svg .badge-pill {
+  fill: rgba(255, 255, 255, 0.03);
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+}
+
+.diagram-svg .badge-pill.warn {
+  fill: rgba(255, 211, 122, 0.06);
+  stroke: rgba(255, 211, 122, 0.2);
+}
+
+.diagram-svg .badge-pill-text {
+  fill: rgba(231, 237, 244, 0.92);
+  font: 10px/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.diagram-legend {
+  border-top: 1px solid var(--line);
+  padding: 0.65rem 0.9rem 0.8rem;
+  display: grid;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.008);
+}
+
+.legend-item {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.45rem 0.55rem;
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.legend-item-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+
+.legend-item-title {
+  margin: 0;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.legend-item-image {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+
+.legend-item-meta {
+  margin: 0.3rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.legend-pill {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.12rem 0.45rem;
+  color: var(--text-soft);
+  background: rgba(255, 255, 255, 0.015);
+  font-size: 0.68rem;
+}
+
+.legend-pill.network {
+  border-color: rgba(110, 203, 255, 0.22);
+  color: #bdeaff;
+}
+
+.legend-pill.dep {
+  border-color: rgba(255, 211, 122, 0.22);
+  color: #ffe1a9;
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+.action-btn.flash-ok,
+.ghost-btn.flash-ok {
+  border-color: rgba(132, 243, 203, 0.24);
+  color: #abf5df;
+}
+
+@media (max-width: 1220px) {
+  .composify-editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-card {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .editor-card:last-child {
+    border-bottom: 0;
+  }
+
+  .composify-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-card {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 860px) {
+  .composify-toolbar {
+    flex-direction: column;
+  }
+
+  .composify-toolbar-actions {
+    justify-content: flex-start;
+  }
+
+  .editor-card-head {
+    flex-direction: column;
+  }
+
+  .editor-card-actions {
+    justify-content: flex-start;
+  }
+
+  .diagram-wrap {
+    min-height: 280px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diagram-svg .service-box,
+  .diagram-svg .network-node {
+    filter: none;
+  }
+}

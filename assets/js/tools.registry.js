@@ -36,6 +36,15 @@ window.TOOLS_REGISTRY = {
       tags: ["url", "encode", "decode", "query"]
     },
     {
+      id: "composify",
+      slug: "composify",
+      alias: "compose",
+      name: "Composify",
+      category: "dev",
+      description: "Convert docker run commands and Compose YAML both ways with a live container diagram.",
+      tags: ["docker", "compose", "containers", "yaml", "cli", "diagram"]
+    },
+    {
       id: "focus-timer",
       slug: "focus-timer",
       alias: "focus",
