@@ -37,7 +37,7 @@ Requirements:
 From the repo root:
 
 ```bash
-go run ./cmd/webtools serve
+go run ./cmd/tfdl serve
 ```
 
 Open `http://127.0.0.1:8080`.
@@ -45,16 +45,16 @@ Open `http://127.0.0.1:8080`.
 Useful examples:
 
 ```bash
-go run ./cmd/webtools serve -port 9000
-go run ./cmd/webtools serve -config ./webtools.json -root .
-go run ./cmd/webtools serve -auth-enabled=true -auth-user dev -auth-pass 'secret'
+go run ./cmd/tfdl serve -port 9000
+go run ./cmd/tfdl serve -config ./tfdl.json -root .
+go run ./cmd/tfdl serve -auth-enabled=true -auth-user dev -auth-pass 'secret'
 ```
 
 You can also build a local binary:
 
 ```bash
-go build -o webtools ./cmd/webtools
-./webtools serve
+go build -o tfdl ./cmd/tfdl
+./tfdl serve
 ```
 
 ### 3. Docker Compose
@@ -66,13 +66,13 @@ docker compose -f compose.yml up --build
 Examples:
 
 ```bash
-WEBTOOLS_PORT=9090 docker compose -f compose.yml up --build
+TFDL_PORT=9090 docker compose -f compose.yml up --build
 ```
 
 ```bash
-WEBTOOLS_AUTH_ENABLED=true \
-WEBTOOLS_AUTH_USER=dev \
-WEBTOOLS_AUTH_PASS='secret' \
+TFDL_AUTH_ENABLED=true \
+TFDL_AUTH_USER=dev \
+TFDL_AUTH_PASS='secret' \
 docker compose -f compose.yml up --build
 ```
 
@@ -113,9 +113,9 @@ Aliases are generated dynamically by the Go server from
 - `assets/js/tools.registry.js` - tool metadata registry (name, alias, category, tags)
 - `assets/js/app.js` - launcher behavior (search, filters, pins, recents, views)
 - `tools/` - canonical tool implementations by category
-- `cmd/webtools/` - Go CLI entrypoint (`serve`, `print-config`)
-- `internal/webtools/` - Go server and config logic
-- `webtools.json` - optional server config file
+- `cmd/tfdl/` - Go CLI entrypoint (`serve`, `print-config`)
+- `internal/tfdl/` - Go server and config logic
+- `tfdl.json` - optional server config file
 
 ## Add a Tool
 
@@ -142,8 +142,8 @@ The Go server is optional, but enables alias routing and a better local app flow
 
 Commands:
 
-- `webtools serve` - run the static file server (default command)
-- `webtools print-config` - print the effective config after file + env resolution
+- `tfdl serve` - run the static file server (default command)
+- `tfdl print-config` - print the effective config after file + env resolution
 
 Supported `serve` flags:
 
@@ -155,7 +155,7 @@ Supported `serve` flags:
 - `-auth-user`
 - `-auth-pass`
 
-## `webtools.json` Format
+## `tfdl.json` Format
 
 The config file is JSON (no YAML dependency).
 
@@ -179,17 +179,17 @@ Example:
 Config lookup order:
 
 1. `-config <path>`
-2. `WEBTOOLS_CONFIG`
-3. `./webtools.json` (if present)
+2. `TFDL_CONFIG`
+3. `./tfdl.json` (if present)
 
 Environment variable overrides:
 
-- `WEBTOOLS_PORT`
-- `WEBTOOLS_BIND`
-- `WEBTOOLS_ROOT`
-- `WEBTOOLS_AUTH_ENABLED`
-- `WEBTOOLS_AUTH_USER`
-- `WEBTOOLS_AUTH_PASS`
+- `TFDL_PORT`
+- `TFDL_BIND`
+- `TFDL_ROOT`
+- `TFDL_AUTH_ENABLED`
+- `TFDL_AUTH_USER`
+- `TFDL_AUTH_PASS`
 
 ## Server Features
 
@@ -207,10 +207,3 @@ Environment variable overrides:
 
 To use the older terminal-style look on a page, add `theme-terminal` to that
 page's `<body>` class.
-
-## Naming Note
-
-TFDL is the public/project name ("Tools For Dev Life"). Some internal code and
-packaging names still use `webtools` (Go module path, CLI binary name, config
-filename, Docker image references), which is expected unless you want to rename
-the server package/binary as a separate follow-up.

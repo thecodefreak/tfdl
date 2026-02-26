@@ -3,14 +3,14 @@ WORKDIR /src
 COPY go.mod ./
 COPY cmd ./cmd
 COPY internal ./internal
-RUN CGO_ENABLED=0 go build -trimpath -ldflags='-s -w' -o /out/webtools ./cmd/webtools
+RUN CGO_ENABLED=0 go build -trimpath -ldflags='-s -w' -o /out/tfdl ./cmd/tfdl
 
 FROM alpine:3.20
-WORKDIR /srv/webtools
-RUN adduser -D -h /srv/webtools app \
+WORKDIR /srv/tfdl
+RUN adduser -D -h /srv/tfdl app \
   && apk add --no-cache ca-certificates
-COPY --from=build /out/webtools /usr/local/bin/webtools
+COPY --from=build /out/tfdl /usr/local/bin/tfdl
 USER app
 EXPOSE 8080
-ENTRYPOINT ["webtools"]
+ENTRYPOINT ["tfdl"]
 CMD ["serve"]

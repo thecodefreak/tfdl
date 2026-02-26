@@ -12,7 +12,7 @@ permissions:
 env:
   TAG_PREFIX: release-v
   GO_VERSION_FILE: go.mod
-  APP_NAME: webtools
+  APP_NAME: tfdl
 
 jobs:
   release:
@@ -83,7 +83,7 @@ jobs:
           mkdir -p dist
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
             go build -trimpath -ldflags="-s -w" \
-            -o "dist/${{ steps.vars.outputs.bin_asset }}" ./cmd/webtools
+            -o "dist/${{ steps.vars.outputs.bin_asset }}" ./cmd/tfdl
           chmod +x "dist/${{ steps.vars.outputs.bin_asset }}"
 
       - name: Create source archive

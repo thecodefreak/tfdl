@@ -15,7 +15,7 @@ Why this split:
 
 ## Go Server Note
 
-When running the Go server (`cmd/webtools`), alias redirects for `/t/<alias>` are
+When running the Go server (`cmd/tfdl`), alias redirects for `/t/<alias>` are
 generated dynamically from `assets/js/tools.registry.js`.
 
 There is no `t/<alias>/index.html` stub page workflow anymore; the registry is

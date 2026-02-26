@@ -1,5 +1,5 @@
 (() => {
-  const STORAGE_KEY = "webtools:budget-snapshot:v1";
+  const STORAGE_KEY = "tfdl:budget-snapshot:v1";
 
   const CURRENCIES = [
     { code: "USD", label: "US Dollar" },

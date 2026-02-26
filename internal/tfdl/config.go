@@ -1,4 +1,4 @@
-package webtools
+package tfdl
 
 import (
 	"encoding/json"
@@ -132,12 +132,12 @@ func ConfigPathFromArgsOrEnv(explicit string) string {
 		return explicit
 	}
 
-	if envPath := strings.TrimSpace(os.Getenv("WEBTOOLS_CONFIG")); envPath != "" {
+	if envPath := strings.TrimSpace(os.Getenv("TFDL_CONFIG")); envPath != "" {
 		return envPath
 	}
 
-	if _, err := os.Stat("webtools.json"); err == nil {
-		return "webtools.json"
+	if _, err := os.Stat("tfdl.json"); err == nil {
+		return "tfdl.json"
 	}
 
 	return ""

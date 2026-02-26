@@ -1,29 +1,29 @@
 services:
-  webtools:
+  tfdl:
     build:
       context: .
       dockerfile: Dockerfile
-    image: webtools-workspace:local
-    working_dir: /srv/webtools
+    image: tfdl-workspace:local
+    working_dir: /srv/tfdl
     command:
       - serve
       - -config
-      - /srv/webtools/webtools.json
+      - /srv/tfdl/tfdl.json
       - -root
-      - /srv/webtools
+      - /srv/tfdl
       - -port
-      - ${WEBTOOLS_PORT:-8080}
+      - ${TFDL_PORT:-8080}
     environment:
-      WEBTOOLS_AUTH_ENABLED: ${WEBTOOLS_AUTH_ENABLED:-}
-      WEBTOOLS_AUTH_USER: ${WEBTOOLS_AUTH_USER:-}
-      WEBTOOLS_AUTH_PASS: ${WEBTOOLS_AUTH_PASS:-}
+      TFDL_AUTH_ENABLED: ${TFDL_AUTH_ENABLED:-}
+      TFDL_AUTH_USER: ${TFDL_AUTH_USER:-}
+      TFDL_AUTH_PASS: ${TFDL_AUTH_PASS:-}
     volumes:
-      - ./:/srv/webtools:ro
+      - ./:/srv/tfdl:ro
     ports:
-      - "${WEBTOOLS_PORT:-8080}:${WEBTOOLS_PORT:-8080}"
+      - "${TFDL_PORT:-8080}:${TFDL_PORT:-8080}"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${WEBTOOLS_PORT:-8080}/healthz >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${TFDL_PORT:-8080}/healthz >/dev/null || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3

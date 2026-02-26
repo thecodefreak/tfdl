@@ -15,7 +15,7 @@ import (
 	"syscall"
 	"time"
 
-	webtools "webtools/internal/webtools"
+	tfdl "tfdl/internal/tfdl"
 )
 
 func main() {
@@ -53,7 +53,7 @@ func runServe(args []string, logger *log.Logger) error {
 	fs := flag.NewFlagSet("serve", flag.ContinueOnError)
 	fs.SetOutput(os.Stderr)
 
-	configPathFlag := fs.String("config", "", "path to config file (default: WEBTOOLS_CONFIG or ./webtools.json if present)")
+	configPathFlag := fs.String("config", "", "path to config file (default: TFDL_CONFIG or ./tfdl.json if present)")
 	portFlag := fs.Int("port", 0, "port override")
 	bindFlag := fs.String("bind", "", "bind address override (for example 0.0.0.0)")
 	rootFlag := fs.String("root", "", "static root directory override")
@@ -62,7 +62,7 @@ func runServe(args []string, logger *log.Logger) error {
 	authPassFlag := fs.String("auth-pass", "", "override basic auth password")
 
 	fs.Usage = func() {
-		fmt.Fprintf(fs.Output(), "Usage: webtools serve [options]\n\n")
+		fmt.Fprintf(fs.Output(), "Usage: tfdl serve [options]\n\n")
 		fs.PrintDefaults()
 	}
 
@@ -92,15 +92,15 @@ func runServe(args []string, logger *log.Logger) error {
 		return err
 	}
 
-	addr := webtools.ListenAddr(cfg)
-	mux := webtools.NewMux(cfg, logger)
+	addr := tfdl.ListenAddr(cfg)
+	mux := tfdl.NewMux(cfg, logger)
 	server := &http.Server{
 		Addr:              addr,
 		Handler:           mux,
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
-	logger.Printf("webtools server starting")
+	logger.Printf("tfdl server starting")
 	logger.Printf("  root: %s", cfg.Server.RootDir)
 	if configPath != "" {
 		logger.Printf("  config: %s", configPath)
@@ -182,16 +182,16 @@ type serveOverrides struct {
 	authPass    string
 }
 
-func loadEffectiveConfig(explicitConfigPath string, logger *log.Logger) (webtools.Config, string, error) {
-	path := webtools.ConfigPathFromArgsOrEnv(explicitConfigPath)
+func loadEffectiveConfig(explicitConfigPath string, logger *log.Logger) (tfdl.Config, string, error) {
+	path := tfdl.ConfigPathFromArgsOrEnv(explicitConfigPath)
 	if path == "" {
-		cfg := webtools.DefaultConfig()
+		cfg := tfdl.DefaultConfig()
 		return cfg, "", nil
 	}
 
-	cfg, err := webtools.LoadConfigFile(path)
+	cfg, err := tfdl.LoadConfigFile(path)
 	if err != nil {
-		return webtools.Config{}, path, err
+		return tfdl.Config{}, path, err
 	}
 
 	if logger != nil {
@@ -200,32 +200,32 @@ func loadEffectiveConfig(explicitConfigPath string, logger *log.Logger) (webtool
 	return cfg, path, nil
 }
 
-func applyEnvOverrides(cfg *webtools.Config) {
-	if v := strings.TrimSpace(os.Getenv("WEBTOOLS_BIND")); v != "" {
+func applyEnvOverrides(cfg *tfdl.Config) {
+	if v := strings.TrimSpace(os.Getenv("TFDL_BIND")); v != "" {
 		cfg.Server.Bind = v
 	}
-	if v := strings.TrimSpace(os.Getenv("WEBTOOLS_ROOT")); v != "" {
+	if v := strings.TrimSpace(os.Getenv("TFDL_ROOT")); v != "" {
 		cfg.Server.RootDir = v
 	}
-	if v := strings.TrimSpace(os.Getenv("WEBTOOLS_PORT")); v != "" {
+	if v := strings.TrimSpace(os.Getenv("TFDL_PORT")); v != "" {
 		if port, err := strconv.Atoi(v); err == nil {
 			cfg.Server.Port = port
 		}
 	}
-	if v := strings.TrimSpace(os.Getenv("WEBTOOLS_AUTH_ENABLED")); v != "" {
+	if v := strings.TrimSpace(os.Getenv("TFDL_AUTH_ENABLED")); v != "" {
 		if enabled, err := parseBool(v); err == nil {
 			cfg.Auth.Enabled = enabled
 		}
 	}
-	if v, ok := os.LookupEnv("WEBTOOLS_AUTH_USER"); ok {
+	if v, ok := os.LookupEnv("TFDL_AUTH_USER"); ok {
 		cfg.Auth.Username = strings.TrimSpace(v)
 	}
-	if v, ok := os.LookupEnv("WEBTOOLS_AUTH_PASS"); ok {
+	if v, ok := os.LookupEnv("TFDL_AUTH_PASS"); ok {
 		cfg.Auth.Password = v
 	}
 }
 
-func applyFlagOverrides(cfg *webtools.Config, explicit map[string]bool, flags serveOverrides) error {
+func applyFlagOverrides(cfg *tfdl.Config, explicit map[string]bool, flags serveOverrides) error {
 	if explicit["bind"] {
 		cfg.Server.Bind = flags.bind
 	}
@@ -268,15 +268,15 @@ func parseBool(v string) (bool, error) {
 }
 
 func printRootHelp(out *os.File) {
-	fmt.Fprintln(out, "webtools - local web tools launcher server")
+	fmt.Fprintln(out, "tfdl - local web tools launcher server")
 	fmt.Fprintln(out)
 	fmt.Fprintln(out, "Commands:")
 	fmt.Fprintln(out, "  serve        Run the static web server (default command)")
 	fmt.Fprintln(out, "  print-config Print the effective config after file+env resolution")
 	fmt.Fprintln(out)
 	fmt.Fprintln(out, "Examples:")
-	fmt.Fprintln(out, "  webtools serve -port 8080")
-	fmt.Fprintln(out, "  webtools serve -config ./webtools.json -auth-enabled=true -auth-user amal -auth-pass secret")
+	fmt.Fprintln(out, "  tfdl serve -port 8080")
+	fmt.Fprintln(out, "  tfdl serve -config ./tfdl.json -auth-enabled=true -auth-user amal -auth-pass secret")
 }
 
 func ternary[T any](cond bool, a, b T) T {
