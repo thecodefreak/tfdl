@@ -8,17 +8,18 @@
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
+  <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell url-tool-shell" aria-label="URL Encoder and Decoder tool">
-    <header>
-      <div>
-        <p class="eyebrow">Developer Tools</p>
-        <h1>URL Encoder &amp; Decoder</h1>
-        <p>Encode/decode URI text, form-urlencoded strings, and inspect query parameters from raw queries or full URLs.</p>
-      </div>
-      <a class="back-link" href="../../../index.html">Back to launcher</a>
-    </header>
+  <wt-tool-shell
+    class="url-tool-shell"
+    eyebrow="Developer Tools"
+    heading="URL Encoder &amp; Decoder"
+    lede="Encode/decode URI text, form-urlencoded strings, and inspect query parameters from raw queries or full URLs."
+    back-href="../../../index.html"
+    back-class="back-link"
+    aria-label="URL Encoder and Decoder tool"
+  >
 
     <section class="tool-panel url-panel" aria-labelledby="url-tool-title">
       <div class="url-toolbar">
@@ -158,7 +159,7 @@
         <span>Query inspector keeps duplicate keys as arrays</span>
       </div>
     </section>
-  </main>
+  </wt-tool-shell>
 
   <script src="app.js"></script>
 </body>

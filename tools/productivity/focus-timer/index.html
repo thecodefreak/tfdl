@@ -8,17 +8,18 @@
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
+  <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell focus-shell" aria-label="Focus Timer tool">
-    <header>
-      <div>
-        <p class="eyebrow">Productivity</p>
-        <h1>Focus Timer</h1>
-        <p>Cycle focus and breaks with practical presets, local stats, and keyboard-first controls.</p>
-      </div>
-      <a class="back-link" href="../../../index.html">Back to launcher</a>
-    </header>
+  <wt-tool-shell
+    class="focus-shell"
+    eyebrow="Productivity"
+    heading="Focus Timer"
+    lede="Cycle focus and breaks with practical presets, local stats, and keyboard-first controls."
+    back-href="../../../index.html"
+    back-class="back-link"
+    aria-label="Focus Timer tool"
+  >
 
     <section class="tool-panel focus-panel" aria-labelledby="focus-title">
       <div class="focus-toolbar">
@@ -185,7 +186,7 @@
         </aside>
       </div>
     </section>
-  </main>
+  </wt-tool-shell>
 
   <script src="app.js"></script>
 </body>

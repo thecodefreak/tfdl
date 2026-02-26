@@ -8,17 +8,18 @@
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
+  <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell canvas-tool-shell" aria-label="Image Canvas Framer tool">
-    <header>
-      <div>
-        <p class="eyebrow">Media &amp; Images</p>
-        <h1>Image Canvas Framer</h1>
-        <p>Create a custom-size canvas, place any image into it, frame/crop it fast on a fixed preview stage, and export.</p>
-      </div>
-      <a class="back-link" href="../../../index.html">Back to launcher</a>
-    </header>
+  <wt-tool-shell
+    class="canvas-tool-shell"
+    eyebrow="Media &amp; Images"
+    heading="Image Canvas Framer"
+    lede="Create a custom-size canvas, place any image into it, frame/crop it fast on a fixed preview stage, and export."
+    back-href="../../../index.html"
+    back-class="back-link"
+    aria-label="Image Canvas Framer tool"
+  >
 
     <section class="tool-panel canvas-tool-panel" aria-labelledby="canvas-tool-title">
       <div class="tool-toolbar">
@@ -251,7 +252,7 @@
         </aside>
       </div>
     </section>
-  </main>
+  </wt-tool-shell>
 
   <script src="app.js"></script>
 </body>

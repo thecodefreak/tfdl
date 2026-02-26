@@ -8,17 +8,18 @@
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
+  <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell notes-shell" aria-label="Notes Scratchpad tool">
-    <header>
-      <div>
-        <p class="eyebrow">Productivity</p>
-        <h1>Notes Scratchpad</h1>
-        <p>Local notes workspace for quick capture, snippets, and temporary drafts with autosave and preview.</p>
-      </div>
-      <a class="back-link" href="../../../index.html">Back to launcher</a>
-    </header>
+  <wt-tool-shell
+    class="notes-shell"
+    eyebrow="Productivity"
+    heading="Notes Scratchpad"
+    lede="Local notes workspace for quick capture, snippets, and temporary drafts with autosave and preview."
+    back-href="../../../index.html"
+    back-class="back-link"
+    aria-label="Notes Scratchpad tool"
+  >
 
     <section class="tool-panel notes-panel" aria-labelledby="notes-title">
       <div class="notes-toolbar">
@@ -153,7 +154,7 @@
         </section>
       </div>
     </section>
-  </main>
+  </wt-tool-shell>
 
   <script src="app.js"></script>
 </body>

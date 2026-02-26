@@ -7,18 +7,17 @@
   <link rel="stylesheet" href="../../../assets/css/styles.css" />
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
+  <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell ui-page ui-stack" aria-label="Tool template page">
-    <header>
-      <div>
-        <p class="eyebrow">Category</p>
-        <h1>Tool Name</h1>
-        <p>Replace this with a one-line description of what the tool does.</p>
-      </div>
-      <a class="back-link ui-btn ui-btn--ghost" href="../../../index.html">Back to launcher</a>
-    </header>
-
+  <wt-tool-shell
+    class="ui-page ui-stack"
+    eyebrow="Category"
+    heading="Tool Name"
+    lede="Replace this with a one-line description of what the tool does."
+    back-href="../../../index.html"
+    aria-label="Tool template page"
+  >
     <div class="tool-shell-grid ui-grid-2">
       <section class="tool-panel ui-panel ui-stack" aria-labelledby="main-ui">
         <h2 id="main-ui">Main UI</h2>
@@ -32,6 +31,6 @@
         <p>Update <code>assets/js/tools.registry.js</code>. The Go server resolves <code>/t/&lt;alias&gt;/</code> dynamically; no alias stub page is needed.</p>
       </section>
     </div>
-  </main>
+  </wt-tool-shell>
 </body>
 </html>

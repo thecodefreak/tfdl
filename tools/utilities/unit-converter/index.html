@@ -7,17 +7,17 @@
   <link rel="stylesheet" href="../../../assets/css/styles.css" />
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
+  <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell" aria-label="Unit Converter placeholder page">
-    <header>
-      <div>
-        <p class="eyebrow">Utilities</p>
-        <h1>Unit Converter</h1>
-        <p>Convert common units for daily calculations and quick checks.</p>
-      </div>
-      <a class="back-link" href="../../../index.html">Back to launcher</a>
-    </header>
+  <wt-tool-shell
+    eyebrow="Utilities"
+    heading="Unit Converter"
+    lede="Convert common units for daily calculations and quick checks."
+    back-href="../../../index.html"
+    back-class="back-link"
+    aria-label="Unit Converter placeholder page"
+  >
 
     <div class="tool-shell-grid">
       <section class="tool-panel" aria-labelledby="work-area">
@@ -38,6 +38,6 @@
         <p style="margin-top: 0.35rem;">Use the short alias for daily navigation and bookmarks.</p>
       </section>
     </div>
-  </main>
+  </wt-tool-shell>
 </body>
 </html>

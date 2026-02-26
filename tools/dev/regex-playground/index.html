@@ -8,17 +8,18 @@
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
+  <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell regex-tool-shell" aria-label="Regex Playground tool">
-    <header>
-      <div>
-        <p class="eyebrow">Developer Tools</p>
-        <h1>Regex Playground</h1>
-        <p>Test patterns against text, inspect matches/groups, preview replacements, and debug regex flags.</p>
-      </div>
-      <a class="back-link" href="../../../index.html">Back to launcher</a>
-    </header>
+  <wt-tool-shell
+    class="regex-tool-shell"
+    eyebrow="Developer Tools"
+    heading="Regex Playground"
+    lede="Test patterns against text, inspect matches/groups, preview replacements, and debug regex flags."
+    back-href="../../../index.html"
+    back-class="back-link"
+    aria-label="Regex Playground tool"
+  >
 
     <section class="tool-panel regex-panel" aria-labelledby="regex-title">
       <div class="regex-toolbar">
@@ -132,7 +133,7 @@
         <span><code>y</code> sticky respects <code>lastIndex</code> semantics (single-run inspection)</span>
       </div>
     </section>
-  </main>
+  </wt-tool-shell>
 
   <script src="app.js"></script>
 </body>

@@ -8,17 +8,18 @@
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
+  <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell image-markup-shell" aria-label="Image Markup tool">
-    <header>
-      <div>
-        <p class="eyebrow">Media</p>
-        <h1>Image Markup</h1>
-        <p>Merge of your highlighter and blur/redaction tools: highlight strokes + blur/pixelate/blackout boxes.</p>
-      </div>
-      <a class="back-link" href="../../../index.html">Back to launcher</a>
-    </header>
+  <wt-tool-shell
+    class="image-markup-shell"
+    eyebrow="Media"
+    heading="Image Markup"
+    lede="Merge of your highlighter and blur/redaction tools: highlight strokes + blur/pixelate/blackout boxes."
+    back-href="../../../index.html"
+    back-class="back-link"
+    aria-label="Image Markup tool"
+  >
 
     <section class="tool-panel editor-panel" aria-labelledby="editor-title">
       <div class="editor-toolbar">
@@ -192,7 +193,7 @@
         </section>
       </div>
     </section>
-  </main>
+  </wt-tool-shell>
 
   <script src="app.js"></script>
 </body>

@@ -8,18 +8,18 @@
   <link rel="stylesheet" href="../../../assets/css/skins/canva-dark.css" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="../../../assets/css/user.css" />
+  <script src="../../../assets/js/layout.shell.js" defer></script>
 </head>
 <body class="tool-shell-page theme-dark">
-  <main class="tool-shell json-tool-shell" aria-label="JSON Formatter tool">
-    <header>
-      <div>
-        <p class="eyebrow">Developer Tools</p>
-        <h1>JSON Formatter</h1>
-        <p>Validate, format, minify, sort keys, and inspect parse errors without leaving the launcher.</p>
-      </div>
-      <a class="back-link" href="../../../index.html">Back to launcher</a>
-    </header>
-
+  <wt-tool-shell
+    class="json-tool-shell"
+    eyebrow="Developer Tools"
+    heading="JSON Formatter"
+    lede="Validate, format, minify, sort keys, and inspect parse errors without leaving the launcher."
+    back-href="../../../index.html"
+    back-class="back-link"
+    aria-label="JSON Formatter tool"
+  >
     <section class="tool-panel json-panel" aria-labelledby="json-editor-title">
       <div class="json-toolbar">
         <div>
@@ -117,7 +117,7 @@
         <span><code>Ctrl/Cmd + Shift + S</code> toggle sort keys</span>
       </div>
     </section>
-  </main>
+  </wt-tool-shell>
 
   <script src="app.js"></script>
 </body>
