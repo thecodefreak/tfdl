@@ -1306,8 +1306,8 @@ kbd {
 .tool-card-line {
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr);
-  gap: 8px;
-  align-items: start;
+  gap: 1rem;
+  align-items: anchor-center;
 }
 
 .tool-card-key {

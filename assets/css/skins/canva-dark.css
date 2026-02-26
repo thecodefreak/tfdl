@@ -106,10 +106,13 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .chrome {
   grid-template-columns: minmax(0, 1fr) auto;
   width: min(1880px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 12px 4px 0;
+  padding: 12px 8px 0;
   gap: 12px;
   border-bottom: 0;
   background: transparent;
+  font-size: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #cccccc3d
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .traffic {
@@ -118,11 +121,6 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .traffic {
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .chrome-left {
   gap: 10px;
-}
-
-body.dashboard-page.theme-dark:not(.theme-terminal) .project-id {
-  padding: 2px 0;
-  gap: 2px;
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .project-name {
@@ -407,6 +405,8 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .tool-card-desc {
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .tool-card-line {
   grid-template-columns: 52px minmax(0, 1fr);
+  align-items: anchor-center;
+  gap: 1rem;
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .tool-card-key {
@@ -510,7 +510,7 @@ body.tool-shell-page.theme-dark:not(.theme-terminal) .back-link {
 
   body.dashboard-page.theme-dark:not(.theme-terminal) .chrome {
     width: calc(100% - 20px);
-    padding: 10px 2px 0;
+    padding: 10px 8px 0;
   }
 
   body.dashboard-page.theme-dark:not(.theme-terminal) .command-deck {
