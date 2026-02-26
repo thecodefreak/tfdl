@@ -6,5 +6,5 @@ Checklist:
 
 1. Update page title and description.
 2. Register the tool in `assets/js/tools.registry.js`.
-3. Create `t/<alias>/index.html` redirect page.
+3. Set the alias in the registry entry (`alias` field).
 4. Keep canonical path stable: `tools/<category>/<slug>/`.

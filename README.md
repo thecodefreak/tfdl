@@ -13,11 +13,11 @@ A local-first launcher and folder structure for daily web tools, designed for pr
 ## Directory Layout
 
 - `index.html` — developer launcher dashboard (rendered from registry)
-- `assets/css/styles.css` — shared dark styling (dashboard + tool shells + alias pages)
+- `assets/css/styles.css` — shared dark styling (dashboard + tool shells)
 - `assets/js/tools.registry.js` — all tool metadata (name, alias, category, tags)
 - `assets/js/app.js` — registry rendering, search/filter, pins, recents, copy actions
 - `tools/` — canonical implementation folders by category
-- `t/` — short alias redirect pages for fast URL access
+- `/t/<alias>/` — short alias URLs served dynamically by the Go server
 
 ## URL Strategy
 
@@ -32,19 +32,16 @@ Examples:
 - `t/focus/` → `tools/productivity/focus-timer/`
 - `t/words/` → `tools/writing/word-counter/`
 
-This keeps source organized while keeping navigation fast.
-
-With the Go server enabled, `t/<alias>` redirects are generated dynamically from
-`assets/js/tools.registry.js`, so per-alias redirect folders under `t/` are
-optional unless you need static-file-only hosting compatibility.
+This keeps source organized while keeping navigation fast. Alias redirects for
+`/t/<alias>/` are generated dynamically by the Go server from
+`assets/js/tools.registry.js` (there is no `t/` redirect folder).
 
 ## Add a New Tool (Recommended Workflow)
 
 1. Copy `tools/_template/` into the target category and rename to your slug.
 2. Implement the tool at `tools/<category>/<slug>/index.html`.
 3. Add the tool entry to `assets/js/tools.registry.js`.
-4. Optional (static-hosting mode): create `t/<alias>/index.html` redirect page.
-5. Reload `index.html` and verify search + alias link + source path.
+4. Reload `index.html` and verify search + alias link + source path.
 
 ## Dashboard Features
 
@@ -77,7 +74,7 @@ How it is loaded:
 The default UI now uses a softer dark skin (`assets/css/skins/canva-dark.css`)
 that loads after `assets/css/styles.css`.
 
-A shared developer override file is also loaded last on every launcher/tool/alias
+A shared developer override file is also loaded last on every launcher/tool
 page:
 
 - `assets/css/user.css`
@@ -91,8 +88,8 @@ If you want the older terminal-style look on a page, add `theme-terminal` to the
 ## Notes
 
 - No build system or framework required.
-- Works as a static local workspace.
-- If you later host it, the same `t/<alias>/` structure stays useful.
+- Canonical pages work as static files; short `t/<alias>/` aliases require the Go server.
+- Alias routes stay stable because they are generated from `assets/js/tools.registry.js`.
 
 ## Run as a Web Server (Go)
 

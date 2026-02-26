@@ -56,6 +56,16 @@ func withAliasRedirects(aliasRedirects map[string]string, next http.Handler) htt
 			return
 		}
 
+		cleanPath := path.Clean("/" + r.URL.Path)
+		if cleanPath == "/t" || cleanPath == "/t/" {
+			target := "/"
+			if raw := strings.TrimSpace(r.URL.RawQuery); raw != "" {
+				target += "?" + raw
+			}
+			http.Redirect(w, r, target, http.StatusFound)
+			return
+		}
+
 		target, ok := LookupAliasRedirect(aliasRedirects, r.URL.Path)
 		if !ok {
 			next.ServeHTTP(w, r)
