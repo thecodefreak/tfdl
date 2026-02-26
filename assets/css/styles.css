@@ -476,15 +476,22 @@ kbd,
 
 .workspace-grid[data-view="cards"] {
   grid-template-columns: 1fr;
+  justify-items: stretch;
 }
 
 .workspace-grid[data-view="cards"] .table-panel {
   order: 1;
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: none;
   min-height: 560px;
 }
 
 .workspace-grid[data-view="cards"] .sidebar {
   order: 2;
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: none;
   position: static;
   top: auto;
   grid-template-columns: minmax(340px, 1.25fr) minmax(280px, 0.75fr);
@@ -1215,7 +1222,8 @@ kbd {
   padding: 12px;
   display: none;
   gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(390px, 1fr));
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(390px, 1fr));
   align-content: start;
   min-height: 0;
   overflow: auto;
