@@ -43,6 +43,23 @@ No configuration needed! Static files are bundled in the binary.
 ./tfdl version                       # Show version
 ```
 
+### Run with Docker image
+
+Pull and run the published image:
+
+```bash
+docker pull ghcr.io/thecodefreak/tfdl:latest
+docker run --rm -p 127.0.0.1:8080:8080 ghcr.io/thecodefreak/tfdl:latest
+# Serves on http://127.0.0.1:8080 using embedded files
+```
+
+Use a pinned release tag when you want a fixed version:
+
+```bash
+docker pull ghcr.io/thecodefreak/tfdl:0.2.0
+docker run --rm -p 127.0.0.1:8080:8080 ghcr.io/thecodefreak/tfdl:0.2.0
+```
+
 ### Build from source
 
 Requirements: Go `1.25+` (see `go.mod`)
