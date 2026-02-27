@@ -196,12 +196,10 @@ jobs:
             exit 1
           fi
 
-          src_asset="${APP_NAME}_${version}_source.tar.gz"
           checksum_asset="SHA256SUMS.txt"
 
           echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
-          echo "src_asset=${src_asset}" >> "${GITHUB_OUTPUT}"
           echo "checksum_asset=${checksum_asset}" >> "${GITHUB_OUTPUT}"
 
           if [[ "${version}" == *-* ]]; then
@@ -221,17 +219,7 @@ jobs:
         run: |
           echo "Downloaded artifacts:"
           ls -lh dist/
-
-      - name: Create source archive
-        shell: bash
-        run: |
-          set -euo pipefail
-          git archive \
-            --format=tar.gz \
-            --prefix="${APP_NAME}-${{ steps.vars.outputs.version }}/" \
-            --output="dist/${{ steps.vars.outputs.src_asset }}" \
-            HEAD
-
+  
       - name: Create checksums
         shell: bash
         run: |
