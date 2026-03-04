@@ -315,19 +315,19 @@
 }
 
 .duration-grid label,
-.control-group label {
+.control-group label:not(.toggle-row) {
   display: grid;
   gap: 0.3rem;
 }
 
 .duration-grid label > span,
-.control-group label > span {
+.control-group label:not(.toggle-row) > span {
   color: var(--text-soft);
   font-size: 0.76rem;
 }
 
 .duration-grid input,
-.control-group input,
+.control-group input:not([type="checkbox"]):not([type="radio"]),
 .note-editor {
   width: 100%;
   border: 1px solid var(--line-strong);
@@ -336,6 +336,140 @@
   border-radius: 8px;
   padding: 0.45rem 0.55rem;
   font: inherit;
+}
+
+.control-group .toggle-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.6rem;
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.control-group .toggle-row input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  width: 36px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  grid-column: 2;
+  justify-self: end;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+.control-group .toggle-row input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(250, 252, 255, 0.95);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  transition: transform 130ms ease;
+}
+
+.control-group .toggle-row input[type="checkbox"]:checked {
+  border-color: rgba(92, 168, 255, 0.42);
+  background: rgba(92, 168, 255, 0.35);
+}
+
+.control-group .toggle-row input[type="checkbox"]:checked::before {
+  transform: translateX(16px);
+}
+
+.control-group .toggle-row input[type="checkbox"]:focus-visible {
+  outline: 2px solid rgba(92, 168, 255, 0.45);
+  outline-offset: 2px;
+}
+
+.control-group .toggle-row span {
+  grid-column: 1;
+  min-width: 0;
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+/* Behavior block polish: clearer states and less generic pill look */
+.control-group[aria-labelledby="behavior-title"] {
+  background:
+    linear-gradient(180deg, rgba(92, 168, 255, 0.05), rgba(92, 168, 255, 0.015)),
+    rgba(9, 12, 16, 0.9);
+}
+
+.control-group[aria-labelledby="behavior-title"] .toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border-radius: 12px;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 130ms ease, background-color 130ms ease, box-shadow 130ms ease;
+}
+
+.control-group[aria-labelledby="behavior-title"] .toggle-row:hover {
+  border-color: rgba(92, 168, 255, 0.32);
+  background: rgba(92, 168, 255, 0.08);
+}
+
+.control-group[aria-labelledby="behavior-title"] .toggle-row span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.82rem;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.control-group[aria-labelledby="behavior-title"] .toggle-row span::after {
+  content: none;
+  display: none;
+}
+
+.control-group[aria-labelledby="behavior-title"] .toggle-row:has(input[type="checkbox"]:checked) {
+  border-color: rgba(92, 168, 255, 0.46);
+  background: rgba(92, 168, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(92, 168, 255, 0.16);
+}
+
+.control-group[aria-labelledby="behavior-title"] .toggle-row input[type="checkbox"] {
+  width: 40px;
+  height: 22px;
+  margin-left: auto;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.control-group[aria-labelledby="behavior-title"] .toggle-row input[type="checkbox"]::before {
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+}
+
+.control-group[aria-labelledby="behavior-title"] .toggle-row input[type="checkbox"]:checked {
+  border-color: rgba(95, 210, 160, 0.5);
+  background: rgba(95, 210, 160, 0.42);
+}
+
+.control-group[aria-labelledby="behavior-title"] .toggle-row input[type="checkbox"]:checked::before {
+  transform: translateX(18px);
 }
 
 .note-editor {

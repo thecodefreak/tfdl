@@ -90,17 +90,17 @@
   color: var(--text-dim);
 }
 
-.control-group label {
+.control-group label:not(.toggle-row) {
   display: grid;
   gap: 0.35rem;
 }
 
-.control-group label > span {
+.control-group label:not(.toggle-row) > span {
   color: var(--text-soft);
   font-size: 0.76rem;
 }
 
-.control-group input,
+.control-group input:not([type="checkbox"]):not([type="radio"]),
 .control-group select {
   width: 100%;
   border: 1px solid var(--line-strong);
@@ -109,6 +109,35 @@
   border-radius: 8px;
   padding: 0.45rem 0.55rem;
   font: inherit;
+}
+
+.control-group .toggle-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.6rem;
+  margin: 0;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.control-group .toggle-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  grid-column: 2;
+  justify-self: center;
+  accent-color: var(--accent);
+}
+
+.control-group .toggle-row span {
+  grid-column: 1;
+  min-width: 0;
+  color: var(--text-soft);
+  font-size: 0.78rem;
 }
 
 .control-group input[type="color"] {

@@ -8,12 +8,12 @@ body.theme-dark:not(.theme-terminal) {
   --panel: #131a24;
   --panel-2: #101722;
   --panel-3: #0d141d;
-  --line: #273344;
-  --line-soft: #1d2734;
-  --line-strong: #33445a;
+  --line: #33455c;
+  --line-soft: #2a394d;
+  --line-strong: #476182;
   --text: #f1f5fb;
-  --text-soft: #c4cfdf;
-  --text-dim: #90a0b5;
+  --text-soft: #d2dced;
+  --text-dim: #aab8ca;
   --accent: #5ca8ff;
   --accent-2: #54cda8;
   --warn: #efc26f;
@@ -56,7 +56,7 @@ body.theme-dark:not(.theme-terminal) ::-webkit-scrollbar-thumb:hover {
 
 body.theme-dark:not(.theme-terminal) .ui-panel,
 body.theme-dark:not(.theme-terminal) .ui-surface {
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
   box-shadow: var(--shadow);
 }
 
@@ -144,8 +144,8 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .project-mode {
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .path-pill {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
   padding: 8px 12px;
 }
 
@@ -160,7 +160,7 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .command-deck {
   border-radius: 16px;
   display: grid;
   gap: var(--space-16);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   background: linear-gradient(180deg, rgba(18, 24, 33, 0.96), rgba(14, 19, 27, 0.96));
   box-shadow: var(--shadow);
 }
@@ -198,9 +198,9 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .hint-cluster {
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .hint-chip {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.025);
-  color: var(--text-soft);
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
   padding: 4px 12px;
 }
 
@@ -236,9 +236,9 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .filter-row {
 body.dashboard-page.theme-dark:not(.theme-terminal) .chip {
   min-height: 32px;
   padding: 4px 12px;
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.02);
-  color: var(--text-soft);
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .chip.active {
@@ -249,9 +249,9 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .chip.active {
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .advanced-filters {
   min-width: 280px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.015);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .advanced-filters > summary {
@@ -285,8 +285,8 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .toggle-row {
   min-height: 32px;
   padding: 4px 12px;
   border-radius: 999px;
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .toggle-row input {
@@ -297,7 +297,7 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .status-strip {
   gap: var(--space-16);
   border-top: 1px dashed rgba(255, 255, 255, 0.12);
   padding-top: var(--space-12);
-  color: var(--text-dim);
+  color: var(--text-soft);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) #resultsCount {
@@ -328,7 +328,7 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .sidebar {
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .panel,
 body.dashboard-page.theme-dark:not(.theme-terminal) .table-panel {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
   background: linear-gradient(180deg, rgba(18, 24, 33, 0.96), rgba(14, 19, 27, 0.96));
 }
@@ -350,7 +350,7 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .table-panel {
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .table-head {
   padding: var(--space-16) var(--space-24);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   background: linear-gradient(180deg, rgba(22, 29, 40, 0.95), rgba(17, 24, 33, 0.95));
 }
 
@@ -380,8 +380,8 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .column-menu-panel {
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .column-check-item {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .column-check-item.is-locked {
@@ -391,10 +391,10 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .column-check-item.is-locked
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .state-card {
   margin: var(--space-24) 0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 12px;
   padding: var(--space-16);
-  background: rgba(10, 14, 20, 0.9);
+  background: rgba(10, 14, 20, 0.96);
   display: grid;
   gap: var(--space-12);
 }
@@ -455,7 +455,7 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .state-actions {
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .table-scroll {
-  background: rgba(255, 255, 255, 0.01);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .tools-table {
@@ -464,8 +464,8 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .tools-table {
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .tools-table thead th {
   background: rgba(13, 18, 26, 0.98);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-dim);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--text-soft);
   padding: 12px 16px;
 }
 
@@ -478,11 +478,11 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .tools-table tbody tr {
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .tools-table tbody tr:nth-child(even) {
-  background: rgba(255, 255, 255, 0.01);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .tools-table tbody tr:hover {
-  background: rgba(92, 168, 255, 0.08);
+  background: rgba(92, 168, 255, 0.14);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .tools-table tbody tr.selected {
@@ -510,14 +510,15 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .tool-card-desc {
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .category-chip {
-  border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .tag {
-  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-  color: color-mix(in srgb, var(--accent) 76%, white);
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--line));
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+  color: color-mix(in srgb, var(--accent) 84%, white);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .actions-wrap {
@@ -525,14 +526,24 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .actions-wrap {
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .action-btn {
-  min-height: 32px;
-  padding: 4px 12px;
+  min-height: 34px;
+  padding: 6px 12px;
   border-radius: 8px;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font-size: 13px;
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .action-btn.open-primary {
-  border-color: color-mix(in srgb, var(--accent) 46%, var(--line));
-  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 64%, var(--line));
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  color: color-mix(in srgb, var(--accent) 88%, white);
+}
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .action-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--line));
+  background: rgba(255, 255, 255, 0.1);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .tools-card-grid {
@@ -542,9 +553,9 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .tools-card-grid {
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .tool-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 12px;
-  background: rgba(10, 14, 20, 0.9);
+  background: rgba(10, 14, 20, 0.96);
   padding: var(--space-16);
   gap: var(--space-12);
 }
@@ -561,12 +572,12 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .tool-card.selected {
 body.dashboard-page.theme-dark:not(.theme-terminal) .empty-state {
   margin: var(--space-24) 0;
   border-top: 0;
-  border: 1px dashed rgba(255, 255, 255, 0.16);
+  border: 1px dashed rgba(255, 255, 255, 0.26);
   border-radius: 12px;
   padding: var(--space-16);
   display: grid;
   gap: var(--space-12);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .empty-state h3 {
@@ -593,16 +604,16 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .shortcuts-panel .panel-head
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) .keymap-list li {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   padding: 8px 12px;
 }
 
 body.dashboard-page.theme-dark:not(.theme-terminal) kbd {
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 6px;
-  background: rgba(5, 8, 12, 0.86);
+  background: rgba(5, 8, 12, 0.94);
   color: var(--text);
 }
 
@@ -633,14 +644,67 @@ body.dashboard-page.theme-dark:not(.theme-terminal) .is-hidden {
 
 body.theme-dark:not(.theme-terminal) .tool-shell,
 body.theme-dark:not(.theme-terminal) .alias-card {
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
   background: linear-gradient(180deg, rgba(18, 24, 33, 0.96), rgba(14, 19, 27, 0.96));
 }
 
 body.theme-dark:not(.theme-terminal) .tool-panel,
 body.theme-dark:not(.theme-terminal) .alias-card .cell {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(10, 14, 20, 0.9);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(10, 14, 20, 0.96);
+}
+
+/* Tool pages: readable, user-friendly control sizing */
+body.tool-shell-page.theme-dark:not(.theme-terminal) :where(button, .action-btn, .ghost-btn, .ui-btn, label.action-btn) {
+  min-height: 36px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+body.tool-shell-page.theme-dark:not(.theme-terminal) :where(.action-btn, .ghost-btn, .ui-btn, label.action-btn) {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+body.tool-shell-page.theme-dark:not(.theme-terminal) :where(.action-btn:hover, .ghost-btn:hover, .ui-btn:hover, label.action-btn:hover) {
+  border-color: color-mix(in srgb, var(--accent) 54%, var(--line));
+  background: rgba(255, 255, 255, 0.14);
+}
+
+body.tool-shell-page.theme-dark:not(.theme-terminal) :where(.accent-btn, .ui-btn--primary) {
+  border-color: color-mix(in srgb, var(--accent) 66%, var(--line));
+  background: color-mix(in srgb, var(--accent) 34%, transparent);
+  color: color-mix(in srgb, var(--accent) 90%, white);
+}
+
+body.tool-shell-page.theme-dark:not(.theme-terminal) :where(.accent-btn:hover, .ui-btn--primary:hover) {
+  border-color: color-mix(in srgb, var(--accent) 76%, var(--line));
+  background: color-mix(in srgb, var(--accent) 46%, transparent);
+}
+
+body.tool-shell-page.theme-dark:not(.theme-terminal) .ghost-btn-small,
+body.tool-shell-page.theme-dark:not(.theme-terminal) .swatch-mini-btn,
+body.tool-shell-page.theme-dark:not(.theme-terminal) .quick-preset-grid button,
+body.tool-shell-page.theme-dark:not(.theme-terminal) .anchor-grid button {
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+body.tool-shell-page.theme-dark:not(.theme-terminal) .segment,
+body.tool-shell-page.theme-dark:not(.theme-terminal) .mode-btn,
+body.tool-shell-page.theme-dark:not(.theme-terminal) .preview-btn {
+  min-height: 34px;
+  font-size: 12px;
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
 }
 
 body.theme-dark:not(.theme-terminal) .back-link {
