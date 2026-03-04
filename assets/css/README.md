@@ -3,6 +3,7 @@
 ## Files
 
 - `framework.css` - local shared UI framework (tokens, primitives, utilities)
+- `design-system/components.css` - reusable UI components (buttons, fields, alerts, tabs, badges, table shell, pagination, dropdown, modal/drawer, toast)
 - `styles.css` - project-specific launcher/tool-shell styling and overrides
 - `skins/canva-dark.css` - default soft dark skin overlay (loaded after `styles.css`)
 - `user.css` - developer override file (loaded last)
@@ -22,8 +23,9 @@ third-party CSS dependency. `framework.css` provides a small reusable layer for:
 `styles.css` imports `framework.css`, and pages then load:
 
 1. `assets/css/styles.css`
-2. `assets/css/skins/canva-dark.css` (default skin)
-3. `assets/css/user.css` (developer overrides)
+2. `assets/css/design-system/components.css` (component layer)
+3. `assets/css/skins/canva-dark.css` (default skin)
+4. `assets/css/user.css` (developer overrides)
 
 This keeps the base styles stable while making theme/polish changes easy.
 

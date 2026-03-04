@@ -37,6 +37,7 @@
 
   const refs = {
     searchInput: document.querySelector("#toolSearch"),
+    openSelectedBtn: document.querySelector("#openSelectedBtn"),
     categoryChips: document.querySelector("#categoryChips"),
     pinnedOnlyInput: document.querySelector("#pinnedOnly"),
     recentOnlyInput: document.querySelector("#recentOnly"),
@@ -57,13 +58,19 @@
     shortcutsOverlay: document.querySelector("#shortcutsOverlay"),
     shortcutsPanel: document.querySelector("#shortcutsPanel"),
     hideShortcutsBtn: document.querySelector("#hideShortcutsBtn"),
+    loadingState: document.querySelector("#loadingState"),
+    errorState: document.querySelector("#errorState"),
+    retryRenderBtn: document.querySelector("#retryRenderBtn"),
+    errorDiagnostics: document.querySelector("#errorDiagnostics"),
     resultsPanel: document.querySelector("#resultsPanel"),
     toolsTable: document.querySelector(".tools-table"),
     tbody: document.querySelector("#toolRows"),
     cardsView: document.querySelector("#toolCards"),
     emptyState: document.querySelector("#emptyState"),
+    emptyResetBtn: document.querySelector("#emptyResetBtn"),
     quickLaunchList: document.querySelector("#quickLaunchList"),
-    recentList: document.querySelector("#recentList")
+    recentList: document.querySelector("#recentList"),
+    appToast: document.querySelector("#appToast")
   };
 
   const categories = normalizeCategories(registry.categories || [], registry.tools);
@@ -78,7 +85,11 @@
   let visibleTools = [];
   let viewMode = loadViewMode();
   let tableColumns = loadTableColumns();
+  let shortcutsReturnFocusEl = null;
+  let toastTimer = null;
 
+  setLoadingState(true);
+  hideErrorState();
   stampDate();
   window.setInterval(stampDate, 1000);
   applyShortcutsPanelUI(false);
@@ -87,7 +98,7 @@
   bindEvents();
   seedSelectionFromHash();
   applyViewModeUI();
-  render();
+  requestRender();
 
   function normalizeCategories(inputCategories, inputTools) {
     const base = Array.isArray(inputCategories) ? [...inputCategories] : [];
@@ -140,9 +151,17 @@
   }
 
   function bindEvents() {
-    refs.searchInput?.addEventListener("input", render);
-    refs.pinnedOnlyInput?.addEventListener("change", render);
-    refs.recentOnlyInput?.addEventListener("change", render);
+    refs.searchInput?.addEventListener("input", requestRender);
+    refs.pinnedOnlyInput?.addEventListener("change", requestRender);
+    refs.recentOnlyInput?.addEventListener("change", requestRender);
+    refs.openSelectedBtn?.addEventListener("click", () => {
+      if (!selectedToolId) {
+        showToast("Select a tool first.", "warning");
+        refs.searchInput?.focus();
+        return;
+      }
+      openToolById(selectedToolId);
+    });
     refs.tableColumnChecklist?.addEventListener("change", onTableColumnChecklistChanged);
     refs.tableColumnsEssentialsBtn?.addEventListener("click", () => {
       applyTableColumnPreset("essentials");
@@ -157,14 +176,22 @@
 
     refs.clearSearchBtn?.addEventListener("click", () => {
       if (refs.searchInput) refs.searchInput.value = "";
-      render();
+      requestRender();
       refs.searchInput?.focus();
     });
 
     refs.clearRecentBtn?.addEventListener("click", () => {
       recents = [];
       persistStringList(RECENTS_KEY, recents);
-      render();
+      requestRender();
+    });
+
+    refs.emptyResetBtn?.addEventListener("click", () => {
+      resetFilters();
+    });
+
+    refs.retryRenderBtn?.addEventListener("click", () => {
+      requestRender();
     });
 
     refs.hideShortcutsBtn?.addEventListener("click", () => {
@@ -179,7 +206,7 @@
       if (!button) return;
       activeCategory = button.dataset.filter || "all";
       renderCategoryChips();
-      render();
+      requestRender();
     });
 
     refs.tbody?.addEventListener("click", (event) => {
@@ -196,7 +223,7 @@
         event.preventDefault();
         const shouldRender = handleRowAction(actionButton, row?.dataset.toolId || "");
         if (shouldRender) {
-          render();
+          requestRender();
         } else if (row) {
           updateSelectedToolUI();
         }
@@ -234,7 +261,7 @@
         event.preventDefault();
         const shouldRender = handleRowAction(actionButton, card?.dataset.toolId || "");
         if (shouldRender) {
-          render();
+          requestRender();
         } else if (card) {
           updateSelectedToolUI();
         }
@@ -274,6 +301,10 @@
       event.preventDefault();
       applyShortcutsPanelUI(!isShortcutsPanelOpen());
       return;
+    }
+
+    if (isShortcutsPanelOpen() && event.key === "Tab") {
+      handleShortcutsFocusTrap(event);
     }
 
     const active = document.activeElement;
@@ -327,7 +358,7 @@
     if (event.key === "p") {
       event.preventDefault();
       if (selectedToolId) togglePin(selectedToolId);
-      render();
+      requestRender();
       return;
     }
 
@@ -343,9 +374,13 @@
       const tool = toolMap.get(selectedToolId);
       if (!tool) return;
       if (event.shiftKey) {
-        void copyText(tool.canonicalPath);
+        void copyText(tool.canonicalPath)
+          .then(() => showToast(`Copied ${tool.canonicalPath}`, "success"))
+          .catch(() => showToast("Copy failed. Try again.", "danger"));
       } else {
-        void copyText(tool.aliasPath);
+        void copyText(tool.aliasPath)
+          .then(() => showToast(`Copied ${tool.aliasPath}`, "success"))
+          .catch(() => showToast("Copy failed. Try again.", "danger"));
       }
       return;
     }
@@ -378,13 +413,56 @@
 
   function applyShortcutsPanelUI(isOpen) {
     if (!refs.shortcutsPanel) return;
+    const wasOpen = isShortcutsPanelOpen();
     refs.shortcutsPanel.hidden = !isOpen;
     if (refs.shortcutsOverlay) refs.shortcutsOverlay.hidden = !isOpen;
     document.body.classList.toggle("shortcuts-open", isOpen);
-    if (isOpen) {
+    if (isOpen && !wasOpen) {
+      if (document.activeElement instanceof HTMLElement) {
+        shortcutsReturnFocusEl = document.activeElement;
+      }
       refs.hideShortcutsBtn?.focus({ preventScroll: true });
     }
+    if (!isOpen && wasOpen && shortcutsReturnFocusEl instanceof HTMLElement) {
+      shortcutsReturnFocusEl.focus({ preventScroll: true });
+      shortcutsReturnFocusEl = null;
+    }
     renderStatus();
+  }
+
+  function handleShortcutsFocusTrap(event) {
+    if (!refs.shortcutsPanel) return;
+    const focusable = getFocusableElements(refs.shortcutsPanel);
+    if (!focusable.length) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement;
+
+    if (!(active instanceof HTMLElement) || !refs.shortcutsPanel.contains(active)) {
+      event.preventDefault();
+      first.focus();
+      return;
+    }
+
+    if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+      return;
+    }
+
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+    }
+  }
+
+  function getFocusableElements(container) {
+    return Array.from(
+      container.querySelectorAll(
+        "a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])"
+      )
+    );
   }
 
   function renderCategoryChips() {
@@ -474,6 +552,16 @@
     renderStatus();
   }
 
+  function requestRender() {
+    try {
+      hideErrorState();
+      render();
+      setLoadingState(false);
+    } catch (error) {
+      handleRenderError(error);
+    }
+  }
+
   function render() {
     visibleTools = getVisibleTools();
     ensureValidSelection();
@@ -481,6 +569,7 @@
     renderCards();
     renderQuickLaunch();
     renderRecentList();
+    syncEmptyState();
     renderStatus();
     updateSelectedToolUI();
   }
@@ -552,8 +641,6 @@
       .join("");
 
     applyTableColumnVisibility();
-
-    refs.emptyState?.classList.toggle("is-hidden", visibleTools.length > 0);
   }
 
   function renderCards() {
@@ -562,8 +649,50 @@
     refs.cardsView.innerHTML = visibleTools
       .map((tool, index) => renderCard(tool, index))
       .join("");
+  }
 
-    refs.emptyState?.classList.toggle("is-hidden", visibleTools.length > 0);
+  function syncEmptyState() {
+    if (!refs.emptyState) return;
+    const isLoading = Boolean(refs.loadingState && !refs.loadingState.classList.contains("is-hidden"));
+    const hasError = Boolean(refs.errorState && !refs.errorState.classList.contains("is-hidden"));
+    const showEmpty = !isLoading && !hasError && visibleTools.length === 0;
+    refs.emptyState.classList.toggle("is-hidden", !showEmpty);
+  }
+
+  function resetFilters() {
+    if (refs.searchInput) refs.searchInput.value = "";
+    if (refs.pinnedOnlyInput) refs.pinnedOnlyInput.checked = false;
+    if (refs.recentOnlyInput) refs.recentOnlyInput.checked = false;
+    activeCategory = "all";
+    renderCategoryChips();
+    requestRender();
+    refs.searchInput?.focus();
+  }
+
+  function setLoadingState(isLoading) {
+    refs.loadingState?.classList.toggle("is-hidden", !isLoading);
+    if (refs.resultsPanel) {
+      refs.resultsPanel.dataset.loading = String(Boolean(isLoading));
+    }
+  }
+
+  function hideErrorState() {
+    refs.errorState?.classList.add("is-hidden");
+    refs.resultsPanel?.removeAttribute("data-has-error");
+    if (refs.errorDiagnostics) refs.errorDiagnostics.textContent = "";
+  }
+
+  function handleRenderError(error) {
+    setLoadingState(false);
+    refs.errorState?.classList.remove("is-hidden");
+    refs.resultsPanel?.setAttribute("data-has-error", "true");
+    if (refs.errorDiagnostics) {
+      refs.errorDiagnostics.textContent = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    }
+    syncEmptyState();
+    showToast("Render failed. Check diagnostics.", "danger");
+    // Keep an exception trace in dev tools for debugging.
+    console.error(error);
   }
 
   function renderRow(tool, index) {
@@ -848,12 +977,26 @@
     if (!tool) return false;
 
     if (action === "copy-alias") {
-      void copyText(tool.aliasPath).then(() => flashButton(button));
+      void copyText(tool.aliasPath)
+        .then(() => {
+          flashButton(button);
+          showToast(`Copied ${tool.aliasPath}`, "success");
+        })
+        .catch(() => {
+          showToast("Copy failed. Try again.", "danger");
+        });
       return false;
     }
 
     if (action === "copy-source") {
-      void copyText(tool.canonicalPath).then(() => flashButton(button));
+      void copyText(tool.canonicalPath)
+        .then(() => {
+          flashButton(button);
+          showToast(`Copied ${tool.canonicalPath}`, "success");
+        })
+        .catch(() => {
+          showToast("Copy failed. Try again.", "danger");
+        });
       return false;
     }
 
@@ -901,7 +1044,10 @@
     document.body.appendChild(textarea);
     textarea.select();
     try {
-      document.execCommand("copy");
+      const copied = document.execCommand("copy");
+      if (!copied) {
+        throw new Error("Copy command was rejected.");
+      }
     } finally {
       textarea.remove();
     }
@@ -915,6 +1061,29 @@
       button.classList.remove("copy-ok");
       button.innerHTML = originalHtml;
     }, 700);
+  }
+
+  function showToast(message, tone = "neutral") {
+    if (!refs.appToast) return;
+    refs.appToast.hidden = false;
+    refs.appToast.textContent = message;
+    refs.appToast.dataset.tone = tone;
+    refs.appToast.classList.add("is-visible");
+
+    if (toastTimer) {
+      window.clearTimeout(toastTimer);
+      toastTimer = null;
+    }
+
+    toastTimer = window.setTimeout(() => {
+      refs.appToast?.classList.remove("is-visible");
+      window.setTimeout(() => {
+        if (!refs.appToast) return;
+        refs.appToast.hidden = true;
+        refs.appToast.textContent = "";
+        refs.appToast.removeAttribute("data-tone");
+      }, 180);
+    }, 1800);
   }
 
   function stampDate() {

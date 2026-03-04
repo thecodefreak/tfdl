@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>TFDL - Tools For Dev Life</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/design-system/components.css" />
   <link rel="stylesheet" href="assets/css/skins/canva-dark.css" />
   <link rel="stylesheet" href="assets/css/user.css" />
   <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
@@ -16,8 +17,8 @@
   <link rel="icon" href="assets/icons/favicon.ico" />
   <link rel="manifest" href="site.webmanifest">
 </head>
-<body class="dashboard-page theme-dark">
-  <main class="workspace ui-page" aria-label="Developer tools workspace">
+<body class="dashboard-page theme-dark ds-root">
+  <main class="workspace ui-page ds-layout" aria-label="Developer tools workspace">
     <section class="app-frame ui-surface" aria-label="Workspace shell">
       <header class="chrome ui-toolbar" aria-label="Application chrome">
         <div class="chrome-left">
@@ -36,17 +37,21 @@
         </div>
       </header>
 
-      <section class="command-deck ui-panel" aria-labelledby="controls-title">
-        <div class="command-head">
-          <div>
-            <p class="eyebrow">Launcher Controls</p>
-            <h1 id="controls-title">Search &amp; Filter</h1>
+      <section class="command-deck ui-panel ds-card" aria-labelledby="controls-title">
+        <div class="command-head ds-page-header">
+          <div class="ds-page-header-copy">
+            <p class="eyebrow">Launcher</p>
+            <h1 id="controls-title">Tool Index</h1>
+            <p class="header-description">Search, filter, and launch tools from one table-first workspace with card mode as an alternate view.</p>
           </div>
-          <div class="hint-cluster" aria-label="Search syntax hints">
-            <span class="hint-chip ui-chip">@dev</span>
-            <span class="hint-chip ui-chip">@utilities</span>
-            <span class="hint-chip ui-chip">#json</span>
-            <span class="hint-chip ui-chip">#timer</span>
+          <div class="ds-page-header-actions">
+            <button id="openSelectedBtn" type="button" class="ui-btn ds-btn ds-btn--primary">Open Selected</button>
+            <div class="hint-cluster" aria-label="Search syntax hints">
+              <span class="hint-chip ui-chip">cat:@dev</span>
+              <span class="hint-chip ui-chip">cat:@utilities</span>
+              <span class="hint-chip ui-chip">tag:#json</span>
+              <span class="hint-chip ui-chip">tag:#timer</span>
+            </div>
           </div>
         </div>
 
@@ -63,17 +68,20 @@
 
         <div class="deck-row">
           <div id="categoryChips" class="filter-row" aria-label="Category filters"></div>
-          <div class="toggle-row-group" role="group" aria-label="View toggles">
-            <label class="toggle-row ui-check-row" for="pinnedOnly">
-              <input id="pinnedOnly" type="checkbox" />
-              <span>Pinned</span>
-            </label>
-            <label class="toggle-row ui-check-row" for="recentOnly">
-              <input id="recentOnly" type="checkbox" />
-              <span>Recent</span>
-            </label>
-            <button id="clearSearch" type="button" class="ghost-btn ui-btn ui-btn--ghost">Clear</button>
-          </div>
+          <details class="advanced-filters" id="advancedFilters">
+            <summary class="ghost-btn ui-btn ui-btn--ghost ui-btn--sm ds-btn ds-btn--neutral">Advanced Filters</summary>
+            <div class="toggle-row-group" role="group" aria-label="Advanced filters">
+              <label class="toggle-row ui-check-row" for="pinnedOnly">
+                <input id="pinnedOnly" type="checkbox" />
+                <span>Pinned</span>
+              </label>
+              <label class="toggle-row ui-check-row" for="recentOnly">
+                <input id="recentOnly" type="checkbox" />
+                <span>Recent</span>
+              </label>
+              <button id="clearSearch" type="button" class="ghost-btn ui-btn ui-btn--ghost ds-btn ds-btn--neutral">Clear</button>
+            </div>
+          </details>
         </div>
 
         <div class="status-strip ui-divider" aria-live="polite">
@@ -157,6 +165,29 @@
             </div>
           </div>
 
+          <section id="loadingState" class="state-card state-card--loading" aria-live="polite">
+            <h3>Loading tools</h3>
+            <p>Preparing launcher index and local preferences.</p>
+            <div class="state-skeleton-lines" aria-hidden="true">
+              <span class="ds-skeleton"></span>
+              <span class="ds-skeleton"></span>
+              <span class="ds-skeleton"></span>
+              <span class="ds-skeleton"></span>
+            </div>
+          </section>
+
+          <section id="errorState" class="state-card state-card--error is-hidden" role="status" aria-live="assertive">
+            <h3>Couldn’t render results</h3>
+            <p>Retry rendering the table. If this continues, review diagnostics.</p>
+            <div class="state-actions">
+              <button id="retryRenderBtn" type="button" class="ui-btn ds-btn ds-btn--danger">Retry</button>
+            </div>
+            <details class="state-diagnostics">
+              <summary>Diagnostics</summary>
+              <pre id="errorDiagnostics"></pre>
+            </details>
+          </section>
+
           <div class="table-scroll">
             <table class="tools-table">
               <thead>
@@ -174,7 +205,11 @@
           </div>
           <div id="toolCards" class="tools-card-grid" aria-live="polite"></div>
 
-          <p id="emptyState" class="empty-state is-hidden">No tools match the current filter.</p>
+          <section id="emptyState" class="empty-state is-hidden" aria-live="polite">
+            <h3>No tools match this filter</h3>
+            <p>Broaden your search terms or clear advanced filters to see more tools.</p>
+            <button id="emptyResetBtn" type="button" class="ui-btn ds-btn ds-btn--neutral">Reset Filters</button>
+          </section>
         </section>
       </section>
     </section>
@@ -211,6 +246,7 @@
       <li><kbd>Shift+y</kbd><span>copy source path</span></li>
     </ul>
   </section>
+  <div id="appToast" class="ds-toast" role="status" aria-live="polite" hidden></div>
 
   <svg class="icon-sprite" aria-hidden="true" focusable="false" width="0" height="0">
     <symbol id="i-zap" viewBox="0 0 24 24">
