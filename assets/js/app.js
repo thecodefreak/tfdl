@@ -51,6 +51,7 @@
     tableColumnsAllBtn: document.querySelector("#tableColumnsAllBtn"),
     sidebarLeftBtn: document.querySelector("#sidebarLeftBtn"),
     sidebarRightBtn: document.querySelector("#sidebarRightBtn"),
+    sidebarHideBtn: document.querySelector("#sidebarHideBtn"),
     tableViewBtn: document.querySelector("#tableViewBtn"),
     cardViewBtn: document.querySelector("#cardViewBtn"),
     resultsCount: document.querySelector("#resultsCount"),
@@ -177,6 +178,7 @@
     });
     refs.sidebarLeftBtn?.addEventListener("click", () => setSidebarSide("left"));
     refs.sidebarRightBtn?.addEventListener("click", () => setSidebarSide("right"));
+    refs.sidebarHideBtn?.addEventListener("click", () => setSidebarSide("hidden"));
     refs.tableViewBtn?.addEventListener("click", () => setViewMode("table"));
     refs.cardViewBtn?.addEventListener("click", () => setViewMode("cards"));
 
@@ -950,6 +952,7 @@
     refs.workspaceGrid?.setAttribute("data-sidebar-side", sidebarSide);
     if (refs.sidebarLeftBtn) refs.sidebarLeftBtn.setAttribute("aria-pressed", String(sidebarSide === "left"));
     if (refs.sidebarRightBtn) refs.sidebarRightBtn.setAttribute("aria-pressed", String(sidebarSide === "right"));
+    if (refs.sidebarHideBtn) refs.sidebarHideBtn.setAttribute("aria-pressed", String(sidebarSide === "hidden"));
   }
 
   function updateSelectedToolUI() {
@@ -1158,7 +1161,9 @@
   }
 
   function normalizeSidebarSide(value) {
-    return value === "right" ? "right" : "left";
+    if (value === "right") return "right";
+    if (value === "hidden") return "hidden";
+    return "left";
   }
 
   function loadTableColumns() {

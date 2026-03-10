@@ -485,6 +485,10 @@ kbd,
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.01);
 }
 
+.sidebar-list-panel {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
 .workspace-grid[data-view="cards"] {
   grid-template-columns: 320px minmax(0, 1fr);
   grid-template-areas: "sidebar results";
@@ -556,6 +560,22 @@ kbd,
 .stack-list {
   display: grid;
   gap: 6px;
+}
+
+.sidebar-list-panel .quick-list,
+.sidebar-list-panel .stack-list {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
+  scrollbar-gutter: stable;
+}
+
+.sidebar-list-panel--quick .quick-list {
+  max-height: min(52vh, 34rem);
+}
+
+.sidebar-list-panel--recent .stack-list {
+  max-height: min(36vh, 22rem);
 }
 
 .quick-list li,
@@ -1779,4 +1799,14 @@ input:focus-visible {
     transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+.workspace-grid[data-sidebar-side="hidden"],
+.workspace-grid[data-view="cards"][data-sidebar-side="hidden"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "results";
+}
+
+.workspace-grid[data-sidebar-side="hidden"] .sidebar {
+  display: none;
 }

@@ -829,3 +829,13 @@ body.theme-dark:not(.theme-terminal) .back-link:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-sidebar-side="hidden"],
+body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-view="cards"][data-sidebar-side="hidden"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "results";
+}
+
+body.dashboard-page.theme-dark:not(.theme-terminal) .workspace-grid[data-sidebar-side="hidden"] .sidebar {
+  display: none;
+}
