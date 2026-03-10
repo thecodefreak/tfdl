@@ -4,6 +4,7 @@
     canvasWrap: document.getElementById("canvasWrap"),
     canvasEmpty: document.getElementById("canvasEmpty"),
     fileInput: document.getElementById("fileInput"),
+    copyBtn: document.getElementById("copyBtn"),
     downloadBtn: document.getElementById("downloadBtn"),
     undoBtn: document.getElementById("undoBtn"),
     redoBtn: document.getElementById("redoBtn"),
@@ -93,6 +94,24 @@
     window.TFDLToast?.info(text, options);
   }
 
+  function isEditableElement(element) {
+    return (
+      element instanceof HTMLInputElement ||
+      element instanceof HTMLTextAreaElement ||
+      element instanceof HTMLSelectElement ||
+      element?.isContentEditable
+    );
+  }
+
+  function hasTextSelection() {
+    const selection = window.getSelection?.();
+    if (!selection || selection.isCollapsed) return false;
+    return String(selection).trim().length > 0;
+  }
+
+  let pendingCopyRequest = false;
+  let copyHandledByEvent = false;
+
   initialize();
 
   function initialize() {
@@ -118,6 +137,9 @@
     });
 
     refs.downloadBtn.addEventListener("click", downloadPNG);
+    refs.copyBtn.addEventListener("click", () => {
+      void requestCanvasCopy();
+    });
     refs.undoBtn.addEventListener("click", () => void undo());
     refs.redoBtn.addEventListener("click", () => void redo());
     refs.clearOverlaysBtn.addEventListener("click", clearOverlays);
@@ -177,6 +199,8 @@
         break;
       }
     });
+
+    document.addEventListener("copy", onDocumentCopy);
   }
 
   function bindCanvas() {
@@ -210,11 +234,19 @@
   function bindGlobalShortcuts() {
     window.addEventListener("keydown", (event) => {
       const active = document.activeElement;
-      const isTyping =
-        active instanceof HTMLInputElement ||
-        active instanceof HTMLTextAreaElement ||
-        active instanceof HTMLSelectElement ||
-        active?.isContentEditable;
+      const isTyping = isEditableElement(active);
+
+      const isCopyShortcut =
+        (event.ctrlKey || event.metaKey) &&
+        !event.shiftKey &&
+        !event.altKey &&
+        String(event.key || "").toLowerCase() === "c";
+
+      if (isCopyShortcut && state.baseImage && !isTyping && !hasTextSelection()) {
+        event.preventDefault();
+        void requestCanvasCopy();
+        return;
+      }
 
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
         event.preventDefault();
@@ -246,6 +278,64 @@
     });
   }
 
+  async function requestCanvasCopy() {
+    if (!state.baseImage) return;
+
+    focusCanvasWorkspace();
+    pendingCopyRequest = true;
+    copyHandledByEvent = false;
+    try {
+      if (typeof document.execCommand === "function") {
+        document.execCommand("copy");
+      }
+    } catch {
+      // Fall back to the async clipboard API below.
+    }
+    pendingCopyRequest = false;
+
+    if (copyHandledByEvent) return;
+
+    try {
+      await copyCurrentCanvasToClipboard();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      notifyToast("error", `Copy failed: ${message}`);
+    }
+  }
+
+  function onDocumentCopy(event) {
+    if (!state.baseImage) return;
+    if (!pendingCopyRequest && document.activeElement !== refs.canvasWrap) return;
+
+    const clipboard = event.clipboardData;
+    if (!clipboard) return;
+
+    try {
+      render();
+      const payload = buildClipboardPayload(refs.canvas, { fileName: "image-markup.png" });
+      if (!writeImagePayloadToClipboard(clipboard, payload)) return;
+      event.preventDefault();
+      copyHandledByEvent = true;
+      notifyToast("ok", "Copied canvas image to clipboard.");
+    } catch {
+      copyHandledByEvent = false;
+    }
+  }
+
+  async function copyCurrentCanvasToClipboard() {
+    if (typeof ClipboardItem !== "function" || !navigator.clipboard?.write) {
+      throw new Error("Browser clipboard image writes are unavailable.");
+    }
+
+    render();
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        "image/png": canvasToPngBlob(refs.canvas)
+      })
+    ]);
+    notifyToast("ok", "Copied canvas image to clipboard.");
+  }
+
   async function loadImageFromFile(file) {
     try {
       const dataURL = await fileToDataURL(file);
@@ -255,6 +345,7 @@
       pushHistory();
       render();
       refreshUI();
+      focusCanvasWorkspace();
       notifyToast("ok", `Loaded ${state.loadMeta.sourceWidth}x${state.loadMeta.sourceHeight} image.`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -271,6 +362,7 @@
       pushHistory();
       render();
       refreshUI();
+      focusCanvasWorkspace();
       notifyToast("ok", `Loaded ${state.loadMeta.sourceWidth}x${state.loadMeta.sourceHeight} image.`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -312,6 +404,7 @@
   }
 
   function onPointerDown(event) {
+    focusCanvasWorkspace();
     if (!ensureImageLoaded()) return;
     if (event.button !== 0) return;
     const p = getCanvasPoint(event);
@@ -1031,6 +1124,7 @@
     refs.undoBtn.disabled = state.historyIndex <= 0;
     refs.redoBtn.disabled = state.historyIndex >= state.history.length - 1 || state.historyIndex === -1;
     refs.downloadBtn.disabled = !hasImage;
+    refs.copyBtn.disabled = !hasImage;
     refs.clearOverlaysBtn.disabled = !hasActions;
     refs.flattenBtn.disabled = !hasImage;
     refs.applyResizeBtn.disabled = !hasImage;
@@ -1179,6 +1273,73 @@
     });
   }
 
+  function canvasToPngBlob(canvas) {
+    return new Promise((resolve, reject) => {
+      if (!canvas.toBlob) {
+        try {
+          resolve(dataURLToBlob(canvas.toDataURL("image/png")));
+        } catch (error) {
+          reject(error instanceof Error ? error : new Error(String(error)));
+        }
+        return;
+      }
+
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          reject(new Error("Browser returned an empty clipboard blob"));
+          return;
+        }
+        resolve(blob);
+      }, "image/png");
+    });
+  }
+
+  function buildClipboardPayload(canvas, options = {}) {
+    const fileName = options.fileName || "image-markup.png";
+    const dataURL = canvas.toDataURL("image/png");
+    return {
+      fileName,
+      dataURL,
+      blob: dataURLToBlob(dataURL)
+    };
+  }
+
+  function writeImagePayloadToClipboard(clipboard, payload) {
+    let wroteData = false;
+    if (clipboard.items && typeof clipboard.items.add === "function" && typeof File === "function") {
+      try {
+        clipboard.items.add(new File([payload.blob], payload.fileName, { type: "image/png" }));
+        wroteData = true;
+      } catch {
+        // Ignore and continue with HTML/text fallbacks.
+      }
+    }
+    try {
+      clipboard.setData("text/html", `<img src="${payload.dataURL}" alt="${payload.fileName}">`);
+      wroteData = true;
+    } catch {
+      // Ignore unsupported HTML clipboard writes.
+    }
+    try {
+      clipboard.setData("text/plain", payload.fileName);
+    } catch {
+      // Ignore unsupported plain text clipboard writes.
+    }
+    return wroteData;
+  }
+
+  function dataURLToBlob(dataURL) {
+    const [header, payload] = dataURL.split(",");
+    const mimeMatch = header.match(/data:([^;]+)/);
+    const mime = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+    const bytes = atob(payload);
+    const array = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i += 1) {
+      array[i] = bytes.charCodeAt(i);
+    }
+    return new Blob([array], { type: mime });
+  }
+
   function loadImageElement(src) {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -1186,5 +1347,9 @@
       img.onerror = () => reject(new Error("Failed to load image"));
       img.src = src;
     });
+  }
+
+  function focusCanvasWorkspace() {
+    refs.canvasWrap.focus({ preventScroll: true });
   }
 })();

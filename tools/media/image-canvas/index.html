@@ -26,12 +26,20 @@
       <div class="tool-toolbar">
         <div>
           <h2 id="canvas-tool-title">Canvas Workspace</h2>
-          <p class="toolbar-subtext">Upload, paste, or drop an image. Preview stays fixed-size for easier editing even when exporting large dimensions.</p>
+          <p class="toolbar-subtext">Upload, paste, or drop an image. Preview stays fixed-size for easier editing even when exporting large dimensions. Press <code>Ctrl/Cmd+C</code> to copy the current output.</p>
         </div>
         <div class="toolbar-actions">
           <button class="action-btn accent-btn" id="chooseImageBtn" type="button">Choose Image</button>
           <button class="action-btn" id="pasteImageBtn" type="button">Paste Image</button>
           <button class="action-btn" id="clearImageBtn" type="button">Clear Image</button>
+          <button class="action-btn" id="copyImageBtn" type="button">
+            <span class="icon-label">
+              <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M8 7V3.75A1.75 1.75 0 0 1 9.75 2h8.5A1.75 1.75 0 0 1 20 3.75v12.5A1.75 1.75 0 0 1 18.25 18H15v2.25A1.75 1.75 0 0 1 13.25 22h-8.5A1.75 1.75 0 0 1 3 20.25V7.75A1.75 1.75 0 0 1 4.75 6H8Zm2 0h3.25A1.75 1.75 0 0 1 15 8.75V16h3V4H10v3Zm-5 1v12h8V8H5Z"/>
+              </svg>
+              <span>Copy</span>
+            </span>
+          </button>
           <button class="action-btn" id="downloadBtn" type="button">Download</button>
           <input id="imageFileInput" type="file" accept="image/*" hidden />
         </div>

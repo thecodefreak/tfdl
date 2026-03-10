@@ -40,6 +40,10 @@
   color: #bdeaff;
 }
 
+.toolbar-actions #copyImageBtn .ui-icon {
+  opacity: 0.95;
+}
+
 .canvas-layout {
   display: grid;
   grid-template-columns: 360px minmax(0, 1fr) 340px;
@@ -373,6 +377,11 @@
 
 .empty-stage-overlay {
   color: var(--text-dim);
+}
+
+.empty-stage-overlay[hidden],
+.preview-stage.has-image .empty-stage-overlay {
+  display: none !important;
 }
 
 .empty-stage-overlay p {

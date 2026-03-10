@@ -40,6 +40,10 @@
   align-items: center;
 }
 
+#copyBtn .ui-icon {
+  opacity: 0.95;
+}
+
 .editor-grid {
   display: grid;
   grid-template-columns: 330px minmax(0, 1fr);
@@ -249,6 +253,11 @@
     linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.02) 75%) 0 0/16px 16px,
     linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.02) 75%) 0 0/16px 16px,
     rgba(0, 0, 0, 0.08);
+}
+
+.canvas-wrap:focus {
+  outline: 1px solid rgba(110, 203, 255, 0.34);
+  outline-offset: -6px;
 }
 
 #canvas {

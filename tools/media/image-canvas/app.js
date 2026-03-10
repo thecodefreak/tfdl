@@ -56,6 +56,7 @@
     chooseImageBtn: document.getElementById("chooseImageBtn"),
     pasteImageBtn: document.getElementById("pasteImageBtn"),
     clearImageBtn: document.getElementById("clearImageBtn"),
+    copyImageBtn: document.getElementById("copyImageBtn"),
     downloadBtn: document.getElementById("downloadBtn"),
     downloadPngBtn: document.getElementById("downloadPngBtn"),
     imageFileInput: document.getElementById("imageFileInput"),
@@ -135,6 +136,24 @@
     }
     window.TFDLToast?.info(text, options);
   }
+
+  function isEditableElement(element) {
+    return (
+      element instanceof HTMLInputElement ||
+      element instanceof HTMLTextAreaElement ||
+      element instanceof HTMLSelectElement ||
+      element?.isContentEditable
+    );
+  }
+
+  function hasTextSelection() {
+    const selection = window.getSelection?.();
+    if (!selection || selection.isCollapsed) return false;
+    return String(selection).trim().length > 0;
+  }
+
+  let pendingCopyRequest = false;
+  let copyHandledByEvent = false;
 
   const state = {
     canvasWidth: DEFAULTS.canvasWidth,
@@ -255,6 +274,9 @@
     refs.imageFileInput.addEventListener("change", onFileInputChange);
     refs.pasteImageBtn.addEventListener("click", onPasteImageButtonClick);
     refs.clearImageBtn.addEventListener("click", clearImage);
+    refs.copyImageBtn.addEventListener("click", () => {
+      void requestCanvasCopy();
+    });
 
     refs.downloadBtn.addEventListener("click", downloadCurrentCanvas);
     refs.downloadPngBtn.addEventListener("click", downloadCurrentCanvas);
@@ -378,6 +400,8 @@
     bindDropZoneEvents();
     bindClipboardPasteEvent();
 
+    document.addEventListener("copy", onDocumentCopy);
+    window.addEventListener("keydown", onGlobalKeydown);
     window.addEventListener("beforeunload", flushPersistSettings);
   }
 
@@ -538,6 +562,7 @@
       updateAllUi();
       queueRender();
       schedulePersistSettings();
+      focusCopySurface();
       const message = `Loaded ${state.source.width}x${state.source.height} image.`;
       setStatus("ok", `Loaded ${state.source.width}×${state.source.height} image.`);
       notifyToast("ok", message);
@@ -611,6 +636,20 @@
 
   function onPresetSelectChanged() {
     applyPreset(refs.presetSelect.value);
+  }
+
+  function onGlobalKeydown(event) {
+    const isCopyShortcut =
+      (event.ctrlKey || event.metaKey) &&
+      !event.shiftKey &&
+      !event.altKey &&
+      String(event.key || "").toLowerCase() === "c";
+
+    if (!isCopyShortcut || !state.source || event.defaultPrevented) return;
+    if (isEditableElement(document.activeElement) || hasTextSelection()) return;
+
+    event.preventDefault();
+    void requestCanvasCopy();
   }
 
   function applyPreset(presetId) {
@@ -867,9 +906,12 @@
 
   function updateActionStates() {
     refs.clearImageBtn.disabled = !state.source;
+    refs.copyImageBtn.disabled = !state.source;
     refs.useSourceSizeBtn.disabled = !state.source;
     const noImage = !state.source;
+    refs.previewStage.classList.toggle("has-image", !noImage);
     refs.emptyStageOverlay.hidden = !noImage;
+    refs.emptyStageOverlay.setAttribute("aria-hidden", String(!noImage));
     refs.previewCanvas.classList.toggle("no-image", noImage);
   }
 
@@ -1204,29 +1246,139 @@
     touchState({ render: true, persist: true, syncFraming: true });
   }
 
-  async function downloadCurrentCanvas() {
+  async function requestCanvasCopy() {
+    if (!state.source) return;
+
+    focusCopySurface();
+    pendingCopyRequest = true;
+    copyHandledByEvent = false;
+    try {
+      if (typeof document.execCommand === "function") {
+        document.execCommand("copy");
+      }
+    } catch {
+      // Fall back to the async clipboard API below.
+    }
+    pendingCopyRequest = false;
+
+    if (copyHandledByEvent) return;
+
+    try {
+      await copyCurrentCanvasToClipboard();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setStatus("error", `Copy failed: ${message}`);
+      notifyToast("error", `Copy failed: ${message}`);
+    }
+  }
+
+  function onDocumentCopy(event) {
+    if (!state.source) return;
+    if (!pendingCopyRequest && document.activeElement !== refs.previewStage) return;
+
+    const clipboard = event.clipboardData;
+    if (!clipboard) return;
+
+    try {
+      const payload = buildClipboardPayload(buildOutputCanvas(), {
+        fileName: buildCanvasCopyFileName()
+      });
+      if (!writeImagePayloadToClipboard(clipboard, payload)) return;
+      event.preventDefault();
+      copyHandledByEvent = true;
+      setStatus("ok", "Copied canvas image to clipboard.");
+      notifyToast("ok", "Copied canvas image to clipboard.");
+      flashButton(refs.copyImageBtn);
+    } catch {
+      copyHandledByEvent = false;
+    }
+  }
+
+  async function copyCurrentCanvasToClipboard() {
+    if (typeof ClipboardItem !== "function" || !navigator.clipboard?.write) {
+      throw new Error("Browser clipboard image writes are unavailable.");
+    }
+
+    const outCanvas = buildOutputCanvas();
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        "image/png": canvasToBlobWithFormat(outCanvas, "png", 1).then(({ blob }) => blob)
+      })
+    ]);
+    setStatus("ok", "Copied canvas image to clipboard.");
+    notifyToast("ok", "Copied canvas image to clipboard.");
+    flashButton(refs.copyImageBtn);
+  }
+
+  function buildOutputCanvas() {
     const outCanvas = document.createElement("canvas");
     outCanvas.width = state.canvasWidth;
     outCanvas.height = state.canvasHeight;
     const ctx = outCanvas.getContext("2d", { alpha: true });
     if (!ctx) {
-      setStatus("error", "Canvas export context unavailable.");
-      notifyToast("error", "Canvas export context unavailable.");
-      return;
+      throw new Error("Canvas export context unavailable.");
     }
 
-    try {
-      drawCanvasSurface(ctx, {
-        width: state.canvasWidth,
-        height: state.canvasHeight,
-        sourceNode: state.source?.image || null,
-        sourceWidth: state.source?.width || 0,
-        sourceHeight: state.source?.height || 0,
-        showChecker: false,
-        showGuides: false,
-        includeTransparent: state.transparentBackground && state.exportFormat !== "jpeg"
-      });
+    drawCanvasSurface(ctx, {
+      width: state.canvasWidth,
+      height: state.canvasHeight,
+      sourceNode: state.source?.image || null,
+      sourceWidth: state.source?.width || 0,
+      sourceHeight: state.source?.height || 0,
+      showChecker: false,
+      showGuides: false,
+      includeTransparent: state.transparentBackground && state.exportFormat !== "jpeg"
+    });
 
+    return outCanvas;
+  }
+
+  function buildCanvasCopyFileName() {
+    const baseName = slugifyFilename(stripExtension(state.source?.name || "canvas-image")) || "canvas-image";
+    return `${baseName}-${state.canvasWidth}x${state.canvasHeight}.png`;
+  }
+
+  function buildClipboardPayload(canvas, options = {}) {
+    const fileName = options.fileName || "image.png";
+    const dataUrl = canvas.toDataURL("image/png");
+    return {
+      fileName,
+      dataUrl,
+      blob: dataUrlToBlob(dataUrl)
+    };
+  }
+
+  function writeImagePayloadToClipboard(clipboard, payload) {
+    let wroteData = false;
+    if (clipboard.items && typeof clipboard.items.add === "function" && typeof File === "function") {
+      try {
+        clipboard.items.add(new File([payload.blob], payload.fileName, { type: "image/png" }));
+        wroteData = true;
+      } catch {
+        // Ignore and continue with HTML/text clipboard fallbacks.
+      }
+    }
+    try {
+      clipboard.setData("text/html", `<img src="${payload.dataUrl}" alt="${escapeHtml(payload.fileName)}">`);
+      wroteData = true;
+    } catch {
+      // Ignore unsupported HTML clipboard writes.
+    }
+    try {
+      clipboard.setData("text/plain", payload.fileName);
+    } catch {
+      // Ignore unsupported plain text clipboard writes.
+    }
+    return wroteData;
+  }
+
+  function focusCopySurface() {
+    refs.previewStage.focus({ preventScroll: true });
+  }
+
+  async function downloadCurrentCanvas() {
+    try {
+      const outCanvas = buildOutputCanvas();
       const { blob, extension } = await canvasToBlobWithFormat(outCanvas, state.exportFormat, state.exportQuality);
       const baseName = slugifyFilename(stripExtension(state.source?.name || "canvas-image")) || "canvas-image";
       const fileName = `${baseName}-${state.canvasWidth}x${state.canvasHeight}.${extension}`;
