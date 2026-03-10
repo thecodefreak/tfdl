@@ -75,6 +75,24 @@
     }
   };
 
+  function notifyToast(kind, message, options = {}) {
+    const text = String(message || "").trim();
+    if (!text) return;
+    if (kind === "ok" || kind === "success") {
+      window.TFDLToast?.success(text, options);
+      return;
+    }
+    if (kind === "warn" || kind === "warning") {
+      window.TFDLToast?.warning(text, options);
+      return;
+    }
+    if (kind === "error" || kind === "danger") {
+      window.TFDLToast?.error(text, options);
+      return;
+    }
+    window.TFDLToast?.info(text, options);
+  }
+
   initialize();
 
   function initialize() {
@@ -229,23 +247,35 @@
   }
 
   async function loadImageFromFile(file) {
-    const dataURL = await fileToDataURL(file);
-    await loadBaseImage(dataURL, { respectEditCap: true, autoFitView: true });
-    state.actions = [];
-    state.selectedActionId = null;
-    pushHistory();
-    render();
-    refreshUI();
+    try {
+      const dataURL = await fileToDataURL(file);
+      await loadBaseImage(dataURL, { respectEditCap: true, autoFitView: true });
+      state.actions = [];
+      state.selectedActionId = null;
+      pushHistory();
+      render();
+      refreshUI();
+      notifyToast("ok", `Loaded ${state.loadMeta.sourceWidth}x${state.loadMeta.sourceHeight} image.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      notifyToast("error", `Image load failed: ${message}`);
+    }
   }
 
   async function loadImageFromBlob(blob) {
-    const dataURL = await blobToDataURL(blob);
-    await loadBaseImage(dataURL, { respectEditCap: true, autoFitView: true });
-    state.actions = [];
-    state.selectedActionId = null;
-    pushHistory();
-    render();
-    refreshUI();
+    try {
+      const dataURL = await blobToDataURL(blob);
+      await loadBaseImage(dataURL, { respectEditCap: true, autoFitView: true });
+      state.actions = [];
+      state.selectedActionId = null;
+      pushHistory();
+      render();
+      refreshUI();
+      notifyToast("ok", `Loaded ${state.loadMeta.sourceWidth}x${state.loadMeta.sourceHeight} image.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      notifyToast("error", `Image load failed: ${message}`);
+    }
   }
 
   async function loadBaseImage(dataURL, options = {}) {
@@ -718,11 +748,13 @@
 
   function clearOverlays() {
     if (!state.actions.length) return;
+    const actionCount = state.actions.length;
     state.actions = [];
     state.selectedActionId = null;
     pushHistory();
     refreshUI();
     render();
+    notifyToast("ok", `Cleared ${actionCount} overlay action${actionCount === 1 ? "" : "s"}.`);
   }
 
   async function flattenIntoBase() {
@@ -744,6 +776,7 @@
     pushHistory();
     refreshUI();
     render();
+    notifyToast("ok", "Flattened overlays into the base image.");
   }
 
   async function resizeCanvasFromInputs() {
@@ -751,7 +784,7 @@
     const nextW = parseInt(refs.resizeWidth.value, 10);
     const nextH = parseInt(refs.resizeHeight.value, 10);
     if (!Number.isFinite(nextW) || !Number.isFinite(nextH) || nextW <= 0 || nextH <= 0) {
-      alert("Enter valid width/height values.");
+      notifyToast("warn", "Enter valid width/height values.");
       return;
     }
 
@@ -778,6 +811,7 @@
     pushHistory();
     refreshUI();
     render();
+    notifyToast("ok", `Resized canvas to ${nextW}x${nextH}.`);
   }
 
   async function applyEditCapToCurrent() {
@@ -790,6 +824,11 @@
     pushHistory();
     refreshUI();
     render();
+    if (state.loadMeta.downscaled) {
+      notifyToast("ok", `Applied max edit size. Working canvas is now ${state.width}x${state.height}.`);
+      return;
+    }
+    notifyToast("ok", "Applied the current max edit size setting.");
   }
 
   async function prepareWorkingImage(image, sourceDataURL, options = {}) {
@@ -877,14 +916,20 @@
 
   function downloadPNG() {
     if (!state.baseImage) {
-      alert("Upload or paste an image first.");
+      notifyToast("warn", "Upload or paste an image first.");
       return;
     }
-    render();
-    const link = document.createElement("a");
-    link.download = "image-markup.png";
-    link.href = refs.canvas.toDataURL("image/png");
-    link.click();
+    try {
+      render();
+      const link = document.createElement("a");
+      link.download = "image-markup.png";
+      link.href = refs.canvas.toDataURL("image/png");
+      link.click();
+      notifyToast("ok", "Downloaded image-markup.png.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      notifyToast("error", `Download failed: ${message}`);
+    }
   }
 
   async function undo() {

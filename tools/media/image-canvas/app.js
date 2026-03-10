@@ -118,6 +118,24 @@
     statusMessage: document.getElementById("statusMessage")
   };
 
+  function notifyToast(kind, message, options = {}) {
+    const text = String(message || "").trim();
+    if (!text) return;
+    if (kind === "ok" || kind === "success") {
+      window.TFDLToast?.success(text, options);
+      return;
+    }
+    if (kind === "warn" || kind === "warning") {
+      window.TFDLToast?.warning(text, options);
+      return;
+    }
+    if (kind === "error" || kind === "danger") {
+      window.TFDLToast?.error(text, options);
+      return;
+    }
+    window.TFDLToast?.info(text, options);
+  }
+
   const state = {
     canvasWidth: DEFAULTS.canvasWidth,
     canvasHeight: DEFAULTS.canvasHeight,
@@ -393,7 +411,9 @@
 
   async function onPasteImageButtonClick() {
     if (!navigator.clipboard?.read) {
-      setStatus("warn", "Clipboard image read API not available. Use Ctrl/Cmd+V on the page.");
+      const message = "Clipboard image read API not available. Use Ctrl/Cmd+V on the page.";
+      setStatus("warn", message);
+      notifyToast("warn", message);
       return;
     }
 
@@ -409,9 +429,11 @@
         return;
       }
       setStatus("warn", "Clipboard does not contain an image.");
+      notifyToast("warn", "Clipboard does not contain an image.");
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setStatus("error", `Paste failed: ${message}`);
+      notifyToast("error", `Paste failed: ${message}`);
     }
   }
 
@@ -460,6 +482,7 @@
       const file = getFirstImageFileFromDragEvent(event);
       if (!file) {
         setStatus("warn", "Dropped files did not include an image.");
+        notifyToast("warn", "Dropped files did not include an image.");
         return;
       }
       loadImageFromFile(file);
@@ -481,6 +504,7 @@
   async function loadImageFromFile(file) {
     if (!file.type.startsWith("image/")) {
       setStatus("warn", "Selected file is not an image.");
+      notifyToast("warn", "Selected file is not an image.");
       return;
     }
     await loadImageFromBlob(file, file.name || "image");
@@ -514,11 +538,14 @@
       updateAllUi();
       queueRender();
       schedulePersistSettings();
+      const message = `Loaded ${state.source.width}x${state.source.height} image.`;
       setStatus("ok", `Loaded ${state.source.width}×${state.source.height} image.`);
+      notifyToast("ok", message);
     } catch (error) {
       URL.revokeObjectURL(objectUrl);
       const message = error instanceof Error ? error.message : String(error);
       setStatus("error", `Image load failed: ${message}`);
+      notifyToast("error", `Image load failed: ${message}`);
     }
   }
 
@@ -535,6 +562,7 @@
     queueRender();
     schedulePersistSettings();
     setStatus("idle", "Image cleared.");
+    notifyToast("info", "Image cleared.");
   }
 
   function releaseSourceObjectUrl() {
@@ -642,6 +670,7 @@
   function useSourceSize() {
     if (!state.source) {
       setStatus("warn", "Load an image first.");
+      notifyToast("warn", "Load an image first.");
       return;
     }
 
@@ -685,6 +714,7 @@
     queueRender();
     schedulePersistSettings();
     setStatus("ok", "Settings reset to defaults.");
+    notifyToast("ok", "Settings reset to defaults.");
     flashButton(refs.resetAllBtn);
   }
 
@@ -1181,6 +1211,7 @@
     const ctx = outCanvas.getContext("2d", { alpha: true });
     if (!ctx) {
       setStatus("error", "Canvas export context unavailable.");
+      notifyToast("error", "Canvas export context unavailable.");
       return;
     }
 
@@ -1201,11 +1232,13 @@
       const fileName = `${baseName}-${state.canvasWidth}x${state.canvasHeight}.${extension}`;
       downloadBlob(blob, fileName);
       setStatus("ok", `Downloaded ${fileName}.`);
+      notifyToast("ok", `Downloaded ${fileName}.`);
       flashButton(refs.downloadBtn);
       flashButton(refs.downloadPngBtn);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setStatus("error", `Export failed: ${message}`);
+      notifyToast("error", `Export failed: ${message}`);
     }
   }
 
