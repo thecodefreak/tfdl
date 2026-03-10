@@ -1,7 +1,7 @@
 # TFDL (Tools For Dev Life)
 
 TFDL is a local-first launcher for browser-based utility tools (formatters, timers,
-calculators, writing helpers, finance tools, and more). It is designed for fast
+calculators, writing helpers, media tools, and more). It is designed for fast
 keyboard use, predictable paths, and zero frontend build tooling.
 
 You can use it in two ways:
@@ -140,7 +140,7 @@ Aliases are generated dynamically by the Go server from
 ## Launcher Features
 
 - Search by name, alias, category, path, and description
-- Token filters such as `@dev`, `@finance`, `#json`, `#timer`
+- Token filters such as `@dev`, `@media`, `#json`, `#timer`
 - Pin tools and store recents in browser `localStorage`
 - Copy alias path and source path from the launcher
 - Open top visible results with `1..0`

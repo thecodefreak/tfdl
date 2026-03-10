@@ -3,7 +3,6 @@ window.TOOLS_REGISTRY = {
     { id: "dev", label: "Dev" },
     { id: "productivity", label: "Productivity" },
     { id: "utilities", label: "Utilities" },
-    { id: "finance", label: "Finance" },
     { id: "media", label: "Media" },
     { id: "writing", label: "Writing" }
   ],
@@ -79,15 +78,6 @@ window.TOOLS_REGISTRY = {
       category: "utilities",
       description: "Create strong random passwords or passphrases locally.",
       tags: ["password", "security", "random", "passphrase"]
-    },
-    {
-      id: "budget-snapshot",
-      slug: "budget-snapshot",
-      alias: "budget",
-      name: "Budget Snapshot",
-      category: "finance",
-      description: "Track quick income and expense totals to estimate remaining budget.",
-      tags: ["budget", "finance", "money", "expenses"]
     },
     {
       id: "color-palette",

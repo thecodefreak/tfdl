@@ -26,7 +26,6 @@ the single source of truth for aliases.
 - `dev/`
 - `productivity/`
 - `utilities/`
-- `finance/`
 - `media/`
 - `writing/`
 

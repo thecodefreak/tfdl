@@ -25,7 +25,6 @@
     dev: "braces",
     productivity: "clock",
     utilities: "wrench",
-    finance: "wallet",
     media: "image",
     writing: "pen"
   };
