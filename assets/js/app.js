@@ -72,8 +72,7 @@
     emptyState: document.querySelector("#emptyState"),
     emptyResetBtn: document.querySelector("#emptyResetBtn"),
     quickLaunchList: document.querySelector("#quickLaunchList"),
-    recentList: document.querySelector("#recentList"),
-    appToast: document.querySelector("#appToast")
+    recentList: document.querySelector("#recentList")
   };
 
   const categories = normalizeCategories(registry.categories || [], registry.tools);
@@ -90,7 +89,6 @@
   let sidebarSide = loadSidebarSide();
   let tableColumns = loadTableColumns();
   let shortcutsReturnFocusEl = null;
-  let toastTimer = null;
 
   setLoadingState(true);
   hideErrorState();
@@ -161,7 +159,7 @@
     refs.recentOnlyInput?.addEventListener("change", requestRender);
     refs.openSelectedBtn?.addEventListener("click", () => {
       if (!selectedToolId) {
-        showToast("Select a tool first.", "warning");
+        window.TFDLToast?.warning("Select a tool first.");
         refs.searchInput?.focus();
         return;
       }
@@ -383,12 +381,12 @@
       if (!tool) return;
       if (event.shiftKey) {
         void copyText(tool.canonicalPath)
-          .then(() => showToast(`Copied ${tool.canonicalPath}`, "success"))
-          .catch(() => showToast("Copy failed. Try again.", "danger"));
+          .then(() => window.TFDLToast?.success(`Copied ${tool.canonicalPath}`))
+          .catch(() => window.TFDLToast?.error("Copy failed. Try again."));
       } else {
         void copyText(tool.aliasPath)
-          .then(() => showToast(`Copied ${tool.aliasPath}`, "success"))
-          .catch(() => showToast("Copy failed. Try again.", "danger"));
+          .then(() => window.TFDLToast?.success(`Copied ${tool.aliasPath}`))
+          .catch(() => window.TFDLToast?.error("Copy failed. Try again."));
       }
       return;
     }
@@ -698,7 +696,7 @@
       refs.errorDiagnostics.textContent = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
     }
     syncEmptyState();
-    showToast("Render failed. Check diagnostics.", "danger");
+    window.TFDLToast?.error("Render failed. Check diagnostics.");
     // Keep an exception trace in dev tools for debugging.
     console.error(error);
   }
@@ -1004,10 +1002,10 @@
       void copyText(tool.aliasPath)
         .then(() => {
           flashButton(button);
-          showToast(`Copied ${tool.aliasPath}`, "success");
+          window.TFDLToast?.success(`Copied ${tool.aliasPath}`);
         })
         .catch(() => {
-          showToast("Copy failed. Try again.", "danger");
+          window.TFDLToast?.error("Copy failed. Try again.");
         });
       return false;
     }
@@ -1016,10 +1014,10 @@
       void copyText(tool.canonicalPath)
         .then(() => {
           flashButton(button);
-          showToast(`Copied ${tool.canonicalPath}`, "success");
+          window.TFDLToast?.success(`Copied ${tool.canonicalPath}`);
         })
         .catch(() => {
-          showToast("Copy failed. Try again.", "danger");
+          window.TFDLToast?.error("Copy failed. Try again.");
         });
       return false;
     }
@@ -1085,29 +1083,6 @@
       button.classList.remove("copy-ok");
       button.innerHTML = originalHtml;
     }, 700);
-  }
-
-  function showToast(message, tone = "neutral") {
-    if (!refs.appToast) return;
-    refs.appToast.hidden = false;
-    refs.appToast.textContent = message;
-    refs.appToast.dataset.tone = tone;
-    refs.appToast.classList.add("is-visible");
-
-    if (toastTimer) {
-      window.clearTimeout(toastTimer);
-      toastTimer = null;
-    }
-
-    toastTimer = window.setTimeout(() => {
-      refs.appToast?.classList.remove("is-visible");
-      window.setTimeout(() => {
-        if (!refs.appToast) return;
-        refs.appToast.hidden = true;
-        refs.appToast.textContent = "";
-        refs.appToast.removeAttribute("data-tone");
-      }, 180);
-    }, 1800);
   }
 
   function stampDate() {
