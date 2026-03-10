@@ -2,6 +2,7 @@
   const PINS_KEY = "tools-workspace-pins";
   const RECENTS_KEY = "tools-workspace-recents";
   const VIEW_MODE_KEY = "tools-workspace-view-mode";
+  const SIDEBAR_SIDE_KEY = "tools-workspace-sidebar-side";
   const TABLE_COLUMNS_KEY = "tools-workspace-table-columns";
   const MAX_RECENTS = 12;
   const TABLE_COLUMNS = [
@@ -48,6 +49,8 @@
     tableColumnChecklist: document.querySelector("#tableColumnChecklist"),
     tableColumnsEssentialsBtn: document.querySelector("#tableColumnsEssentialsBtn"),
     tableColumnsAllBtn: document.querySelector("#tableColumnsAllBtn"),
+    sidebarLeftBtn: document.querySelector("#sidebarLeftBtn"),
+    sidebarRightBtn: document.querySelector("#sidebarRightBtn"),
     tableViewBtn: document.querySelector("#tableViewBtn"),
     cardViewBtn: document.querySelector("#cardViewBtn"),
     resultsCount: document.querySelector("#resultsCount"),
@@ -83,6 +86,7 @@
   let selectedToolId = null;
   let visibleTools = [];
   let viewMode = loadViewMode();
+  let sidebarSide = loadSidebarSide();
   let tableColumns = loadTableColumns();
   let shortcutsReturnFocusEl = null;
   let toastTimer = null;
@@ -97,6 +101,7 @@
   bindEvents();
   seedSelectionFromHash();
   applyViewModeUI();
+  applySidebarSideUI();
   requestRender();
 
   function normalizeCategories(inputCategories, inputTools) {
@@ -170,6 +175,8 @@
       applyTableColumnPreset("all");
       refs.tableColumnMenu?.removeAttribute("open");
     });
+    refs.sidebarLeftBtn?.addEventListener("click", () => setSidebarSide("left"));
+    refs.sidebarRightBtn?.addEventListener("click", () => setSidebarSide("right"));
     refs.tableViewBtn?.addEventListener("click", () => setViewMode("table"));
     refs.cardViewBtn?.addEventListener("click", () => setViewMode("cards"));
 
@@ -905,7 +912,7 @@
     if (refs.resultsCount) {
       refs.resultsCount.textContent = `${visibleCount}/${totalCount} visible • ${pinnedCount} pinned • ${recentCount} recent • category:${categoryLabel}${
         viewMode === "table" ? ` • cols:${visibleTableColumns}/${TABLE_COLUMNS.length}` : ""
-      }`;
+      } • side:${sidebarSide}`;
     }
 
     if (refs.statusHint) {
@@ -928,6 +935,21 @@
     refs.resultsPanel?.setAttribute("data-view", viewMode);
     if (refs.tableViewBtn) refs.tableViewBtn.setAttribute("aria-pressed", String(viewMode === "table"));
     if (refs.cardViewBtn) refs.cardViewBtn.setAttribute("aria-pressed", String(viewMode === "cards"));
+  }
+
+  function setSidebarSide(nextSide) {
+    const normalized = normalizeSidebarSide(nextSide);
+    if (normalized === sidebarSide) return;
+    sidebarSide = normalized;
+    persistSidebarSide(sidebarSide);
+    applySidebarSideUI();
+    renderStatus();
+  }
+
+  function applySidebarSideUI() {
+    refs.workspaceGrid?.setAttribute("data-sidebar-side", sidebarSide);
+    if (refs.sidebarLeftBtn) refs.sidebarLeftBtn.setAttribute("aria-pressed", String(sidebarSide === "left"));
+    if (refs.sidebarRightBtn) refs.sidebarRightBtn.setAttribute("aria-pressed", String(sidebarSide === "right"));
   }
 
   function updateSelectedToolUI() {
@@ -1135,6 +1157,10 @@
     return value === "cards" ? "cards" : "table";
   }
 
+  function normalizeSidebarSide(value) {
+    return value === "right" ? "right" : "left";
+  }
+
   function loadTableColumns() {
     try {
       const raw = localStorage.getItem(TABLE_COLUMNS_KEY);
@@ -1245,9 +1271,28 @@
     return "table";
   }
 
+  function loadSidebarSide() {
+    try {
+      const raw = localStorage.getItem(SIDEBAR_SIDE_KEY);
+      if (raw) return normalizeSidebarSide(raw);
+    } catch {
+      // localStorage can be unavailable
+    }
+
+    return "left";
+  }
+
   function persistViewMode(mode) {
     try {
       localStorage.setItem(VIEW_MODE_KEY, normalizeViewMode(mode));
+    } catch {
+      // localStorage can be unavailable in some environments
+    }
+  }
+
+  function persistSidebarSide(side) {
+    try {
+      localStorage.setItem(SIDEBAR_SIDE_KEY, normalizeSidebarSide(side));
     } catch {
       // localStorage can be unavailable in some environments
     }
